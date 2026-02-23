@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 2 of 7 (Infrastructure & User Management)
-Plan: 5 of 5 in current phase
-Status: Phase 2 complete
-Last activity: 2026-02-23 — Completed 02-05 (Phase 2 end-to-end verification: RLS isolation confirmed, auth working, avatar creation with age validation, server health passing)
+Phase: 3 of 7 (Core Intelligence & Mode Switching)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-23 — Completed 03-01 (LLM service abstraction layer: LLMProvider Protocol, OpenAIProvider, system prompt templates, config extensions)
 
 Progress: [████░░░░░░] 50%
 
@@ -34,6 +34,7 @@ Progress: [████░░░░░░] 50%
 | 02-infrastructure-user-management P03 | 15 min | 2 tasks | 5 files |
 | 02-infrastructure-user-management P04 | 15 min | 2 tasks | 6 files |
 | 02-infrastructure-user-management P05 | 15 min | 2 tasks | 0 files |
+| 03-core-intelligence-mode-switching P01 | 9 min | 2 tasks | 6 files |
 
 **Recent Trend:**
 - Last 5 plans: 19 min, 15 min, 15 min, 15 min, 15 min
@@ -49,6 +50,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - All decisions currently pending validation during implementation
+- [Phase 03-core-intelligence-mode-switching]: LLMProvider uses Python Protocol (structural typing) not ABC — any class with async complete() satisfies it without inheritance
+- [Phase 03-core-intelligence-mode-switching]: AsyncOpenAI with max_retries=1 delegates retry logic to SDK; except block returns user-friendly fallback message
+- [Phase 03-core-intelligence-mode-switching]: System prompt templates are pure functions accepting avatar_name and personality at runtime — no hardcoded strings
+- [Phase 03-core-intelligence-mode-switching]: openai_api_key defaults to empty string in Settings — missing key returns fallback message, not 500 error at startup
 - [Phase 01-foundation-compliance]: Provider pattern for age verification: all checks go through AgeVerificationManager.verifyAge(), swapping from self-declaration to ID verification is a config change not code rewrite
 - [Phase 01-foundation-compliance]: WhatsApp NSFW images delivered via JWT-signed web portal links (not WhatsApp attachments) to comply with WhatsApp Business API policy
 - [Phase 01-foundation-compliance]: Avatar age floor is 20+ (not 18+), enforced at DB level with CHECK constraint and form validation
@@ -79,5 +84,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 02-infrastructure-user-management-05-PLAN.md — Phase 2 end-to-end verification complete, phase 2 fully done
+Stopped at: Completed 03-core-intelligence-mode-switching-01-PLAN.md — LLM service abstraction layer complete
 Resume file: None

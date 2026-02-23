@@ -9,7 +9,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Core Chat
 
-- [ ] **CHAT-01**: User can have text-based conversations with the AI in both secretary and intimate modes
+- [x] **CHAT-01**: User can have text-based conversations with the AI in both secretary and intimate modes
 - [ ] **CHAT-02**: Bot remembers context within the current conversation session
 - [ ] **CHAT-03**: User can switch to intimate mode using a safe word ("I'm alone" or similar) with fuzzy intent detection
 - [ ] **CHAT-04**: User can switch back to secretary mode using a trigger ("stop" or similar) with fuzzy intent detection
@@ -64,7 +64,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Architecture
 
 - [ ] **ARCH-01**: Modular skill system — new capabilities (OCR, memory, agentic skills) can be added as plugins
-- [ ] **ARCH-02**: Modular AI layer — LLM provider is swappable without changing business logic
+- [x] **ARCH-02**: Modular AI layer — LLM provider is swappable without changing business logic
 - [ ] **ARCH-03**: Modular image generation — image API provider is swappable without changing photo flow
 - [x] **ARCH-04**: Cloud-hosted on VPS/AWS, always-on for message handling
 
@@ -133,12 +133,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | USER-02 | Phase 2 | Complete |
 | USER-03 | Phase 2 | Complete |
 | PLAT-01 | Phase 2 | Complete |
-| CHAT-01 | Phase 3 | Pending |
+| CHAT-01 | Phase 3 | Complete |
 | CHAT-02 | Phase 3 | Pending |
 | CHAT-03 | Phase 3 | Pending |
 | CHAT-04 | Phase 3 | Pending |
 | CHAT-05 | Phase 3 | Pending |
-| ARCH-02 | Phase 3 | Pending |
+| ARCH-02 | Phase 3 | Complete |
 | SECR-01 | Phase 4 | Pending |
 | SECR-02 | Phase 4 | Pending |
 | SECR-03 | Phase 4 | Pending |
