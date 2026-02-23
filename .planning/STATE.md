@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app the user already uses.
-**Current focus:** Phase 2 - Infrastructure & User Management
+**Current focus:** Phase 3 - AI Core
 
 ## Current Position
 
 Phase: 2 of 7 (Infrastructure & User Management)
-Plan: 4 of 5 in current phase
-Status: Phase 2 in progress
-Last activity: 2026-02-23 — Completed 02-04 (WhatsApp webhook integration, message logging, message history endpoint)
+Plan: 5 of 5 in current phase
+Status: Phase 2 complete
+Last activity: 2026-02-23 — Completed 02-05 (Phase 2 end-to-end verification: RLS isolation confirmed, auth working, avatar creation with age validation, server health passing)
 
-Progress: [████░░░░░░] 40%
+Progress: [████░░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 15 min
-- Total execution time: 1.5 hours
+- Total execution time: 1.75 hours
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: [████░░░░░░] 40%
 | 02-infrastructure-user-management P02 | 15 min | 2 tasks | 6 files |
 | 02-infrastructure-user-management P03 | 15 min | 2 tasks | 5 files |
 | 02-infrastructure-user-management P04 | 15 min | 2 tasks | 6 files |
+| 02-infrastructure-user-management P05 | 15 min | 2 tasks | 0 files |
 
 **Recent Trend:**
-- Last 5 plans: 15 min, 19 min, 15 min, 15 min, 15 min
+- Last 5 plans: 19 min, 15 min, 15 min, 15 min, 15 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -62,21 +63,21 @@ Recent decisions affecting current work:
 - [Phase 02-infrastructure-user-management]: Message logging wrapped in nested try/except — DB failure does not prevent echo from sending
 - [Phase 02-infrastructure-user-management]: GRAPH_API_VERSION constant pins Meta API to v19.0 — version bumps are a one-line change
 - [Phase 02-infrastructure-user-management]: GET /messages uses get_authed_supabase (RLS) not supabase_admin — user isolation enforced at DB level
+- [Phase 02-infrastructure-user-management]: WhatsApp echo test deferred — credentials not configured; Tests 1-3 and 5 sufficient per plan to declare Phase 2 complete
+- [Phase 02-infrastructure-user-management]: RLS isolation (USER-02) confirmed via two real Supabase accounts: User B GET /avatars/me returned 404, User A avatar never exposed
 
 ### Pending Todos
 
-- Apply backend/migrations/001_initial_schema.sql to Supabase cloud instance (manual step)
-- Disable email confirmation in Supabase Dashboard (required for Phase 2 signup flow)
-- Add real credentials to backend/.env (copy from .env.example)
 - Register webhook URL in Meta Developer Console after starting ngrok
 - Submit WhatsApp Business Account verification (takes 2-15 business days)
+- Add WhatsApp credentials to backend/.env when they arrive
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 02-infrastructure-user-management-04-PLAN.md — WhatsApp webhook integration complete
+Stopped at: Completed 02-infrastructure-user-management-05-PLAN.md — Phase 2 end-to-end verification complete, phase 2 fully done
 Resume file: None
