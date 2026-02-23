@@ -1,12 +1,23 @@
 from fastapi import APIRouter, Request, HTTPException, Query
 from app.config import settings
 from app.services.whatsapp import send_whatsapp_message
-from app.services.user_lookup import lookup_user_by_phone
+from app.services.user_lookup import lookup_user_by_phone, get_avatar_for_user
+from app.services.session.store import get_session_store
+from app.services.llm.openai_provider import OpenAIProvider
+from app.services.chat import ChatService
 from app.database import supabase_admin
 import logging
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
 logger = logging.getLogger(__name__)
+
+# Module-level singletons — instantiated once per process at import time
+# OpenAIProvider uses AsyncOpenAI (non-blocking); safe to share across requests
+_llm_provider = OpenAIProvider(
+    api_key=settings.openai_api_key,
+    model=settings.llm_model,
+)
+_chat_service = ChatService(llm=_llm_provider, session_store=get_session_store())
 
 
 @router.get("")
@@ -43,7 +54,7 @@ async def handle_incoming(request: Request):
 
 
 async def process_whatsapp_message(body: dict) -> None:
-    """Process incoming WhatsApp webhook payload."""
+    """Process incoming WhatsApp webhook payload through the AI pipeline."""
     value = body["entry"][0]["changes"][0]["value"]
 
     if "messages" not in value:
@@ -54,7 +65,7 @@ async def process_whatsapp_message(body: dict) -> None:
     message_type = message.get("type")
 
     if message_type != "text":
-        return  # Only handle text messages in Phase 2
+        return  # Only handle text messages in Phase 3
 
     incoming_text = message["text"]["body"]
     phone_number_id = value["metadata"]["phone_number_id"]
@@ -71,33 +82,43 @@ async def process_whatsapp_message(body: dict) -> None:
         )
         return
 
-    # Phase 2: Echo the message back
-    echo_text = f"[Echo] {incoming_text}"
+    user_id = user["user_id"]
+
+    # Fetch avatar (cached in session after first call — see ChatService)
+    avatar = await get_avatar_for_user(user_id)
+
+    # Run through AI pipeline — returns reply text
+    reply_text = await _chat_service.handle_message(
+        user_id=user_id,
+        incoming_text=incoming_text,
+        avatar=avatar,
+    )
+
+    # Send reply via WhatsApp
     await send_whatsapp_message(
         phone_number_id=phone_number_id,
         to=sender_phone,
-        text=echo_text,
+        text=reply_text,
     )
 
-    # Log both incoming and outgoing messages to Supabase
-    # Uses supabase_admin (service role) — webhook has no user JWT
+    # Log both messages to Supabase (DB failure must not prevent reply — already sent above)
     try:
         supabase_admin.from_("messages").insert([
             {
-                "user_id": user["user_id"],
-                "avatar_id": None,
+                "user_id": user_id,
+                "avatar_id": avatar["id"] if avatar else None,
                 "channel": "whatsapp",
                 "role": "user",
                 "content": incoming_text,
             },
             {
-                "user_id": user["user_id"],
-                "avatar_id": None,
+                "user_id": user_id,
+                "avatar_id": avatar["id"] if avatar else None,
                 "channel": "whatsapp",
                 "role": "assistant",
-                "content": echo_text,
+                "content": reply_text,
             },
         ]).execute()
     except Exception as e:
-        logger.error(f"Message logging failed for user {user['user_id']}: {e}")
-        # DB failure does not prevent the echo from being sent — already sent above
+        logger.error(f"Message logging failed for user {user_id}: {e}")
+        # DB failure does not prevent the reply — already sent above
