@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Compliance** - Legal framework and architectural decisions for WhatsApp NSFW constraints (completed 2026-02-23)
 - [x] **Phase 2: Infrastructure & User Management** - Database, auth, WhatsApp integration with RLS security (completed 2026-02-23)
-- [ ] **Phase 3: Core Intelligence & Mode Switching** - LLM integration and dual-mode conversation orchestrator
+- [x] **Phase 3: Core Intelligence & Mode Switching** - LLM integration and dual-mode conversation orchestrator (completed 2026-02-23)
 - [ ] **Phase 4: Secretary Skills** - Productivity tools (calendar, reminders, research)
 - [ ] **Phase 5: Intimate Mode Text Foundation** - Personality system, content escalation, safety guardrails
 - [ ] **Phase 6: Web App & Multi-Platform** - Web interface for photo delivery and platform abstraction
@@ -147,7 +147,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Compliance | 2/2 | Complete   | 2026-02-23 |
 | 2. Infrastructure & User Management | 5/5 | Complete    | 2026-02-23 |
-| 3. Core Intelligence & Mode Switching | 3/4 | In Progress|  |
+| 3. Core Intelligence & Mode Switching | 4/4 | Complete   | 2026-02-23 |
 | 4. Secretary Skills | 0/TBD | Not started | - |
 | 5. Intimate Mode Text Foundation | 0/TBD | Not started | - |
 | 6. Web App & Multi-Platform | 0/TBD | Not started | - |
