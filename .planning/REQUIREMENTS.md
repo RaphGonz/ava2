@@ -38,7 +38,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Platforms & Delivery
 
-- [ ] **PLAT-01**: User can chat via WhatsApp (WhatsApp Business API integration)
+- [x] **PLAT-01**: User can chat via WhatsApp (WhatsApp Business API integration)
 - [ ] **PLAT-02**: User can chat via a web app with direct photo display
 - [x] **PLAT-03**: NSFW photos on WhatsApp are delivered via secure authenticated web links (not inline)
 - [ ] **PLAT-04**: User chooses whether to use WhatsApp or the web app as their primary interface
@@ -132,7 +132,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | USER-01 | Phase 2 | Complete |
 | USER-02 | Phase 2 | Complete |
 | USER-03 | Phase 2 | Complete |
-| PLAT-01 | Phase 2 | Pending |
+| PLAT-01 | Phase 2 | Complete |
 | CHAT-01 | Phase 3 | Pending |
 | CHAT-02 | Phase 3 | Pending |
 | CHAT-03 | Phase 3 | Pending |

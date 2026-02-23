@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 2 of 7 (Infrastructure & User Management)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Phase 2 in progress
-Last activity: 2026-02-23 — Completed 02-03 (Avatar and preferences API endpoints + onboarding dev page)
+Last activity: 2026-02-23 — Completed 02-04 (WhatsApp webhook integration, message logging, message history endpoint)
 
-Progress: [████░░░░░░] 35%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 15 min
-- Total execution time: 1.25 hours
+- Total execution time: 1.5 hours
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: [████░░░░░░] 35%
 | 02-infrastructure-user-management P01 | 19 min | 2 tasks | 23 files |
 | 02-infrastructure-user-management P02 | 15 min | 2 tasks | 6 files |
 | 02-infrastructure-user-management P03 | 15 min | 2 tasks | 5 files |
+| 02-infrastructure-user-management P04 | 15 min | 2 tasks | 6 files |
 
 **Recent Trend:**
-- Last 5 plans: 11 min, 15 min, 19 min, 15 min, 15 min
+- Last 5 plans: 15 min, 19 min, 15 min, 15 min, 15 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -58,12 +59,17 @@ Recent decisions affecting current work:
 - [Phase 02-infrastructure-user-management]: Pydantic Field(ge=20) used on AvatarCreate.age (not field_validator) — produces correct GreaterThanEqual metadata and JSON Schema
 - [Phase 02-infrastructure-user-management]: PUT /preferences/whatsapp accepts PhoneLinkRequest body (not query param) — enables Pydantic E.164 validation before handler runs
 - [Phase 02-infrastructure-user-management]: GET /preferences/ returns 404 when no row exists (not empty object) — distinguishes never-configured from configured-with-no-phone
+- [Phase 02-infrastructure-user-management]: Message logging wrapped in nested try/except — DB failure does not prevent echo from sending
+- [Phase 02-infrastructure-user-management]: GRAPH_API_VERSION constant pins Meta API to v19.0 — version bumps are a one-line change
+- [Phase 02-infrastructure-user-management]: GET /messages uses get_authed_supabase (RLS) not supabase_admin — user isolation enforced at DB level
 
 ### Pending Todos
 
 - Apply backend/migrations/001_initial_schema.sql to Supabase cloud instance (manual step)
 - Disable email confirmation in Supabase Dashboard (required for Phase 2 signup flow)
 - Add real credentials to backend/.env (copy from .env.example)
+- Register webhook URL in Meta Developer Console after starting ngrok
+- Submit WhatsApp Business Account verification (takes 2-15 business days)
 
 ### Blockers/Concerns
 
@@ -72,5 +78,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 02-infrastructure-user-management-03-PLAN.md — Avatar and preferences API endpoints + onboarding dev page complete
+Stopped at: Completed 02-infrastructure-user-management-04-PLAN.md — WhatsApp webhook integration complete
 Resume file: None
