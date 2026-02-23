@@ -1,17 +1,19 @@
 import httpx
+import logging
 from app.config import settings
+
+logger = logging.getLogger(__name__)
+
+GRAPH_API_VERSION = "v19.0"
 
 
 async def send_whatsapp_message(phone_number_id: str, to: str, text: str) -> None:
-    """
-    Send a text message via Meta Cloud API.
+    """Send a text message via Meta Cloud API.
 
-    Args:
-        phone_number_id: The WhatsApp Business phone number ID (from Meta dashboard)
-        to: Recipient phone number in E.164 format (+1234567890)
-        text: Message body text
+    Raises httpx.HTTPStatusError on API errors. Callers must catch.
+    Always pin to GRAPH_API_VERSION — Meta deprecates old versions.
     """
-    url = f"https://graph.facebook.com/v19.0/{phone_number_id}/messages"
+    url = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{phone_number_id}/messages"
     headers = {
         "Authorization": f"Bearer {settings.whatsapp_access_token}",
         "Content-Type": "application/json",
@@ -23,9 +25,10 @@ async def send_whatsapp_message(phone_number_id: str, to: str, text: str) -> Non
         "type": "text",
         "text": {"body": text},
     }
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.post(url, headers=headers, json=payload)
         response.raise_for_status()
+        logger.info(f"WhatsApp message sent to {to}: {text[:50]}")
 
 
 def parse_incoming_message(body: dict) -> dict | None:
