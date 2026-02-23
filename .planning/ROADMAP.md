@@ -48,10 +48,14 @@ Plans:
   3. User can send WhatsApp message and receive echo response (webhook integration working)
   4. WhatsApp Business Verification submitted and in progress
   5. Database schema supports avatar metadata, conversation history, user preferences
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 02-01-PLAN.md — Backend project scaffold, Pydantic config, Supabase client singletons, database schema migration with RLS
+- [ ] 02-02-PLAN.md — Auth API (signup/signin) and minimal barebones HTML test UI
+- [ ] 02-03-PLAN.md — Avatar creation and WhatsApp phone linking endpoints with onboarding dev page
+- [ ] 02-04-PLAN.md — WhatsApp webhook (echo handler), outbound message service, message history endpoint
+- [ ] 02-05-PLAN.md — Human verification checkpoint: RLS isolation test, auth flow, WhatsApp echo
 
 ### Phase 3: Core Intelligence & Mode Switching
 **Goal**: Users can have text conversations with the bot and switch between secretary and intimate modes
@@ -139,7 +143,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Compliance | 2/2 | Complete   | 2026-02-23 |
-| 2. Infrastructure & User Management | 0/TBD | Not started | - |
+| 2. Infrastructure & User Management | 0/5 | Not started | - |
 | 3. Core Intelligence & Mode Switching | 0/TBD | Not started | - |
 | 4. Secretary Skills | 0/TBD | Not started | - |
 | 5. Intimate Mode Text Foundation | 0/TBD | Not started | - |
