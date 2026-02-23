@@ -40,7 +40,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **PLAT-01**: User can chat via WhatsApp (WhatsApp Business API integration)
 - [ ] **PLAT-02**: User can chat via a web app with direct photo display
-- [ ] **PLAT-03**: NSFW photos on WhatsApp are delivered via secure authenticated web links (not inline)
+- [x] **PLAT-03**: NSFW photos on WhatsApp are delivered via secure authenticated web links (not inline)
 - [ ] **PLAT-04**: User chooses whether to use WhatsApp or the web app as their primary interface
 - [ ] **PLAT-05**: Messaging layer is modular — new platforms can be added as adapters without changing core logic
 
@@ -52,8 +52,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Safety & Compliance
 
-- [ ] **SAFE-01**: Age verification enforces 20+ floor on avatar creation — no exceptions
-- [ ] **SAFE-02**: Content guardrails prevent generation of non-consensual or illegal content
+- [x] **SAFE-01**: Age verification enforces 20+ floor on avatar creation — no exceptions
+- [x] **SAFE-02**: Content guardrails prevent generation of non-consensual or illegal content
 - [ ] **SAFE-03**: System complies with TAKE IT DOWN Act requirements (48-hour takedown process)
 
 ### Billing
@@ -124,10 +124,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAFE-01 | Phase 1 | Pending |
-| SAFE-02 | Phase 1 | Pending |
+| SAFE-01 | Phase 1 | Complete |
+| SAFE-02 | Phase 1 | Complete |
 | SAFE-03 | Phase 1 | Pending |
-| PLAT-03 | Phase 1 | Pending |
+| PLAT-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Pending |
 | USER-01 | Phase 2 | Pending |
 | USER-02 | Phase 2 | Pending |
