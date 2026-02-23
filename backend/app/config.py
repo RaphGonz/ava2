@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     # App
     app_env: str = "development"
 
+    # LLM provider configuration
+    llm_provider: str = "openai"         # "openai" for Phase 3; extend for others
+    llm_model: str = "gpt-4.1-mini"     # Model alias; override via LLM_MODEL env var
+    openai_api_key: str = ""            # Set in .env as OPENAI_API_KEY
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
 
 
