@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 3 of 7 (Core Intelligence & Mode Switching)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-23 — Completed 03-02 (Session state and mode switch detection: ConversationMode enum, SessionStore with asyncio.Lock, ModeSwitchDetector with rapidfuzz — 20 tests pass)
+Last activity: 2026-02-23 — Completed 03-03 (ChatService orchestrator and AI pipeline: get_avatar_for_user(), ChatService with 5-branch routing, webhook.py upgraded from echo to full AI pipeline)
 
-Progress: [████░░░░░░] 50%
+Progress: [█████░░░░░] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 15 min
-- Total execution time: 1.75 hours
+- Total plans completed: 9
+- Average duration: 14 min
+- Total execution time: 2.0 hours
 
 **By Phase:**
 
@@ -36,9 +36,10 @@ Progress: [████░░░░░░] 50%
 | 02-infrastructure-user-management P05 | 15 min | 2 tasks | 0 files |
 | 03-core-intelligence-mode-switching P01 | 9 min | 2 tasks | 6 files |
 | 03-core-intelligence-mode-switching P02 | 8 min | 2 tasks | 9 files |
+| 03-core-intelligence-mode-switching P03 | 12 min | 2 tasks | 3 files |
 
 **Recent Trend:**
-- Last 5 plans: 15 min, 15 min, 15 min, 9 min, 8 min
+- Last 5 plans: 15 min, 15 min, 9 min, 8 min, 12 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -74,6 +75,10 @@ Recent decisions affecting current work:
 - [Phase 03-core-intelligence-mode-switching]: MAX_WORDS_FOR_FUZZY=10 guard prevents long sentences from triggering mode switch — only slash commands match for inputs over 10 words
 - [Phase 03-core-intelligence-mode-switching]: Session history stored as two separate lists per ConversationMode in SessionState.history dict — never merged — prevents cross-mode prompt injection
 - [Phase 03-core-intelligence-mode-switching]: asyncio.Lock on all SessionStore mutations ensures safety under concurrent Meta webhook deliveries to same user
+- [Phase 03-core-intelligence-mode-switching]: ChatService is a stateless orchestrator — all mutable state lives in SessionStore; designed as module-level singleton in webhook.py
+- [Phase 03-core-intelligence-mode-switching]: Avatar fetched in webhook.py and passed into handle_message() — keeps ChatService testable without DB dependency
+- [Phase 03-core-intelligence-mode-switching]: send_whatsapp_message() called before Supabase logging — DB failure cannot block reply delivery
+- [Phase 03-core-intelligence-mode-switching]: avatar_id now populated from avatar["id"] in message logging (was hardcoded None in Phase 2 echo)
 
 ### Pending Todos
 
@@ -88,5 +93,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 03-core-intelligence-mode-switching-02-PLAN.md — session store and mode switch detector implemented and TDD-verified
+Stopped at: Completed 03-core-intelligence-mode-switching-03-PLAN.md — ChatService orchestrator and webhook AI pipeline implemented
 Resume file: None
