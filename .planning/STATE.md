@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 2 of 7 (Infrastructure & User Management)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Phase 2 in progress
-Last activity: 2026-02-23 — Completed 02-01 (FastAPI backend scaffold + Supabase schema migration)
+Last activity: 2026-02-23 — Completed 02-02 (Auth API signup/signin + minimal HTML test UI)
 
-Progress: [███░░░░░░░] 21%
+Progress: [████░░░░░░] 28%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 15 min
-- Total execution time: 0.8 hours
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [███░░░░░░░] 21%
 | 01-foundation-compliance P01 | 11 min | 2 tasks | 4 files |
 | 01-foundation-compliance P02 | 15 min | 2 tasks | 6 files |
 | 02-infrastructure-user-management P01 | 19 min | 2 tasks | 23 files |
+| 02-infrastructure-user-management P02 | 15 min | 2 tasks | 6 files |
 
 **Recent Trend:**
-- Last 5 plans: 11 min, 15 min, 19 min
+- Last 5 plans: 11 min, 15 min, 19 min, 15 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -50,6 +51,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation-compliance]: Avatar age floor is 20+ (not 18+), enforced at DB level with CHECK constraint and form validation
 - [Phase 02-infrastructure-user-management]: Used postgrest.auth(token) per-query pattern instead of set_auth() on singleton to avoid JWT context bleed between concurrent async requests
 - [Phase 02-infrastructure-user-management]: supabase_admin (service role) reserved exclusively for server-to-server ops (webhook phone lookup); all user-facing ops use supabase_client (anon + user JWT)
+- [Phase 02-infrastructure-user-management]: dev.py router guards /dev/* routes with app_env check — 404 in production, live in development
+- [Phase 02-infrastructure-user-management]: pathlib.Path(__file__) used for template lookup in dev.py — portable across working directories
+- [Phase 02-infrastructure-user-management]: pydantic[email] added explicitly to requirements.txt — EmailStr requires the email-validator extra
 
 ### Pending Todos
 
@@ -64,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 02-infrastructure-user-management-01-PLAN.md — FastAPI backend scaffold and Supabase schema migration complete
+Stopped at: Completed 02-infrastructure-user-management-02-PLAN.md — Auth API (signup/signin) and minimal HTML test UI complete
 Resume file: None

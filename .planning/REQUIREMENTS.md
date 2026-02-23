@@ -46,7 +46,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### User Management
 
-- [ ] **USER-01**: User can create an account
+- [x] **USER-01**: User can create an account
 - [x] **USER-02**: User data is fully isolated from other users
 - [ ] **USER-03**: User can configure their avatar and persona during onboarding
 
@@ -129,7 +129,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SAFE-03 | Phase 1 | Pending |
 | PLAT-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Complete |
-| USER-01 | Phase 2 | Pending |
+| USER-01 | Phase 2 | Complete |
 | USER-02 | Phase 2 | Complete |
 | USER-03 | Phase 2 | Pending |
 | PLAT-01 | Phase 2 | Pending |
