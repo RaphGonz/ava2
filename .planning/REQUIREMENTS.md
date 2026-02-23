@@ -10,10 +10,10 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Core Chat
 
 - [x] **CHAT-01**: User can have text-based conversations with the AI in both secretary and intimate modes
-- [ ] **CHAT-02**: Bot remembers context within the current conversation session
-- [ ] **CHAT-03**: User can switch to intimate mode using a safe word ("I'm alone" or similar) with fuzzy intent detection
-- [ ] **CHAT-04**: User can switch back to secretary mode using a trigger ("stop" or similar) with fuzzy intent detection
-- [ ] **CHAT-05**: Mode switching handles typos and phrasing variations gracefully
+- [x] **CHAT-02**: Bot remembers context within the current conversation session
+- [x] **CHAT-03**: User can switch to intimate mode using a safe word ("I'm alone" or similar) with fuzzy intent detection
+- [x] **CHAT-04**: User can switch back to secretary mode using a trigger ("stop" or similar) with fuzzy intent detection
+- [x] **CHAT-05**: Mode switching handles typos and phrasing variations gracefully
 
 ### Secretary Skills
 
@@ -134,10 +134,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | USER-03 | Phase 2 | Complete |
 | PLAT-01 | Phase 2 | Complete |
 | CHAT-01 | Phase 3 | Complete |
-| CHAT-02 | Phase 3 | Pending |
-| CHAT-03 | Phase 3 | Pending |
-| CHAT-04 | Phase 3 | Pending |
-| CHAT-05 | Phase 3 | Pending |
+| CHAT-02 | Phase 3 | Complete |
+| CHAT-03 | Phase 3 | Complete |
+| CHAT-04 | Phase 3 | Complete |
+| CHAT-05 | Phase 3 | Complete |
 | ARCH-02 | Phase 3 | Complete |
 | SECR-01 | Phase 4 | Pending |
 | SECR-02 | Phase 4 | Pending |

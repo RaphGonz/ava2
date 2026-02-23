@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 3 of 7 (Core Intelligence & Mode Switching)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-23 — Completed 03-01 (LLM service abstraction layer: LLMProvider Protocol, OpenAIProvider, system prompt templates, config extensions)
+Last activity: 2026-02-23 — Completed 03-02 (Session state and mode switch detection: ConversationMode enum, SessionStore with asyncio.Lock, ModeSwitchDetector with rapidfuzz — 20 tests pass)
 
 Progress: [████░░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 15 min
 - Total execution time: 1.75 hours
 
@@ -35,9 +35,10 @@ Progress: [████░░░░░░] 50%
 | 02-infrastructure-user-management P04 | 15 min | 2 tasks | 6 files |
 | 02-infrastructure-user-management P05 | 15 min | 2 tasks | 0 files |
 | 03-core-intelligence-mode-switching P01 | 9 min | 2 tasks | 6 files |
+| 03-core-intelligence-mode-switching P02 | 8 min | 2 tasks | 9 files |
 
 **Recent Trend:**
-- Last 5 plans: 19 min, 15 min, 15 min, 15 min, 15 min
+- Last 5 plans: 15 min, 15 min, 15 min, 9 min, 8 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [Phase 02-infrastructure-user-management]: GET /messages uses get_authed_supabase (RLS) not supabase_admin — user isolation enforced at DB level
 - [Phase 02-infrastructure-user-management]: WhatsApp echo test deferred — credentials not configured; Tests 1-3 and 5 sufficient per plan to declare Phase 2 complete
 - [Phase 02-infrastructure-user-management]: RLS isolation (USER-02) confirmed via two real Supabase accounts: User B GET /avatars/me returned 404, User A avatar never exposed
+- [Phase 03-core-intelligence-mode-switching]: MAX_WORDS_FOR_FUZZY=10 guard prevents long sentences from triggering mode switch — only slash commands match for inputs over 10 words
+- [Phase 03-core-intelligence-mode-switching]: Session history stored as two separate lists per ConversationMode in SessionState.history dict — never merged — prevents cross-mode prompt injection
+- [Phase 03-core-intelligence-mode-switching]: asyncio.Lock on all SessionStore mutations ensures safety under concurrent Meta webhook deliveries to same user
 
 ### Pending Todos
 
@@ -84,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 03-core-intelligence-mode-switching-01-PLAN.md — LLM service abstraction layer complete
+Stopped at: Completed 03-core-intelligence-mode-switching-02-PLAN.md — session store and mode switch detector implemented and TDD-verified
 Resume file: None
