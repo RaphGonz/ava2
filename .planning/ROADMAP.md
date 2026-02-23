@@ -1,0 +1,146 @@
+# Roadmap: Ava — Dual-Mode AI Companion
+
+## Overview
+
+Ava is built in 7 phases that progress from legal foundation through infrastructure, core intelligence, productivity skills, intimate mode features, and finally production hardening. The roadmap addresses critical pitfalls early (WhatsApp NSFW ban, legal compliance, database security), validates the core differentiator (mode switching) before expanding scope, and completes text-based features before adding image generation complexity.
+
+## Phases
+
+**Phase Numbering:**
+- Integer phases (1, 2, 3): Planned milestone work
+- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+
+Decimal phases appear between their surrounding integers in numeric order.
+
+- [ ] **Phase 1: Foundation & Compliance** - Legal framework and architectural decisions for WhatsApp NSFW constraints
+- [ ] **Phase 2: Infrastructure & User Management** - Database, auth, WhatsApp integration with RLS security
+- [ ] **Phase 3: Core Intelligence & Mode Switching** - LLM integration and dual-mode conversation orchestrator
+- [ ] **Phase 4: Secretary Skills** - Productivity tools (calendar, reminders, research)
+- [ ] **Phase 5: Intimate Mode Text Foundation** - Personality system, content escalation, safety guardrails
+- [ ] **Phase 6: Web App & Multi-Platform** - Web interface for photo delivery and platform abstraction
+- [ ] **Phase 7: Avatar System & Production** - Image generation, billing, and production hardening
+
+## Phase Details
+
+### Phase 1: Foundation & Compliance
+**Goal**: Establish legal and architectural framework that enables NSFW features while complying with regulations and platform policies
+**Depends on**: Nothing (first phase)
+**Requirements**: SAFE-01, SAFE-02, SAFE-03, PLAT-03, ARCH-04
+**Success Criteria** (what must be TRUE):
+  1. ToS and legal framework reviewed by attorney and covers AI-generated imagery liability
+  2. 48-hour takedown process documented and ready to implement
+  3. Age verification strategy defined (20+ floor enforcement)
+  4. Architecture decision documented: text-only intimate mode on WhatsApp, images via web portal
+  5. Compliance framework addresses TAKE IT DOWN Act requirements (watermarking, audit logs, consent)
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+### Phase 2: Infrastructure & User Management
+**Goal**: Secure, multi-tenant database and WhatsApp integration with production-grade message handling
+**Depends on**: Phase 1
+**Requirements**: USER-01, USER-02, USER-03, PLAT-01, ARCH-04
+**Success Criteria** (what must be TRUE):
+  1. User can create account with authentication
+  2. User data is fully isolated (RLS enabled on all tables, tested with multiple accounts)
+  3. User can send WhatsApp message and receive echo response (webhook integration working)
+  4. WhatsApp Business Verification submitted and in progress
+  5. Database schema supports avatar metadata, conversation history, user preferences
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+### Phase 3: Core Intelligence & Mode Switching
+**Goal**: Users can have text conversations with the bot and switch between secretary and intimate modes
+**Depends on**: Phase 2
+**Requirements**: CHAT-01, CHAT-02, CHAT-03, CHAT-04, CHAT-05, ARCH-02
+**Success Criteria** (what must be TRUE):
+  1. User can have a basic text conversation with the bot in secretary mode
+  2. Bot remembers context within the current conversation session
+  3. User can switch to intimate mode using "I'm alone" or similar phrasing
+  4. User can switch back to secretary mode using "stop" or similar
+  5. Mode switching handles typos and variations gracefully with confirmation gates
+  6. Separate model contexts prevent prompt injection across modes
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+### Phase 4: Secretary Skills
+**Goal**: Users can manage calendar, set reminders, and ask research questions via chat
+**Depends on**: Phase 3
+**Requirements**: SECR-01, SECR-02, SECR-03, ARCH-01
+**Success Criteria** (what must be TRUE):
+  1. User can add a meeting to Google Calendar via chat
+  2. User can view upcoming schedule from Google Calendar via chat
+  3. User can ask the bot to research a topic and receive a concise answer
+  4. Skill registry demonstrates modular architecture (new skills can be added as plugins)
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+### Phase 5: Intimate Mode Text Foundation
+**Goal**: Bot provides personalized, flirty conversation with safety guardrails and crisis detection
+**Depends on**: Phase 4
+**Requirements**: INTM-01, INTM-02, PERS-01
+**Success Criteria** (what must be TRUE):
+  1. Bot adopts chatty, flirty conversational style in intimate mode
+  2. Bot asks user questions and encourages them during intimate conversations
+  3. User can select from preset personality personas (e.g., playful, dominant, shy, caring)
+  4. Content safety guardrails block non-consensual or illegal content requests
+  5. Crisis detection identifies suicidal ideation and provides 988 resources
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+### Phase 6: Web App & Multi-Platform
+**Goal**: Users can access Ava via web app with direct photo display and choose their preferred interface
+**Depends on**: Phase 5
+**Requirements**: PLAT-02, PLAT-03, PLAT-04, PLAT-05
+**Success Criteria** (what must be TRUE):
+  1. User can chat via web app with authentication
+  2. NSFW photos are delivered via secure authenticated web links (not inline WhatsApp)
+  3. User can choose whether to use WhatsApp or web app as primary interface
+  4. Messaging layer abstracts platform differences (WhatsApp and web use same core logic)
+  5. New messaging platforms can be added as adapters without touching core
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+### Phase 7: Avatar System & Production
+**Goal**: Users can customize avatars, receive AI-generated photos, and system is production-ready with billing
+**Depends on**: Phase 6
+**Requirements**: AVTR-01, AVTR-02, AVTR-03, AVTR-04, AVTR-05, INTM-03, ARCH-03, BILL-01, BILL-02
+**Success Criteria** (what must be TRUE):
+  1. User can configure avatar (gender, age 20+, nationality/race, appearance description) during onboarding
+  2. Avatar definition generates canonical reference image for consistency
+  3. User receives AI-generated photos during intimate conversations (via web portal)
+  4. All generated images have visible watermarks and C2PA credentials
+  5. Image generation audit logs capture all requests for compliance
+  6. Billing infrastructure supports multiple pricing models (subscription, credits)
+  7. BullMQ async processing handles webhooks reliably at scale
+  8. System ready for beta launch (monitoring, logging, error handling production-grade)
+**Plans**: TBD
+
+Plans:
+- (To be created during planning)
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Foundation & Compliance | 0/TBD | Not started | - |
+| 2. Infrastructure & User Management | 0/TBD | Not started | - |
+| 3. Core Intelligence & Mode Switching | 0/TBD | Not started | - |
+| 4. Secretary Skills | 0/TBD | Not started | - |
+| 5. Intimate Mode Text Foundation | 0/TBD | Not started | - |
+| 6. Web App & Multi-Platform | 0/TBD | Not started | - |
+| 7. Avatar System & Production | 0/TBD | Not started | - |

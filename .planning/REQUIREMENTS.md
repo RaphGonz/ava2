@@ -124,13 +124,46 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated during roadmap creation) | | |
+| SAFE-01 | Phase 1 | Pending |
+| SAFE-02 | Phase 1 | Pending |
+| SAFE-03 | Phase 1 | Pending |
+| PLAT-03 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Pending |
+| USER-01 | Phase 2 | Pending |
+| USER-02 | Phase 2 | Pending |
+| USER-03 | Phase 2 | Pending |
+| PLAT-01 | Phase 2 | Pending |
+| CHAT-01 | Phase 3 | Pending |
+| CHAT-02 | Phase 3 | Pending |
+| CHAT-03 | Phase 3 | Pending |
+| CHAT-04 | Phase 3 | Pending |
+| CHAT-05 | Phase 3 | Pending |
+| ARCH-02 | Phase 3 | Pending |
+| SECR-01 | Phase 4 | Pending |
+| SECR-02 | Phase 4 | Pending |
+| SECR-03 | Phase 4 | Pending |
+| ARCH-01 | Phase 4 | Pending |
+| INTM-01 | Phase 5 | Pending |
+| INTM-02 | Phase 5 | Pending |
+| PERS-01 | Phase 5 | Pending |
+| PLAT-02 | Phase 6 | Pending |
+| PLAT-04 | Phase 6 | Pending |
+| PLAT-05 | Phase 6 | Pending |
+| AVTR-01 | Phase 7 | Pending |
+| AVTR-02 | Phase 7 | Pending |
+| AVTR-03 | Phase 7 | Pending |
+| AVTR-04 | Phase 7 | Pending |
+| AVTR-05 | Phase 7 | Pending |
+| INTM-03 | Phase 7 | Pending |
+| ARCH-03 | Phase 7 | Pending |
+| BILL-01 | Phase 7 | Pending |
+| BILL-02 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 28 total
-- Mapped to phases: 0
-- Unmapped: 28 ⚠️
+- Mapped to phases: 28
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after initial definition*
+*Last updated: 2026-02-23 after roadmap creation*
