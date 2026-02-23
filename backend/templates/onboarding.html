@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head><title>Ava - Dev Onboarding Test</title></head>
+<body>
+  <h1>Ava Dev Onboarding</h1>
+  <p><em>Minimal Phase 2 test UI — no styling. Replace in Phase 6.</em></p>
+  <p><a href="/dev/auth">Back to Auth</a></p>
+
+  <h2>Step 0: Bearer Token</h2>
+  <p>Paste your JWT from <a href="/dev/auth">/dev/auth</a> signup or signin.</p>
+  <label>Bearer Token (from /dev/auth signup/signin):</label><br>
+  <input type="text" id="token" placeholder="Paste JWT here" style="width:600px"><br><br>
+
+  <h2>Step 1: Create Avatar (POST /avatars)</h2>
+  <form id="create-avatar">
+    <label>Name:</label><br>
+    <input type="text" id="av-name" placeholder="Avatar name" required><br><br>
+
+    <label>Age (minimum 20):</label><br>
+    <input type="number" id="av-age" min="20" value="25" required><br><br>
+
+    <label>Personality:</label><br>
+    <select id="av-personality">
+      <option value="playful">playful</option>
+      <option value="dominant">dominant</option>
+      <option value="shy">shy</option>
+      <option value="caring">caring</option>
+      <option value="intellectual">intellectual</option>
+      <option value="adventurous">adventurous</option>
+    </select><br><br>
+
+    <label>Physical Description (optional):</label><br>
+    <textarea id="av-description" rows="3" cols="50" maxlength="2000"></textarea><br><br>
+
+    <button type="submit">Create Avatar</button>
+  </form>
+  <p id="avatar-result"></p>
+
+  <h2>Step 2: Get My Avatar (GET /avatars/me)</h2>
+  <button id="get-avatar-btn">Get My Avatar</button>
+  <p id="get-avatar-result"></p>
+
+  <h2>Step 3: Link WhatsApp Number (PUT /preferences/whatsapp)</h2>
+  <form id="link-phone">
+    <label>Phone (E.164 format):</label><br>
+    <input type="text" id="phone" placeholder="+1234567890" required><br><br>
+    <button type="submit">Link WhatsApp Number</button>
+  </form>
+  <p id="phone-result"></p>
+
+  <script>
+    function getToken() {
+      return document.getElementById('token').value.trim();
+    }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + getToken()
+      };
+    }
+
+    document.getElementById('create-avatar').onsubmit = async (e) => {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById('av-name').value,
+        age: parseInt(document.getElementById('av-age').value),
+        personality: document.getElementById('av-personality').value,
+        physical_description: document.getElementById('av-description').value || null
+      };
+      const r = await fetch('/avatars', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if (r.ok) {
+        document.getElementById('avatar-result').textContent =
+          'Avatar created! id=' + data.id + ', name=' + data.name;
+      } else {
+        document.getElementById('avatar-result').textContent =
+          'Error ' + r.status + ': ' + JSON.stringify(data.detail || data);
+      }
+    };
+
+    document.getElementById('get-avatar-btn').onclick = async () => {
+      const r = await fetch('/avatars/me', {
+        headers: authHeaders()
+      });
+      const data = await r.json();
+      if (r.ok) {
+        document.getElementById('get-avatar-result').textContent =
+          'Avatar: id=' + data.id + ', name=' + data.name + ', age=' + data.age + ', personality=' + data.personality;
+      } else {
+        document.getElementById('get-avatar-result').textContent =
+          'Error ' + r.status + ': ' + JSON.stringify(data.detail || data);
+      }
+    };
+
+    document.getElementById('link-phone').onsubmit = async (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('phone').value.trim();
+      const r = await fetch('/preferences/whatsapp', {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ phone: phone })
+      });
+      const data = await r.json();
+      if (r.ok) {
+        document.getElementById('phone-result').textContent =
+          'Linked: ' + data.phone;
+      } else {
+        document.getElementById('phone-result').textContent =
+          'Error ' + r.status + ': ' + JSON.stringify(data.detail || data);
+      }
+    };
+  </script>
+</body>
+</html>
