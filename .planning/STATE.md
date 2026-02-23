@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 2 of 7 (Infrastructure & User Management)
-Plan: 2 of 4 in current phase
+Plan: 3 of 5 in current phase
 Status: Phase 2 in progress
-Last activity: 2026-02-23 — Completed 02-02 (Auth API signup/signin + minimal HTML test UI)
+Last activity: 2026-02-23 — Completed 02-03 (Avatar and preferences API endpoints + onboarding dev page)
 
-Progress: [████░░░░░░] 28%
+Progress: [████░░░░░░] 35%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 15 min
-- Total execution time: 1.0 hours
+- Total execution time: 1.25 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [████░░░░░░] 28%
 | 01-foundation-compliance P02 | 15 min | 2 tasks | 6 files |
 | 02-infrastructure-user-management P01 | 19 min | 2 tasks | 23 files |
 | 02-infrastructure-user-management P02 | 15 min | 2 tasks | 6 files |
+| 02-infrastructure-user-management P03 | 15 min | 2 tasks | 5 files |
 
 **Recent Trend:**
-- Last 5 plans: 11 min, 15 min, 19 min, 15 min
+- Last 5 plans: 11 min, 15 min, 19 min, 15 min, 15 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -54,6 +55,9 @@ Recent decisions affecting current work:
 - [Phase 02-infrastructure-user-management]: dev.py router guards /dev/* routes with app_env check — 404 in production, live in development
 - [Phase 02-infrastructure-user-management]: pathlib.Path(__file__) used for template lookup in dev.py — portable across working directories
 - [Phase 02-infrastructure-user-management]: pydantic[email] added explicitly to requirements.txt — EmailStr requires the email-validator extra
+- [Phase 02-infrastructure-user-management]: Pydantic Field(ge=20) used on AvatarCreate.age (not field_validator) — produces correct GreaterThanEqual metadata and JSON Schema
+- [Phase 02-infrastructure-user-management]: PUT /preferences/whatsapp accepts PhoneLinkRequest body (not query param) — enables Pydantic E.164 validation before handler runs
+- [Phase 02-infrastructure-user-management]: GET /preferences/ returns 404 when no row exists (not empty object) — distinguishes never-configured from configured-with-no-phone
 
 ### Pending Todos
 
@@ -68,5 +72,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 02-infrastructure-user-management-02-PLAN.md — Auth API (signup/signin) and minimal HTML test UI complete
+Stopped at: Completed 02-infrastructure-user-management-03-PLAN.md — Avatar and preferences API endpoints + onboarding dev page complete
 Resume file: None
