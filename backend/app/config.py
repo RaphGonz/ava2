@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     supabase_service_role_key: str
 
     # WhatsApp Cloud API — get from Meta for Developers -> App -> WhatsApp -> API Setup
-    whatsapp_access_token: str
-    whatsapp_phone_number_id: str
-    whatsapp_verify_token: str  # Any secret string you choose for webhook verification
+    whatsapp_access_token: str = ""
+    whatsapp_phone_number_id: str = ""
+    whatsapp_verify_token: str = ""  # Any secret string you choose for webhook verification
 
     # App
     app_env: str = "development"

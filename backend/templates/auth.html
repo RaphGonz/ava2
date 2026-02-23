@@ -21,10 +21,17 @@
 
   <h2>Result</h2>
   <p id="result"></p>
+  <textarea id="token-box" rows="4" cols="80" placeholder="Full token will appear here — copy it for use in /dev/onboarding" readonly></textarea>
 
-  <p><a href="/dev/avatars">Avatar Setup</a></p>
+  <p><a href="/dev/onboarding">Onboarding Setup</a></p>
 
   <script>
+    function showToken(data, action) {
+      document.getElementById('result').textContent =
+        action + ' user_id=' + data.user_id;
+      document.getElementById('token-box').value = data.access_token;
+    }
+
     document.getElementById('signup').onsubmit = async (e) => {
       e.preventDefault();
       const r = await fetch('/auth/signup', {
@@ -37,8 +44,7 @@
       });
       const data = await r.json();
       if (r.ok) {
-        document.getElementById('result').textContent =
-          'Signed up! user_id=' + data.user_id + ', token starts with: ' + data.access_token.substring(0, 20) + '...';
+        showToken(data, 'Signed up!');
       } else {
         document.getElementById('result').textContent = 'Error: ' + JSON.stringify(data);
       }
@@ -56,8 +62,7 @@
       });
       const data = await r.json();
       if (r.ok) {
-        document.getElementById('result').textContent =
-          'Signed in! user_id=' + data.user_id + ', token starts with: ' + data.access_token.substring(0, 20) + '...';
+        showToken(data, 'Signed in!');
       } else {
         document.getElementById('result').textContent = 'Error: ' + JSON.stringify(data);
       }
