@@ -1,12 +1,12 @@
-import logging
 from fastapi import APIRouter, Request, HTTPException, Query
 from app.config import settings
 from app.services.whatsapp import send_whatsapp_message
 from app.services.user_lookup import lookup_user_by_phone
-
-logger = logging.getLogger(__name__)
+from app.database import supabase_admin
+import logging
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("")
@@ -44,9 +44,7 @@ async def handle_incoming(request: Request):
 
 async def process_whatsapp_message(body: dict) -> None:
     """Process incoming WhatsApp webhook payload."""
-    entry = body["entry"][0]
-    changes = entry["changes"][0]
-    value = changes["value"]
+    value = body["entry"][0]["changes"][0]["value"]
 
     if "messages" not in value:
         return  # Delivery receipt or status update — ignore
@@ -65,14 +63,11 @@ async def process_whatsapp_message(body: dict) -> None:
     user = await lookup_user_by_phone(sender_phone)
 
     if user is None:
-        # Unlinked number — send instructions
+        # Unlinked number — send registration instructions
         await send_whatsapp_message(
             phone_number_id=phone_number_id,
             to=sender_phone,
-            text=(
-                "Hi! Please create an account and link your WhatsApp number "
-                "in settings to start chatting with Ava."
-            ),
+            text="Please create an account at ava.example.com and link your number",
         )
         return
 
@@ -83,3 +78,26 @@ async def process_whatsapp_message(body: dict) -> None:
         to=sender_phone,
         text=echo_text,
     )
+
+    # Log both incoming and outgoing messages to Supabase
+    # Uses supabase_admin (service role) — webhook has no user JWT
+    try:
+        supabase_admin.from_("messages").insert([
+            {
+                "user_id": user["user_id"],
+                "avatar_id": None,
+                "channel": "whatsapp",
+                "role": "user",
+                "content": incoming_text,
+            },
+            {
+                "user_id": user["user_id"],
+                "avatar_id": None,
+                "channel": "whatsapp",
+                "role": "assistant",
+                "content": echo_text,
+            },
+        ]).execute()
+    except Exception as e:
+        logger.error(f"Message logging failed for user {user['user_id']}: {e}")
+        # DB failure does not prevent the echo from being sent — already sent above
