@@ -20,11 +20,11 @@
   </form>
 
   <h2>Result</h2>
-  <pre id="result"></pre>
+  <p id="result"></p>
+
+  <p><a href="/dev/avatars">Avatar Setup</a></p>
 
   <script>
-    let currentToken = null;
-
     document.getElementById('signup').onsubmit = async (e) => {
       e.preventDefault();
       const r = await fetch('/auth/signup', {
@@ -37,11 +37,10 @@
       });
       const data = await r.json();
       if (r.ok) {
-        currentToken = data.access_token;
         document.getElementById('result').textContent =
-          `Signed up!\nUser ID: ${data.user_id}\nToken (first 30 chars): ${data.access_token.substring(0, 30)}...`;
+          'Signed up! user_id=' + data.user_id + ', token starts with: ' + data.access_token.substring(0, 20) + '...';
       } else {
-        document.getElementById('result').textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+        document.getElementById('result').textContent = 'Error: ' + JSON.stringify(data);
       }
     };
 
@@ -57,11 +56,10 @@
       });
       const data = await r.json();
       if (r.ok) {
-        currentToken = data.access_token;
         document.getElementById('result').textContent =
-          `Signed in!\nUser ID: ${data.user_id}\nToken (first 30 chars): ${data.access_token.substring(0, 30)}...`;
+          'Signed in! user_id=' + data.user_id + ', token starts with: ' + data.access_token.substring(0, 20) + '...';
       } else {
-        document.getElementById('result').textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+        document.getElementById('result').textContent = 'Error: ' + JSON.stringify(data);
       }
     };
   </script>

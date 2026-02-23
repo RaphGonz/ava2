@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
 
-from app.routers import auth, avatars, preferences, webhook, health
+from app.routers import auth, avatars, dev, preferences, webhook, health
 
 app = FastAPI(
     title="Ava API",
@@ -30,6 +30,7 @@ app.add_middleware(
 # Mount routers
 app.include_router(health.router)
 app.include_router(auth.router)
+app.include_router(dev.router)
 app.include_router(avatars.router)
 app.include_router(preferences.router)
 app.include_router(webhook.router)
