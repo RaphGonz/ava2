@@ -1,6 +1,7 @@
-from pydantic import BaseModel, field_validator
-from typing import Optional
 from enum import Enum
+from pydantic import BaseModel, Field
+from typing import Optional
+from datetime import datetime
 
 
 class PersonalityType(str, Enum):
@@ -13,17 +14,10 @@ class PersonalityType(str, Enum):
 
 
 class AvatarCreate(BaseModel):
-    name: str
-    age: int
+    name: str = Field(..., min_length=1, max_length=100)
+    age: int = Field(..., ge=20, description="Avatar age — minimum 20 per compliance policy")
     personality: PersonalityType
-    physical_description: Optional[str] = None
-
-    @field_validator("age")
-    @classmethod
-    def age_must_be_at_least_20(cls, v: int) -> int:
-        if v < 20:
-            raise ValueError("Avatar age must be at least 20 (compliance requirement)")
-        return v
+    physical_description: Optional[str] = Field(None, max_length=2000)
 
 
 class AvatarResponse(BaseModel):
@@ -31,6 +25,6 @@ class AvatarResponse(BaseModel):
     user_id: str
     name: str
     age: int
-    personality: str
+    personality: PersonalityType
     physical_description: Optional[str] = None
-    created_at: str
+    created_at: datetime
