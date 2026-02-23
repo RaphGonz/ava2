@@ -68,10 +68,13 @@ Plans:
   4. User can switch back to secretary mode using "stop" or similar
   5. Mode switching handles typos and variations gracefully with confirmation gates
   6. Separate model contexts prevent prompt injection across modes
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 03-01-PLAN.md — LLM service abstraction layer (LLMProvider Protocol, OpenAI provider, system prompt templates, config + deps)
+- [ ] 03-02-PLAN.md — TDD: session state + mode switch detection (SessionStore, ConversationMode, ModeSwitchDetector, test suite)
+- [ ] 03-03-PLAN.md — Chat orchestration + webhook upgrade (ChatService, avatar fetch, replace echo with AI pipeline)
+- [ ] 03-04-PLAN.md — End-to-end verification checkpoint (automated tests + human verify)
 
 ### Phase 4: Secretary Skills
 **Goal**: Users can manage calendar, set reminders, and ask research questions via chat
@@ -144,7 +147,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Compliance | 2/2 | Complete   | 2026-02-23 |
 | 2. Infrastructure & User Management | 5/5 | Complete    | 2026-02-23 |
-| 3. Core Intelligence & Mode Switching | 0/TBD | Not started | - |
+| 3. Core Intelligence & Mode Switching | 0/4 | Not started | - |
 | 4. Secretary Skills | 0/TBD | Not started | - |
 | 5. Intimate Mode Text Foundation | 0/TBD | Not started | - |
 | 6. Web App & Multi-Platform | 0/TBD | Not started | - |
