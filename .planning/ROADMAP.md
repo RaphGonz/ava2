@@ -32,10 +32,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Age verification strategy defined (20+ floor enforcement)
   4. Architecture decision documented: text-only intimate mode on WhatsApp, images via web portal
   5. Compliance framework addresses TAKE IT DOWN Act requirements (watermarking, audit logs, consent)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 01-01-PLAN.md — Audit log database schema and takedown process documentation
+- [ ] 01-02-PLAN.md — Policy documents (ToS, content policy, age verification) and architecture decision records
 
 ### Phase 2: Infrastructure & User Management
 **Goal**: Secure, multi-tenant database and WhatsApp integration with production-grade message handling
@@ -137,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Compliance | 0/TBD | Not started | - |
+| 1. Foundation & Compliance | 0/2 | Planning complete | - |
 | 2. Infrastructure & User Management | 0/TBD | Not started | - |
 | 3. Core Intelligence & Mode Switching | 0/TBD | Not started | - |
 | 4. Secretary Skills | 0/TBD | Not started | - |
