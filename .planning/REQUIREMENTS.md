@@ -47,7 +47,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### User Management
 
 - [ ] **USER-01**: User can create an account
-- [ ] **USER-02**: User data is fully isolated from other users
+- [x] **USER-02**: User data is fully isolated from other users
 - [ ] **USER-03**: User can configure their avatar and persona during onboarding
 
 ### Safety & Compliance
@@ -66,7 +66,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **ARCH-01**: Modular skill system — new capabilities (OCR, memory, agentic skills) can be added as plugins
 - [ ] **ARCH-02**: Modular AI layer — LLM provider is swappable without changing business logic
 - [ ] **ARCH-03**: Modular image generation — image API provider is swappable without changing photo flow
-- [ ] **ARCH-04**: Cloud-hosted on VPS/AWS, always-on for message handling
+- [x] **ARCH-04**: Cloud-hosted on VPS/AWS, always-on for message handling
 
 ## v2 Requirements
 
@@ -128,9 +128,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SAFE-02 | Phase 1 | Complete |
 | SAFE-03 | Phase 1 | Pending |
 | PLAT-03 | Phase 1 | Complete |
-| ARCH-04 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Complete |
 | USER-01 | Phase 2 | Pending |
-| USER-02 | Phase 2 | Pending |
+| USER-02 | Phase 2 | Complete |
 | USER-03 | Phase 2 | Pending |
 | PLAT-01 | Phase 2 | Pending |
 | CHAT-01 | Phase 3 | Pending |
