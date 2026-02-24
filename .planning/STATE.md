@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 5 of 7 (Intimate Mode Text Foundation)
-Plan: 3 of 4 in current phase
+Plan: 4 of 4 in current phase (05-02 and 05-03 both complete, 05-04 remaining or phase done)
 Status: In Progress
-Last activity: 2026-02-24 — Completed 05-03 (PersonaUpdateRequest model, PATCH /avatars/me/persona endpoint, SessionStore.clear_avatar_cache() for immediate persona invalidation)
+Last activity: 2026-02-24 — Completed 05-02 (crisis_detector gate all modes, content_guard gate intimate-only, _log_guardrail_trigger and _log_crisis audit helpers, 28 tests pass)
 
 Progress: [████████░░] 80%
 
@@ -51,6 +51,7 @@ Progress: [████████░░] 80%
 | Phase 04-secretary-skills P05 | 13 | 2 tasks | 3 files |
 | Phase 05-01 P01 | 12 | 3 tasks | 5 files |
 | Phase 05-intimate-mode-text-foundation P03 | 12 | 2 tasks | 3 files |
+| Phase 05-intimate-mode-text-foundation P02 | 8 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase 05-intimate-mode-text-foundation]: body.personality.value (string) written to supabase DB instead of enum member to avoid serialization inconsistency
 - [Phase 05-intimate-mode-text-foundation]: object.__setattr__ used in clear_avatar_cache to reset dynamically-attached _avatar_cache attribute on SessionState dataclass
 - [Phase 05-intimate-mode-text-foundation]: clear_avatar_cache is no-op for non-existent sessions — persona change before first message handled naturally by DB fetch on first message
+- [Phase 05-intimate-mode-text-foundation]: Crisis gate runs in ALL modes — any mode triggers 988 crisis response; content guard runs ONLY in INTIMATE mode (Pitfall 6 prevention)
+- [Phase 05-intimate-mode-text-foundation]: supabase_admin imported locally inside audit helpers (deferred import) — avoids circular import risk; DB failure non-fatal for message delivery
 
 ### Pending Todos
 
@@ -124,5 +127,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-03-PLAN.md — PersonaUpdateRequest Pydantic model, PATCH /avatars/me/persona endpoint with 404/422 handling and DB write using .value, SessionStore.clear_avatar_cache() with object.__setattr__ and asyncio.Lock, PERS-01 satisfied
+Stopped at: Completed 05-02-PLAN.md — crisis_detector.check_message() gate (all modes) and content_guard.check_message() gate (intimate only) wired into ChatService.handle_message(), audit helpers _log_guardrail_trigger() and _log_crisis() added with supabase_admin try/except, INTM-01 and INTM-02 satisfied, 28 tests pass
 Resume file: None
