@@ -20,8 +20,17 @@ from app.services.session.models import ConversationMode, Message
 from app.services.mode_detection.detector import detect_mode_switch, DetectionResult
 from app.services.llm.base import LLMProvider
 from app.services.llm.prompts import secretary_prompt, intimate_prompt
+from openai import AsyncOpenAI
+from app.services.skills import registry  # triggers eager skill registration via __init__
+from app.services.skills.intent_classifier import classify_intent
+from app.services.skills.calendar_skill import execute_pending_add, PendingCalendarAdd
+from app.config import settings as _settings
 
 logger = logging.getLogger(__name__)
+
+# Keywords that confirm a pending calendar conflict — lives here so it runs before
+# intent classification, where 'yes' would otherwise be classified as 'chat'.
+CALENDAR_CONFIRM_KEYWORDS = {"yes", "y", "yeah", "yep", "oui"}
 
 # Mode switch confirmation messages (per CONTEXT.md decisions)
 SWITCH_TO_INTIMATE_MSG = "Switching to private mode — just us now 💬"
@@ -51,6 +60,9 @@ class ChatService:
     def __init__(self, llm: LLMProvider, session_store: SessionStore | None = None):
         self._llm = llm
         self._store = session_store or get_session_store()
+        # Intent classifier uses a separate AsyncOpenAI client — lightweight fast model call
+        self._openai_client = AsyncOpenAI(api_key=_settings.openai_api_key, max_retries=1)
+        self._intent_model = _settings.llm_model  # reuse configured model
 
     async def handle_message(
         self,
@@ -96,6 +108,24 @@ class ChatService:
                 # User ignored clarification — cancel pending switch, route normally
                 session.pending_switch_to = None
 
+        # --- Calendar conflict confirmation gate ---
+        # Must run BEFORE intent classification: 'yes' is classified as 'chat' by the
+        # LLM classifier, so it must be caught here as a conflict confirmation instead.
+        if session.pending_calendar_add is not None:
+            stripped = incoming_text.strip().lower()
+            pending = session.pending_calendar_add
+            session.pending_calendar_add = None  # clear regardless of answer
+            if stripped in CALENDAR_CONFIRM_KEYWORDS:
+                reply = await execute_pending_add(pending)
+                await self._store.append_message(
+                    user_id, session.mode, {"role": "user", "content": incoming_text}
+                )
+                await self._store.append_message(
+                    user_id, session.mode, {"role": "assistant", "content": reply}
+                )
+                return reply
+            # else: user declined — fall through to normal intent routing
+
         # --- Mode switch detection ---
         detection = detect_mode_switch(incoming_text, session.mode)
 
@@ -121,9 +151,33 @@ class ChatService:
             else:
                 return CLARIFICATION_TO_SECRETARY_MSG
 
-        # --- Normal message: call LLM ---
+        # --- Normal message: skill dispatch (secretary) or LLM (intimate) ---
         current_mode = session.mode
         history = list(session.history[current_mode])  # snapshot before append
+
+        # Secretary mode: classify intent and dispatch to skill if applicable.
+        # Intimate mode: bypass intent classification entirely — go straight to LLM.
+        if current_mode == ConversationMode.SECRETARY:
+            try:
+                intent = await classify_intent(
+                    self._openai_client, incoming_text, self._intent_model
+                )
+                if intent.skill != "chat":
+                    user_tz = avatar.get("timezone", "UTC") if avatar else "UTC"
+                    skill = registry.get(intent.skill)
+                    if skill is not None:
+                        # Pass session so calendar_add can store PendingCalendarAdd on conflict
+                        skill_reply = await skill.handle(user_id, intent, user_tz, session=session)
+                        await self._store.append_message(
+                            user_id, current_mode, {"role": "user", "content": incoming_text}
+                        )
+                        await self._store.append_message(
+                            user_id, current_mode, {"role": "assistant", "content": skill_reply}
+                        )
+                        return skill_reply
+            except Exception as e:
+                logger.error(f"Skill dispatch failed for user {user_id}, falling back to LLM: {e}")
+                # Fall through to LLM on any skill dispatch error — never break the chat
 
         if current_mode == ConversationMode.SECRETARY:
             system_prompt = secretary_prompt(avatar_name, personality)
