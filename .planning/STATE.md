@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 6 of 7 (Web App / Multi-Platform) — IN PROGRESS
-Plan: 3 of N in current phase — plan 03 complete
+Plan: 4 of N in current phase — plan 04 complete
 Status: In Progress
-Last activity: 2026-02-24 — Completed 06-03 (PlatformAdapter Protocol + NormalizedMessage + WhatsAppAdapter + WebAdapter + platform_router + webhook.py refactored to adapter pattern)
+Last activity: 2026-02-24 — Completed 06-04 (web chat router POST /chat + GET /chat/history, photo signed-URL router, PATCH /preferences/, ChatService mode_switch_phrase + spiciness_level extensions)
 
 Progress: [██████████] Phase 5 complete — Phase 6 in progress (2 plans done)
 
@@ -56,6 +56,7 @@ Progress: [██████████] Phase 5 complete — Phase 6 in progr
 | Phase 06-web-app-multi-platform P01 | 5 | 1 tasks | 1 files |
 | Phase 06-web-app-multi-platform P02 | 20 | 2 tasks | 14 files |
 | Phase 06-web-app-multi-platform P03 | 9 | 2 tasks | 6 files |
+| Phase 06-web-app-multi-platform P04 | 11 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,10 @@ Recent decisions affecting current work:
 - [Phase 06-web-app-multi-platform]: platform_router.route() is the single preferred_platform enforcement point — not duplicated per adapter; uses supabase_admin (no user JWT in webhook context)
 - [Phase 06-web-app-multi-platform]: WhatsAppAdapter.send() resolves user_id to phone internally via supabase_admin — decouples webhook.py from knowing sender phone at reply time
 - [Phase 06-web-app-multi-platform]: WebAdapter.send() is intentional no-op — web replies returned synchronously in HTTP response body, no async push needed
+- [Phase 06-web-app-multi-platform]: web_chat.py imports _chat_service from webhook.py — shares same ChatService + SessionStore singleton, avoids second in-memory session store
+- [Phase 06-web-app-multi-platform]: Preferences fetched once per message in handle_message() — single DB call covers mode_switch_phrase check and spiciness_level pass-through
+- [Phase 06-web-app-multi-platform]: PreferencesPatchRequest uses model_dump(exclude_none=True) — strict PATCH semantics, no accidental field resets
+- [Phase 06-web-app-multi-platform]: frontend_url defaults to http://localhost:3000 — production URL override via FRONTEND_URL env var
 
 ### Pending Todos
 
@@ -142,5 +147,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 06-03-PLAN.md — PlatformAdapter Protocol + NormalizedMessage + WhatsAppAdapter + WebAdapter + platform_router with preferred_platform enforcement + webhook.py refactored to adapter pattern.
+Stopped at: Completed 06-04-PLAN.md — web chat router (POST /chat + GET /chat/history), photo signed-URL router, PATCH /preferences/ with Phase 6 fields, ChatService mode_switch_phrase + spiciness_level extensions.
 Resume file: None
