@@ -6,6 +6,8 @@ import os
 
 from app.routers import auth, avatars, dev, messages, preferences, webhook, health
 from app.routers import google_oauth
+from app.routers import web_chat, photo
+from app.config import settings
 
 app = FastAPI(
     title="Ava API",
@@ -13,8 +15,7 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS middleware — allow localhost origins for development
-# Phase 6 will add production origins when the styled web app is deployed
+# CORS middleware — allow localhost origins for development and production frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,6 +23,7 @@ app.add_middleware(
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://127.0.0.1:3000",
+        settings.frontend_url,  # Add production URL from env
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -37,6 +39,8 @@ app.include_router(preferences.router)
 app.include_router(webhook.router)
 app.include_router(messages.router)
 app.include_router(google_oauth.router)
+app.include_router(web_chat.router)
+app.include_router(photo.router)
 
 # Serve templates directory for minimal Phase 2 test UI
 # Phase 6 will replace this with the full styled web app

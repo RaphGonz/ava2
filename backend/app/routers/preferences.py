@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_current_user, get_authed_supabase
-from app.models.preferences import PhoneLinkRequest, PreferencesResponse
+from app.models.preferences import PhoneLinkRequest, PreferencesResponse, PreferencesPatchRequest
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
@@ -35,4 +35,29 @@ async def get_preferences(
     result = db.from_("user_preferences").select("*").eq("user_id", str(user.id)).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="No preferences found")
+    return result.data[0]
+
+
+@router.patch("/", response_model=PreferencesResponse)
+async def update_preferences(
+    body: PreferencesPatchRequest,
+    user=Depends(get_current_user),
+    db=Depends(get_authed_supabase),
+):
+    """
+    Update user preferences. Only provided fields are updated (PATCH semantics).
+    Returns the full updated preferences row.
+    """
+    patch = body.model_dump(exclude_none=True)
+    if not patch:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    db.from_("user_preferences").upsert({
+        "user_id": str(user.id),
+        **patch,
+    }).execute()
+
+    result = db.from_("user_preferences").select("*").eq("user_id", str(user.id)).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Preferences not found after update")
     return result.data[0]

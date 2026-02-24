@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     # App
     app_env: str = "development"
+    frontend_url: str = "http://localhost:3000"
 
     # LLM provider configuration
     llm_provider: str = "openai"         # "openai" for Phase 3; extend for others
