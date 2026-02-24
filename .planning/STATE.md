@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app the user already uses.
-**Current focus:** Phase 6 - Web App / Multi-Platform
+**Current focus:** Phase 7 - Avatar System & Production
 
 ## Current Position
 
-Phase: 6 of 7 (Web App / Multi-Platform) — IN PROGRESS
-Plan: 5 of N in current phase — plan 05 complete
-Status: In Progress
-Last activity: 2026-02-24 — Completed 06-05 (chat components ChatBubble/MessageList/ChatInput, full ChatPage, SettingsPage with persona/platform/spiciness/mode-switch/notifs, PhotoPage, updatePersona API)
+Phase: 7 of 7 (Avatar System & Production) — NOT STARTED
+Plan: 0 of TBD in current phase — Phase 6 complete
+Status: Phase 6 Complete — Ready for Phase 7
+Last activity: 2026-02-24 — Completed 06-06 (Phase 6 end-to-end verification — human approved all 5 live tests: auth flow, web chat round-trip, settings persistence, channel='web' isolation, photo endpoint authenticated)
 
-Progress: [██████████] Phase 5 complete — Phase 6 in progress (2 plans done)
+Progress: [████████████] Phase 6 complete — Phase 7 not started
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [██████████] Phase 5 complete — Phase 6 in progr
 | Phase 06-web-app-multi-platform P03 | 9 | 2 tasks | 6 files |
 | Phase 06-web-app-multi-platform P04 | 11 | 2 tasks | 8 files |
 | Phase 06-web-app-multi-platform P05 | 10 | 2 tasks | 7 files |
+| Phase 06-web-app-multi-platform P06 | 10 | 2 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,7 @@ Recent decisions affecting current work:
 - [Phase 06-web-app-multi-platform]: frontend_url defaults to http://localhost:3000 — production URL override via FRONTEND_URL env var
 - [Phase 06-web-app-multi-platform]: ChatBubble uses rounded-br-sm / rounded-bl-sm for messenger-style bubble tail effect
 - [Phase 06-web-app-multi-platform]: Persona selector fires immediately (PATCH /avatars/me/persona on click); platform/spiciness/phrase accumulated in local state and saved together via Save Settings button
+- [Phase 06-web-app-multi-platform]: Photo signed-URL endpoint returns 500 (storage bucket not yet created) — bucket creation is Phase 7 scope, endpoint is registered and authenticated correctly
 
 ### Pending Todos
 
@@ -150,5 +152,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 06-05-PLAN.md — chat components (ChatBubble, MessageList, ChatInput), ChatPage, SettingsPage, PhotoPage, updatePersona API added to preferences.ts.
+Stopped at: Completed 06-06-PLAN.md — Phase 6 fully verified by human; all 5 live tests passed; phase complete. Ready for Phase 7 planning.
 Resume file: None
