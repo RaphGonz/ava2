@@ -57,6 +57,17 @@ class SessionStore:
         async with self._lock:
             self._sessions[user_id] = SessionState()
 
+    async def clear_avatar_cache(self, user_id: str) -> None:
+        """Clear the avatar cache for a user so the next message re-fetches from DB.
+
+        Called after PATCH /avatars/me/persona so persona changes take effect immediately.
+        No-op if the user has no active session.
+        """
+        async with self._lock:
+            state = self._sessions.get(user_id)
+            if state is not None and hasattr(state, "_avatar_cache"):
+                object.__setattr__(state, "_avatar_cache", None)
+
 
 _session_store: SessionStore | None = None
 
