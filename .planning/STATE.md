@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 6 of 7 (Web App / Multi-Platform) — IN PROGRESS
-Plan: 4 of N in current phase — plan 04 complete
+Plan: 5 of N in current phase — plan 05 complete
 Status: In Progress
-Last activity: 2026-02-24 — Completed 06-04 (web chat router POST /chat + GET /chat/history, photo signed-URL router, PATCH /preferences/, ChatService mode_switch_phrase + spiciness_level extensions)
+Last activity: 2026-02-24 — Completed 06-05 (chat components ChatBubble/MessageList/ChatInput, full ChatPage, SettingsPage with persona/platform/spiciness/mode-switch/notifs, PhotoPage, updatePersona API)
 
 Progress: [██████████] Phase 5 complete — Phase 6 in progress (2 plans done)
 
@@ -57,6 +57,7 @@ Progress: [██████████] Phase 5 complete — Phase 6 in progr
 | Phase 06-web-app-multi-platform P02 | 20 | 2 tasks | 14 files |
 | Phase 06-web-app-multi-platform P03 | 9 | 2 tasks | 6 files |
 | Phase 06-web-app-multi-platform P04 | 11 | 2 tasks | 8 files |
+| Phase 06-web-app-multi-platform P05 | 10 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,8 @@ Recent decisions affecting current work:
 - [Phase 06-web-app-multi-platform]: Preferences fetched once per message in handle_message() — single DB call covers mode_switch_phrase check and spiciness_level pass-through
 - [Phase 06-web-app-multi-platform]: PreferencesPatchRequest uses model_dump(exclude_none=True) — strict PATCH semantics, no accidental field resets
 - [Phase 06-web-app-multi-platform]: frontend_url defaults to http://localhost:3000 — production URL override via FRONTEND_URL env var
+- [Phase 06-web-app-multi-platform]: ChatBubble uses rounded-br-sm / rounded-bl-sm for messenger-style bubble tail effect
+- [Phase 06-web-app-multi-platform]: Persona selector fires immediately (PATCH /avatars/me/persona on click); platform/spiciness/phrase accumulated in local state and saved together via Save Settings button
 
 ### Pending Todos
 
@@ -147,5 +150,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 06-04-PLAN.md — web chat router (POST /chat + GET /chat/history), photo signed-URL router, PATCH /preferences/ with Phase 6 fields, ChatService mode_switch_phrase + spiciness_level extensions.
+Stopped at: Completed 06-05-PLAN.md — chat components (ChatBubble, MessageList, ChatInput), ChatPage, SettingsPage, PhotoPage, updatePersona API added to preferences.ts.
 Resume file: None
