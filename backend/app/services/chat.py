@@ -25,6 +25,8 @@ from app.services.skills import registry  # triggers eager skill registration vi
 from app.services.skills.intent_classifier import classify_intent
 from app.services.skills.calendar_skill import execute_pending_add, PendingCalendarAdd
 from app.config import settings as _settings
+from app.services.content_guard.guard import content_guard, _REFUSAL_MESSAGES
+from app.services.crisis.detector import crisis_detector, CRISIS_RESPONSE
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +49,40 @@ ONBOARDING_PROMPT = (
     "You haven't set up your Ava profile yet — visit ava.example.com to get started."
 )
 LLM_ERROR_MSG = "I'm having trouble thinking right now — try again in a moment."
+
+
+async def _log_guardrail_trigger(user_id: str, category: str | None) -> None:
+    """Log content guardrail trigger to audit_log. Non-fatal — DB failure is logged, not raised."""
+    try:
+        from app.database import supabase_admin
+        supabase_admin.from_("audit_log").insert({
+            "user_id": user_id,
+            "event_type": "content_guardrail_triggered",
+            "event_category": "moderation",
+            "action": "block",
+            "resource_type": "message",
+            "event_data": {"category": category},
+            "result": "blocked",
+        }).execute()
+    except Exception as e:
+        logger.error(f"Guardrail audit log write failed for user {user_id}: {e}")
+
+
+async def _log_crisis(user_id: str, triggering_phrases: list[str]) -> None:
+    """Log crisis detection to audit_log (separate event_type from guardrail). Non-fatal."""
+    try:
+        from app.database import supabase_admin
+        supabase_admin.from_("audit_log").insert({
+            "user_id": user_id,
+            "event_type": "crisis_detected",
+            "event_category": "moderation",
+            "action": "pivot",
+            "resource_type": "message",
+            "event_data": {"triggering_phrases": triggering_phrases},
+            "result": "crisis_response_sent",
+        }).execute()
+    except Exception as e:
+        logger.error(f"Crisis audit log write failed for user {user_id}: {e}")
 
 
 class ChatService:
