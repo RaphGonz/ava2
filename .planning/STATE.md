@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 6 of 7 (Web App / Multi-Platform) — IN PROGRESS
-Plan: 2 of N in current phase — plan 02 complete
+Plan: 3 of N in current phase — plan 03 complete
 Status: In Progress
-Last activity: 2026-02-24 — Completed 06-02 (React+Vite+Tailwind v4 frontend scaffold: Zustand auth store, TanStack Query API clients, LoginPage, Vite proxy to FastAPI backend)
+Last activity: 2026-02-24 — Completed 06-03 (PlatformAdapter Protocol + NormalizedMessage + WhatsAppAdapter + WebAdapter + platform_router + webhook.py refactored to adapter pattern)
 
 Progress: [██████████] Phase 5 complete — Phase 6 in progress (2 plans done)
 
@@ -55,6 +55,7 @@ Progress: [██████████] Phase 5 complete — Phase 6 in progr
 | Phase 05-intimate-mode-text-foundation P04 | 8 | 1 tasks | 1 files |
 | Phase 06-web-app-multi-platform P01 | 5 | 1 tasks | 1 files |
 | Phase 06-web-app-multi-platform P02 | 20 | 2 tasks | 14 files |
+| Phase 06-web-app-multi-platform P03 | 9 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,10 @@ Recent decisions affecting current work:
 - [Phase 06-web-app-multi-platform]: JWT payload decoded client-side (atob on base64url middle segment) to extract sub as user_id — avoids adding /auth/me endpoint or modifying backend
 - [Phase 06-web-app-multi-platform]: Tailwind v4 CSS-first config: no tailwind.config.js; @import 'tailwindcss' in index.css with @tailwindcss/vite plugin
 - [Phase 06-web-app-multi-platform]: Vite dev proxy forwards /auth /chat /preferences /avatars /photos to localhost:8000 — frontend uses plain path calls, no CORS configuration needed in dev
+- [Phase 06-web-app-multi-platform]: PlatformAdapter uses Python Protocol (structural typing) — any class with async receive() and send() qualifies without inheritance, mirroring LLMProvider pattern from Phase 3
+- [Phase 06-web-app-multi-platform]: platform_router.route() is the single preferred_platform enforcement point — not duplicated per adapter; uses supabase_admin (no user JWT in webhook context)
+- [Phase 06-web-app-multi-platform]: WhatsAppAdapter.send() resolves user_id to phone internally via supabase_admin — decouples webhook.py from knowing sender phone at reply time
+- [Phase 06-web-app-multi-platform]: WebAdapter.send() is intentional no-op — web replies returned synchronously in HTTP response body, no async push needed
 
 ### Pending Todos
 
@@ -137,5 +142,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 06-02-PLAN.md — React+Vite+Tailwind v4 frontend scaffold: Zustand auth store with persist middleware, TanStack Query API clients for auth/chat/preferences, LoginPage wired to /auth/signin, ProtectedRoute routing in App.tsx, Vite dev proxy to FastAPI backend on port 8000.
+Stopped at: Completed 06-03-PLAN.md — PlatformAdapter Protocol + NormalizedMessage + WhatsAppAdapter + WebAdapter + platform_router with preferred_platform enforcement + webhook.py refactored to adapter pattern.
 Resume file: None
