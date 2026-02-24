@@ -77,7 +77,7 @@ Plans:
 - [ ] 03-04-PLAN.md — End-to-end verification checkpoint (automated tests + human verify)
 
 ### Phase 4: Secretary Skills
-**Goal**: Users can manage calendar, set reminders, and ask research questions via chat
+**Goal**: Users can manage Google Calendar and ask research questions via WhatsApp chat using a modular skill system
 **Depends on**: Phase 3
 **Requirements**: SECR-01, SECR-02, SECR-03, ARCH-01
 **Success Criteria** (what must be TRUE):
@@ -85,10 +85,14 @@ Plans:
   2. User can view upcoming schedule from Google Calendar via chat
   3. User can ask the bot to research a topic and receive a concise answer
   4. Skill registry demonstrates modular architecture (new skills can be added as plugins)
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 04-01-PLAN.md — Skill registry (Skill Protocol + ParsedIntent), intent classifier (OpenAI structured outputs), config + deps
+- [ ] 04-02-PLAN.md — Google OAuth infrastructure: DB migration, token store, /auth/google routes
+- [ ] 04-03-PLAN.md — CalendarSkill: add meeting (SECR-01) and view schedule (SECR-02) with conflict detection and bilingual date parsing
+- [ ] 04-04-PLAN.md — ResearchSkill: Tavily-powered factual Q&A with concise answer + source link (SECR-03)
+- [ ] 04-05-PLAN.md — ChatService skill dispatch integration + automated tests for secretary routing
 
 ### Phase 5: Intimate Mode Text Foundation
 **Goal**: Bot provides personalized, flirty conversation with safety guardrails and crisis detection
@@ -148,7 +152,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Foundation & Compliance | 2/2 | Complete   | 2026-02-23 |
 | 2. Infrastructure & User Management | 5/5 | Complete    | 2026-02-23 |
 | 3. Core Intelligence & Mode Switching | 4/4 | Complete    | 2026-02-23 |
-| 4. Secretary Skills | 0/TBD | Not started | - |
+| 4. Secretary Skills | 0/5 | Not started | - |
 | 5. Intimate Mode Text Foundation | 0/TBD | Not started | - |
 | 6. Web App & Multi-Platform | 0/TBD | Not started | - |
 | 7. Avatar System & Production | 0/TBD | Not started | - |
