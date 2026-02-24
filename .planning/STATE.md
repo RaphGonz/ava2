@@ -45,6 +45,7 @@ Progress: [███████░░░] 72%
 - Trend: Stable
 
 *Updated after each plan completion*
+| Phase 04-secretary-skills P02 | 14 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,10 @@ Recent decisions affecting current work:
 - [Phase 04-secretary-skills]: classify_intent() accepts AsyncOpenAI client and model as arguments (not imported from config) — keeps classifier testable without config coupling
 - [Phase 04-secretary-skills]: All new config fields default to empty string — missing credentials return graceful error messages, not startup crashes (same pattern as openai_api_key)
 - [Phase 04-secretary-skills]: IntentResult (Pydantic BaseModel for LLM response) is separate from ParsedIntent (dataclass for domain routing) — clean separation between LLM schema and application domain object
+- [Phase 04-secretary-skills]: Flow.from_client_config() used for web server OAuth2 — not InstalledAppFlow
+- [Phase 04-secretary-skills]: asyncio.to_thread() wraps synchronous Google Auth calls to avoid blocking FastAPI event loop
+- [Phase 04-secretary-skills]: supabase_admin used for google_calendar_tokens storage — webhook/skill pipeline runs without user JWT
+- [Phase 04-secretary-skills]: calendar.events scope only (least privilege) — avoids full calendar management access
 
 ### Pending Todos
 

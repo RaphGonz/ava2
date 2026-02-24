@@ -17,8 +17,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Secretary Skills
 
-- [ ] **SECR-01**: User can add a meeting to their Google Calendar via chat
-- [ ] **SECR-02**: User can view their upcoming schedule from Google Calendar via chat
+- [x] **SECR-01**: User can add a meeting to their Google Calendar via chat
+- [x] **SECR-02**: User can view their upcoming schedule from Google Calendar via chat
 - [x] **SECR-03**: User can ask the bot to research a topic and receive a concise answer
 
 ### Intimate Mode
@@ -139,8 +139,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHAT-04 | Phase 3 | Complete |
 | CHAT-05 | Phase 3 | Complete |
 | ARCH-02 | Phase 3 | Complete |
-| SECR-01 | Phase 4 | Pending |
-| SECR-02 | Phase 4 | Pending |
+| SECR-01 | Phase 4 | Complete |
+| SECR-02 | Phase 4 | Complete |
 | SECR-03 | Phase 4 | Complete |
 | ARCH-01 | Phase 4 | Complete |
 | INTM-01 | Phase 5 | Pending |
