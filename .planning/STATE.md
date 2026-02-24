@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 6 of 7 (Web App / Multi-Platform) — IN PROGRESS
-Plan: 1 of N in current phase — plan 01 complete
+Plan: 2 of N in current phase — plan 02 complete
 Status: In Progress
-Last activity: 2026-02-24 — Completed 06-01 (Phase 6 DB migration: message_channel+'web', 4 new user_preferences columns, CHECK constraints, platform index)
+Last activity: 2026-02-24 — Completed 06-02 (React+Vite+Tailwind v4 frontend scaffold: Zustand auth store, TanStack Query API clients, LoginPage, Vite proxy to FastAPI backend)
 
-Progress: [██████████] Phase 5 complete — Phase 6 started (1 plan done)
+Progress: [██████████] Phase 5 complete — Phase 6 in progress (2 plans done)
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [██████████] Phase 5 complete — Phase 6 started 
 | Phase 05-intimate-mode-text-foundation P02 | 8 | 2 tasks | 1 files |
 | Phase 05-intimate-mode-text-foundation P04 | 8 | 1 tasks | 1 files |
 | Phase 06-web-app-multi-platform P01 | 5 | 1 tasks | 1 files |
+| Phase 06-web-app-multi-platform P02 | 20 | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -118,7 +119,10 @@ Recent decisions affecting current work:
 - [Phase 05-intimate-mode-text-foundation]: Tests run from backend/ directory where .env file lives — pytest run command is cd backend && python -m pytest
 - [Phase 06-web-app-multi-platform]: ALTER TYPE message_channel ADD VALUE placed before BEGIN block — PostgreSQL restriction on enum mutations inside transactions
 - [Phase 06-web-app-multi-platform]: preferred_platform defaults to 'whatsapp' and spiciness_level to 'mild' — existing users retain current behaviour after migration
-- [Phase 06-web-app-multi-platform]: CHECK constraints wrapped in DO $$ EXCEPTION WHEN duplicate_object guard — migration is idempotent and safe to re-run
+- [Phase 06-web-app-multi-platform]: CHECK constraints wrapped in DO $ EXCEPTION WHEN duplicate_object guard — migration is idempotent and safe to re-run
+- [Phase 06-web-app-multi-platform]: JWT payload decoded client-side (atob on base64url middle segment) to extract sub as user_id — avoids adding /auth/me endpoint or modifying backend
+- [Phase 06-web-app-multi-platform]: Tailwind v4 CSS-first config: no tailwind.config.js; @import 'tailwindcss' in index.css with @tailwindcss/vite plugin
+- [Phase 06-web-app-multi-platform]: Vite dev proxy forwards /auth /chat /preferences /avatars /photos to localhost:8000 — frontend uses plain path calls, no CORS configuration needed in dev
 
 ### Pending Todos
 
@@ -133,5 +137,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 06-01-PLAN.md — Phase 6 DB migration (003_phase6_preferences.sql): message_channel enum extended with 'web', 4 new user_preferences columns (preferred_platform, spiciness_level, mode_switch_phrase, notif_prefs), CHECK constraints with DO $$ idempotency guard, performance index on (user_id, preferred_platform).
+Stopped at: Completed 06-02-PLAN.md — React+Vite+Tailwind v4 frontend scaffold: Zustand auth store with persist middleware, TanStack Query API clients for auth/chat/preferences, LoginPage wired to /auth/signin, ProtectedRoute routing in App.tsx, Vite dev proxy to FastAPI backend on port 8000.
 Resume file: None
