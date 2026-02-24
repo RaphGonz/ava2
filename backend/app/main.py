@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 import os
 
 from app.routers import auth, avatars, dev, messages, preferences, webhook, health
+from app.routers import google_oauth
 
 app = FastAPI(
     title="Ava API",
@@ -35,6 +36,7 @@ app.include_router(avatars.router)
 app.include_router(preferences.router)
 app.include_router(webhook.router)
 app.include_router(messages.router)
+app.include_router(google_oauth.router)
 
 # Serve templates directory for minimal Phase 2 test UI
 # Phase 6 will replace this with the full styled web app
