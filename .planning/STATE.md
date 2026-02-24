@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app the user already uses.
-**Current focus:** Phase 4 - Secretary Skills
+**Current focus:** Phase 5 - Intimate Mode Text Foundation
 
 ## Current Position
 
-Phase: 4 of 7 (Secretary Skills)
-Plan: 5 of 5 in current phase
-Status: Complete
-Last activity: 2026-02-24 — Completed 04-05 (ChatService skill dispatch: intent classification + skill routing in secretary mode, conflict confirmation gate, eager skill registration, 8 tests passing)
+Phase: 5 of 7 (Intimate Mode Text Foundation)
+Plan: 1 of 4 in current phase
+Status: In Progress
+Last activity: 2026-02-24 — Completed 05-01 (per-persona intimate prompts, ContentGuard with dual-pass normalization, CrisisDetector two-layer detection with 988 Lifeline)
 
 Progress: [████████░░] 80%
 
@@ -49,6 +49,8 @@ Progress: [████████░░] 80%
 | Phase 04-secretary-skills P04 | 6 | 1 tasks | 1 files |
 | Phase 04-secretary-skills P03 | 8 | 2 tasks | 2 files |
 | Phase 04-secretary-skills P05 | 13 | 2 tasks | 3 files |
+| Phase 05-01 P01 | 12 | 3 tasks | 5 files |
+| Phase 05-intimate-mode-text-foundation P03 | 12 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -102,6 +104,12 @@ Recent decisions affecting current work:
 - [Phase 04-secretary-skills]: pending_calendar_add gate runs BEFORE mode switch detection to catch yes/oui as conflict confirmation instead of chat intent
 - [Phase 04-secretary-skills]: ConversationMode.SECRETARY guard mandatory before classify_intent — intimate mode must never call intent classifier
 - [Phase 04-secretary-skills]: Skill dispatch errors fall through to LLM silently via try/except — chat service never breaks on skill failure
+- [Phase 05-intimate-mode-text-foundation]: intimate_prompt() dispatch uses dict.get(personality, _intimate_caring) — unknown personas fall back to caring, never raise
+- [Phase 05-intimate-mode-text-foundation]: ContentGuard dual-pass normalization: space-replace + collapse-remove catches ch\!ld obfuscation that space-replace alone misses
+- [Phase 05-intimate-mode-text-foundation]: 'want to die' placed in Layer 2 context-boost (not Layer 1 immediate) — prevents false positive on 'want to die laughing'
+- [Phase 05-intimate-mode-text-foundation]: body.personality.value (string) written to supabase DB instead of enum member to avoid serialization inconsistency
+- [Phase 05-intimate-mode-text-foundation]: object.__setattr__ used in clear_avatar_cache to reset dynamically-attached _avatar_cache attribute on SessionState dataclass
+- [Phase 05-intimate-mode-text-foundation]: clear_avatar_cache is no-op for non-existent sessions — persona change before first message handled naturally by DB fetch on first message
 
 ### Pending Todos
 
@@ -116,5 +124,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 04-05-PLAN.md — ChatService skill dispatch wired: intent classification in secretary mode, pending_calendar_add confirmation gate, eager skill registration via skills/__init__.py, 8 pytest tests all passing (28 total in suite)
+Stopped at: Completed 05-01-PLAN.md — per-persona intimate_prompt() dispatch (6 factories), ContentGuard with dual-pass normalization for 6 blocked categories, CrisisDetector two-layer detection (Layer 1 unambiguous, Layer 2 context-scored) with 988 Lifeline CRISIS_RESPONSE constant
 Resume file: None

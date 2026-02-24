@@ -23,8 +23,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Intimate Mode
 
-- [ ] **INTM-01**: Bot adopts a chatty, flirty conversational style in intimate mode
-- [ ] **INTM-02**: Bot asks the user questions and encourages them in intimate mode
+- [x] **INTM-01**: Bot adopts a chatty, flirty conversational style in intimate mode
+- [x] **INTM-02**: Bot asks the user questions and encourages them in intimate mode
 - [ ] **INTM-03**: Bot sends AI-generated photos of the user's avatar during intimate conversations
 
 ### Avatar & Personality
@@ -34,7 +34,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **AVTR-03**: User can select avatar nationality/race
 - [ ] **AVTR-04**: User can describe avatar appearance in free text for unlimited customization
 - [ ] **AVTR-05**: Avatar definition feeds into image generation for consistent character photos
-- [ ] **PERS-01**: User can choose from preset personality personas (e.g., playful, dominant, shy, caring)
+- [x] **PERS-01**: User can choose from preset personality personas (e.g., playful, dominant, shy, caring)
 
 ### Platforms & Delivery
 
@@ -143,9 +143,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SECR-02 | Phase 4 | Complete |
 | SECR-03 | Phase 4 | Complete |
 | ARCH-01 | Phase 4 | Complete |
-| INTM-01 | Phase 5 | Pending |
-| INTM-02 | Phase 5 | Pending |
-| PERS-01 | Phase 5 | Pending |
+| INTM-01 | Phase 5 | Complete |
+| INTM-02 | Phase 5 | Complete |
+| PERS-01 | Phase 5 | Complete |
 | PLAT-02 | Phase 6 | Pending |
 | PLAT-04 | Phase 6 | Pending |
 | PLAT-05 | Phase 6 | Pending |
