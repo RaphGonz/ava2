@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 4 of 7 (Secretary Skills)
-Plan: 1 of 5 in current phase
+Plan: 5 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-24 — Completed 04-01 (Skill registry foundation: Skill Protocol + ParsedIntent + registry dict + OpenAI structured-output intent classifier + config fields for Google/Tavily + new packages installed)
+Last activity: 2026-02-24 — Completed 04-04 (ResearchSkill with Tavily API integration: asyncio.to_thread wrapping, ambiguity detection, graceful degradation, registered for 'research' intent)
 
 Progress: [███████░░░] 72%
 
@@ -46,6 +46,8 @@ Progress: [███████░░░] 72%
 
 *Updated after each plan completion*
 | Phase 04-secretary-skills P02 | 14 | 2 tasks | 6 files |
+| Phase 04-secretary-skills P04 | 6 | 1 tasks | 1 files |
+| Phase 04-secretary-skills P03 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -91,6 +93,11 @@ Recent decisions affecting current work:
 - [Phase 04-secretary-skills]: asyncio.to_thread() wraps synchronous Google Auth calls to avoid blocking FastAPI event loop
 - [Phase 04-secretary-skills]: supabase_admin used for google_calendar_tokens storage — webhook/skill pipeline runs without user JWT
 - [Phase 04-secretary-skills]: calendar.events scope only (least privilege) — avoids full calendar management access
+- [Phase 04-secretary-skills]: Tavily include_answer='advanced' provides pre-formatted AI answer — no separate LLM summarization call needed
+- [Phase 04-secretary-skills]: asyncio.to_thread wrapping pattern established for all synchronous SDK calls inside async FastAPI handlers
+- [Phase 04-secretary-skills]: pending_calendar_add typed as Any | None in store.py to avoid circular import between store and calendar_skill
+- [Phase 04-secretary-skills]: CONFLICT_CONFIRM_KEYWORDS not in calendar_skill.py — lives in chat.py (Plan 05) so confirmation check runs before intent classification
+- [Phase 04-secretary-skills]: CalendarSkill.handle() accepts optional session kwarg to store PendingCalendarAdd on conflict detection while keeping Skill Protocol stable
 
 ### Pending Todos
 
@@ -105,5 +112,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 04-01-PLAN.md — Skill registry foundation complete (Skill Protocol + ParsedIntent + classify_intent() + config fields + new packages)
+Stopped at: Completed 04-04-PLAN.md — ResearchSkill with Tavily API integration registered for 'research' intent (SECR-03)
 Resume file: None
