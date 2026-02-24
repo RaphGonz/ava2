@@ -122,10 +122,15 @@ Plans:
   3. User can choose whether to use WhatsApp or web app as primary interface
   4. Messaging layer abstracts platform differences (WhatsApp and web use same core logic)
   5. New messaging platforms can be added as adapters without touching core
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 06-01-PLAN.md — Phase 6 DB migration (user_preferences new columns + message_channel 'web')
+- [ ] 06-02-PLAN.md — React + Vite + Tailwind frontend scaffold, Zustand auth store, LoginPage
+- [ ] 06-03-PLAN.md — PlatformAdapter Protocol, WhatsApp/Web adapters, platform_router, webhook refactor
+- [ ] 06-04-PLAN.md — Web chat API (POST /chat, GET /chat/history), preferences PATCH, photo signed-URL, ChatService extensions
+- [ ] 06-05-PLAN.md — Chat components (ChatBubble, MessageList, ChatInput), ChatPage, SettingsPage, PhotoPage
+- [ ] 06-06-PLAN.md — Automated verification + human checkpoint for Phase 6 system
 
 ### Phase 7: Avatar System & Production
 **Goal**: Users can customize avatars, receive AI-generated photos, and system is production-ready with billing
