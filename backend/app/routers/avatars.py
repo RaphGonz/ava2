@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_current_user, get_authed_supabase
-from app.models.avatar import AvatarCreate, AvatarResponse
+from app.models.avatar import AvatarCreate, AvatarResponse, PersonaUpdateRequest
+from app.services.session.store import get_session_store
 
 router = APIRouter(prefix="/avatars", tags=["avatars"])
 
@@ -48,3 +49,28 @@ async def get_my_avatar(
     if not result.data:
         raise HTTPException(status_code=404, detail="No avatar found")
     return result.data[0]
+
+
+@router.patch("/me/persona")
+async def update_persona(
+    body: PersonaUpdateRequest,
+    user=Depends(get_current_user),
+    db=Depends(get_authed_supabase),
+):
+    """
+    Update the authenticated user's avatar persona.
+    Clears session avatar cache so the new persona takes effect immediately.
+    """
+    result = db.from_("avatars").update(
+        {"personality": body.personality.value}
+    ).eq("user_id", str(user.id)).execute()
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="No avatar found")
+
+    # Invalidate session avatar cache so next message picks up the new persona
+    # (per RESEARCH.md Pitfall 5: cache is never auto-invalidated on persona update)
+    session_store = get_session_store()
+    await session_store.clear_avatar_cache(str(user.id))
+
+    return {"personality": body.personality.value}

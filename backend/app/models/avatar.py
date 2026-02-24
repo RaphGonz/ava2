@@ -20,6 +20,10 @@ class AvatarCreate(BaseModel):
     physical_description: Optional[str] = Field(None, max_length=2000)
 
 
+class PersonaUpdateRequest(BaseModel):
+    personality: PersonalityType
+
+
 class AvatarResponse(BaseModel):
     id: str
     user_id: str
