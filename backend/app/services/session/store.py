@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import dataclass, field
+from typing import Any
 from app.services.session.models import ConversationMode, Message
 
 
@@ -12,7 +13,8 @@ class SessionState:
             ConversationMode.INTIMATE: [],
         }
     )
-    pending_switch_to: ConversationMode | None = None  # clarification gate state
+    pending_switch_to: ConversationMode | None = None  # clarification gate: mode switch
+    pending_calendar_add: Any | None = None  # clarification gate: calendar conflict confirmation
 
 
 class SessionStore:
