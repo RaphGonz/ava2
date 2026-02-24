@@ -21,6 +21,14 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4.1-mini"     # Model alias; override via LLM_MODEL env var
     openai_api_key: str = ""            # Set in .env as OPENAI_API_KEY
 
+    # Secretary skills — Google Calendar OAuth
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_oauth_redirect_uri: str = "http://localhost:8000/auth/google/callback"
+
+    # Secretary skills — Tavily research
+    tavily_api_key: str = ""
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
 
 
