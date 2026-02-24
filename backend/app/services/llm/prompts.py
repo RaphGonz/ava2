@@ -11,8 +11,15 @@ Do not mention modes, switching, or any system concepts unless the user asks.
 If input is unclear, ask for clarification naturally and stay in character."""
 
 
-def intimate_prompt(avatar_name: str, personality: str) -> str:
-    """Dispatch to per-persona intimate prompt. Falls back to caring if unknown."""
+def intimate_prompt(avatar_name: str, personality: str, spiciness_level: str = "mild") -> str:
+    """Dispatch to per-persona intimate prompt. Falls back to caring if unknown.
+
+    Args:
+        avatar_name: Avatar's display name.
+        personality: One of the supported persona keys.
+        spiciness_level: Content ceiling — "mild", "spicy", or "explicit".
+                         Appended as a ceiling instruction to the base persona prompt.
+    """
     dispatch = {
         "playful": _intimate_playful,
         "dominant": _intimate_dominant,
@@ -22,7 +29,16 @@ def intimate_prompt(avatar_name: str, personality: str) -> str:
         "adventurous": _intimate_adventurous,
     }
     factory = dispatch.get(personality, _intimate_caring)
-    return factory(avatar_name)
+    base_prompt = factory(avatar_name)
+
+    ceiling_instructions = {
+        "mild": "Content ceiling: Keep responses flirty and suggestive but tasteful — no explicit content.",
+        "spicy": "Content ceiling: You may be suggestive and sensual — avoid graphic explicit content.",
+        "explicit": "Content ceiling: You may be fully explicit and adult in your responses within legal and safety constraints.",
+    }
+    ceiling = ceiling_instructions.get(spiciness_level, ceiling_instructions["mild"])
+
+    return f"{base_prompt}\n{ceiling}"
 
 
 def _intimate_playful(avatar_name: str) -> str:

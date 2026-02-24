@@ -27,6 +27,7 @@ from app.services.skills.calendar_skill import execute_pending_add, PendingCalen
 from app.config import settings as _settings
 from app.services.content_guard.guard import content_guard, _REFUSAL_MESSAGES
 from app.services.crisis.detector import crisis_detector, CRISIS_RESPONSE
+from app.database import supabase_admin
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +163,36 @@ class ChatService:
                 return reply
             # else: user declined — fall through to normal intent routing
 
+        # --- Custom mode-switch phrase check (runs BEFORE fuzzy detection) ---
+        # Per CONTEXT.md: user-configurable phrase stored in user_preferences.
+        # Exact match, case-insensitive, stripped. Priority over fuzzy detector.
+        try:
+            prefs_result = supabase_admin.from_("user_preferences") \
+                .select("mode_switch_phrase, spiciness_level") \
+                .eq("user_id", user_id) \
+                .maybe_single() \
+                .execute()
+            prefs = prefs_result.data or {}
+        except Exception as e:
+            logger.warning(f"Preferences fetch failed for user {user_id}: {e}")
+            prefs = {}
+
+        custom_phrase = prefs.get("mode_switch_phrase")
+        if custom_phrase and incoming_text.strip().lower() == custom_phrase.strip().lower():
+            # Phrase matches — toggle mode (intimate -> secretary, secretary -> intimate)
+            target = (
+                ConversationMode.INTIMATE
+                if session.mode == ConversationMode.SECRETARY
+                else ConversationMode.SECRETARY
+            )
+            await self._store.switch_mode(user_id, target)
+            if target == ConversationMode.INTIMATE:
+                return SWITCH_TO_INTIMATE_MSG
+            else:
+                return SWITCH_TO_SECRETARY_MSG
+
+        spiciness_level = prefs.get("spiciness_level", "mild")
+
         # --- Mode switch detection ---
         detection = detect_mode_switch(incoming_text, session.mode)
 
@@ -242,7 +273,7 @@ class ChatService:
         if current_mode == ConversationMode.SECRETARY:
             system_prompt = secretary_prompt(avatar_name, personality)
         else:
-            system_prompt = intimate_prompt(avatar_name, personality)
+            system_prompt = intimate_prompt(avatar_name, personality, spiciness_level)
 
         user_message: Message = {"role": "user", "content": incoming_text}
 
