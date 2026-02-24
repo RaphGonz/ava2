@@ -191,6 +191,30 @@ class ChatService:
         current_mode = session.mode
         history = list(session.history[current_mode])  # snapshot before append
 
+        # --- GATE 1: Crisis detection — runs in all modes ---
+        crisis = crisis_detector.check_message(incoming_text, history)
+        if crisis.detected:
+            await _log_crisis(user_id, crisis.triggering_phrases)
+            user_message_crisis: Message = {"role": "user", "content": incoming_text}
+            await self._store.append_message(user_id, current_mode, user_message_crisis)
+            await self._store.append_message(
+                user_id, current_mode, {"role": "assistant", "content": CRISIS_RESPONSE}
+            )
+            return CRISIS_RESPONSE
+
+        # --- GATE 2: Content guardrail — intimate mode only ---
+        if current_mode == ConversationMode.INTIMATE:
+            guard = content_guard.check_message(incoming_text)
+            if guard.blocked:
+                await _log_guardrail_trigger(user_id, guard.category)
+                refusal = _REFUSAL_MESSAGES.get(guard.category or "default", _REFUSAL_MESSAGES["default"])
+                user_message_guard: Message = {"role": "user", "content": incoming_text}
+                await self._store.append_message(user_id, current_mode, user_message_guard)
+                await self._store.append_message(
+                    user_id, current_mode, {"role": "assistant", "content": refusal}
+                )
+                return refusal
+
         # Secretary mode: classify intent and dispatch to skill if applicable.
         # Intimate mode: bypass intent classification entirely — go straight to LLM.
         if current_mode == ConversationMode.SECRETARY:
