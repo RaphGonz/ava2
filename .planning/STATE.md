@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 5 of 7 (Intimate Mode Text Foundation)
-Plan: 1 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In Progress
-Last activity: 2026-02-24 — Completed 05-01 (per-persona intimate prompts, ContentGuard with dual-pass normalization, CrisisDetector two-layer detection with 988 Lifeline)
+Last activity: 2026-02-24 — Completed 05-03 (PersonaUpdateRequest model, PATCH /avatars/me/persona endpoint, SessionStore.clear_avatar_cache() for immediate persona invalidation)
 
 Progress: [████████░░] 80%
 
@@ -124,5 +124,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-01-PLAN.md — per-persona intimate_prompt() dispatch (6 factories), ContentGuard with dual-pass normalization for 6 blocked categories, CrisisDetector two-layer detection (Layer 1 unambiguous, Layer 2 context-scored) with 988 Lifeline CRISIS_RESPONSE constant
+Stopped at: Completed 05-03-PLAN.md — PersonaUpdateRequest Pydantic model, PATCH /avatars/me/persona endpoint with 404/422 handling and DB write using .value, SessionStore.clear_avatar_cache() with object.__setattr__ and asyncio.Lock, PERS-01 satisfied
 Resume file: None
