@@ -19,7 +19,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **SECR-01**: User can add a meeting to their Google Calendar via chat
 - [ ] **SECR-02**: User can view their upcoming schedule from Google Calendar via chat
-- [ ] **SECR-03**: User can ask the bot to research a topic and receive a concise answer
+- [x] **SECR-03**: User can ask the bot to research a topic and receive a concise answer
 
 ### Intimate Mode
 
@@ -63,7 +63,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Architecture
 
-- [ ] **ARCH-01**: Modular skill system — new capabilities (OCR, memory, agentic skills) can be added as plugins
+- [x] **ARCH-01**: Modular skill system — new capabilities (OCR, memory, agentic skills) can be added as plugins
 - [x] **ARCH-02**: Modular AI layer — LLM provider is swappable without changing business logic
 - [ ] **ARCH-03**: Modular image generation — image API provider is swappable without changing photo flow
 - [x] **ARCH-04**: Cloud-hosted on VPS/AWS, always-on for message handling
@@ -141,8 +141,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ARCH-02 | Phase 3 | Complete |
 | SECR-01 | Phase 4 | Pending |
 | SECR-02 | Phase 4 | Pending |
-| SECR-03 | Phase 4 | Pending |
-| ARCH-01 | Phase 4 | Pending |
+| SECR-03 | Phase 4 | Complete |
+| ARCH-01 | Phase 4 | Complete |
 | INTM-01 | Phase 5 | Pending |
 | INTM-02 | Phase 5 | Pending |
 | PERS-01 | Phase 5 | Pending |
@@ -166,4 +166,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after roadmap creation*
+*Last updated: 2026-02-24 after 04-01 (ARCH-01, SECR-03 marked complete)*

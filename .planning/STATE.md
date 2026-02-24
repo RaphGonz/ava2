@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app the user already uses.
-**Current focus:** Phase 3 - AI Core
+**Current focus:** Phase 4 - Secretary Skills
 
 ## Current Position
 
-Phase: 3 of 7 (Core Intelligence & Mode Switching)
-Plan: 4 of 5 in current phase
+Phase: 4 of 7 (Secretary Skills)
+Plan: 1 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-23 — Completed 03-04 (Phase 3 end-to-end verification: all automated tests passed, all imports resolve, AI pipeline human-approved, Phase 3 requirements CHAT-01..05 + ARCH-02 confirmed)
+Last activity: 2026-02-24 — Completed 04-01 (Skill registry foundation: Skill Protocol + ParsedIntent + registry dict + OpenAI structured-output intent classifier + config fields for Google/Tavily + new packages installed)
 
-Progress: [██████░░░░] 68%
+Progress: [███████░░░] 72%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 13 min
-- Total execution time: 2.1 hours
+- Total plans completed: 11
+- Average duration: 12 min
+- Total execution time: 2.3 hours
 
 **By Phase:**
 
@@ -38,9 +38,10 @@ Progress: [██████░░░░] 68%
 | 03-core-intelligence-mode-switching P02 | 8 min | 2 tasks | 9 files |
 | 03-core-intelligence-mode-switching P03 | 12 min | 2 tasks | 3 files |
 | 03-core-intelligence-mode-switching P04 | 5 min | 2 tasks | 0 files |
+| 04-secretary-skills P01 | 10 min | 2 tasks | 5 files |
 
 **Recent Trend:**
-- Last 5 plans: 15 min, 15 min, 9 min, 8 min, 12 min
+- Last 5 plans: 9 min, 8 min, 12 min, 5 min, 10 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -81,6 +82,10 @@ Recent decisions affecting current work:
 - [Phase 03-core-intelligence-mode-switching]: send_whatsapp_message() called before Supabase logging — DB failure cannot block reply delivery
 - [Phase 03-core-intelligence-mode-switching]: avatar_id now populated from avatar["id"] in message logging (was hardcoded None in Phase 2 echo)
 - [Phase 03-core-intelligence-mode-switching]: Phase 3 declared complete after human approval — Option B verification (unit tests + grep) accepted without live OPENAI_API_KEY; live LLM testing deferred pending credential configuration
+- [Phase 04-secretary-skills]: Skill registry uses module-level dict (not class-based) — consistent with Python module singleton pattern, simpler than dependency injection
+- [Phase 04-secretary-skills]: classify_intent() accepts AsyncOpenAI client and model as arguments (not imported from config) — keeps classifier testable without config coupling
+- [Phase 04-secretary-skills]: All new config fields default to empty string — missing credentials return graceful error messages, not startup crashes (same pattern as openai_api_key)
+- [Phase 04-secretary-skills]: IntentResult (Pydantic BaseModel for LLM response) is separate from ParsedIntent (dataclass for domain routing) — clean separation between LLM schema and application domain object
 
 ### Pending Todos
 
@@ -94,6 +99,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-23
-Stopped at: Completed 03-04-PLAN.md — Phase 3 end-to-end verification complete, human-approved, all requirements CHAT-01..05 + ARCH-02 confirmed
+Last session: 2026-02-24
+Stopped at: Completed 04-01-PLAN.md — Skill registry foundation complete (Skill Protocol + ParsedIntent + classify_intent() + config fields + new packages)
 Resume file: None
