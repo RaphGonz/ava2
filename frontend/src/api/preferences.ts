@@ -26,3 +26,15 @@ export async function updatePreferences(token: string, patch: Partial<Preference
   })
   if (!res.ok) throw new Error('Failed to update preferences')
 }
+
+export async function updatePersona(token: string, persona: string): Promise<void> {
+  const res = await fetch('/avatars/me/persona', {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ personality: persona }),
+  })
+  if (!res.ok) throw new Error('Failed to update persona')
+}
