@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app the user already uses.
-**Current focus:** Phase 5 - Intimate Mode Text Foundation
+**Current focus:** Phase 6 - Web App / Multi-Platform
 
 ## Current Position
 
-Phase: 5 of 7 (Intimate Mode Text Foundation) — COMPLETE
-Plan: 4 of 4 in current phase — all plans complete
-Status: Phase Complete — ready for Phase 6
-Last activity: 2026-02-24 — Completed 05-04 (19 tests for ContentGuard, CrisisDetector, persona prompts, ChatService gate ordering; 47 total tests pass)
+Phase: 6 of 7 (Web App / Multi-Platform) — IN PROGRESS
+Plan: 1 of N in current phase — plan 01 complete
+Status: In Progress
+Last activity: 2026-02-24 — Completed 06-01 (Phase 6 DB migration: message_channel+'web', 4 new user_preferences columns, CHECK constraints, platform index)
 
-Progress: [██████████] 100% (Phase 5 complete)
+Progress: [██████████] Phase 5 complete — Phase 6 started (1 plan done)
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100% (Phase 5 complete)
 | Phase 05-intimate-mode-text-foundation P03 | 12 | 2 tasks | 3 files |
 | Phase 05-intimate-mode-text-foundation P02 | 8 | 2 tasks | 1 files |
 | Phase 05-intimate-mode-text-foundation P04 | 8 | 1 tasks | 1 files |
+| Phase 06-web-app-multi-platform P01 | 5 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,9 @@ Recent decisions affecting current work:
 - [Phase 05-intimate-mode-text-foundation]: Crisis gate runs in ALL modes — any mode triggers 988 crisis response; content guard runs ONLY in INTIMATE mode (Pitfall 6 prevention)
 - [Phase 05-intimate-mode-text-foundation]: supabase_admin imported locally inside audit helpers (deferred import) — avoids circular import risk; DB failure non-fatal for message delivery
 - [Phase 05-intimate-mode-text-foundation]: Tests run from backend/ directory where .env file lives — pytest run command is cd backend && python -m pytest
+- [Phase 06-web-app-multi-platform]: ALTER TYPE message_channel ADD VALUE placed before BEGIN block — PostgreSQL restriction on enum mutations inside transactions
+- [Phase 06-web-app-multi-platform]: preferred_platform defaults to 'whatsapp' and spiciness_level to 'mild' — existing users retain current behaviour after migration
+- [Phase 06-web-app-multi-platform]: CHECK constraints wrapped in DO $$ EXCEPTION WHEN duplicate_object guard — migration is idempotent and safe to re-run
 
 ### Pending Todos
 
@@ -129,5 +133,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-04-PLAN.md — 19 tests for ContentGuard (6 categories + obfuscation), CrisisDetector (Layer 1/2 + false positive), persona prompts (4 distinct + unknown fallback), and ChatService gate ordering. Phase 5 complete, 47 total tests pass.
+Stopped at: Completed 06-01-PLAN.md — Phase 6 DB migration (003_phase6_preferences.sql): message_channel enum extended with 'web', 4 new user_preferences columns (preferred_platform, spiciness_level, mode_switch_phrase, notif_prefs), CHECK constraints with DO $$ idempotency guard, performance index on (user_id, preferred_platform).
 Resume file: None
