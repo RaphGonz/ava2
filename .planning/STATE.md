@@ -112,5 +112,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 04-04-PLAN.md — ResearchSkill with Tavily API integration registered for 'research' intent (SECR-03)
+Stopped at: Completed 04-03-PLAN.md — CalendarSkill with Google Calendar API v3, conflict confirmation state machine (PendingCalendarAdd on SessionState.pending_calendar_add), and dateparser FR+EN date parsing
 Resume file: None
