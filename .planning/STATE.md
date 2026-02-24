@@ -11,10 +11,10 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 Phase: 4 of 7 (Secretary Skills)
 Plan: 5 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-24 — Completed 04-04 (ResearchSkill with Tavily API integration: asyncio.to_thread wrapping, ambiguity detection, graceful degradation, registered for 'research' intent)
+Status: Complete
+Last activity: 2026-02-24 — Completed 04-05 (ChatService skill dispatch: intent classification + skill routing in secretary mode, conflict confirmation gate, eager skill registration, 8 tests passing)
 
-Progress: [███████░░░] 72%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [███████░░░] 72%
 | Phase 04-secretary-skills P02 | 14 | 2 tasks | 6 files |
 | Phase 04-secretary-skills P04 | 6 | 1 tasks | 1 files |
 | Phase 04-secretary-skills P03 | 8 | 2 tasks | 2 files |
+| Phase 04-secretary-skills P05 | 13 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ Recent decisions affecting current work:
 - [Phase 04-secretary-skills]: pending_calendar_add typed as Any | None in store.py to avoid circular import between store and calendar_skill
 - [Phase 04-secretary-skills]: CONFLICT_CONFIRM_KEYWORDS not in calendar_skill.py — lives in chat.py (Plan 05) so confirmation check runs before intent classification
 - [Phase 04-secretary-skills]: CalendarSkill.handle() accepts optional session kwarg to store PendingCalendarAdd on conflict detection while keeping Skill Protocol stable
+- [Phase 04-secretary-skills]: pending_calendar_add gate runs BEFORE mode switch detection to catch yes/oui as conflict confirmation instead of chat intent
+- [Phase 04-secretary-skills]: ConversationMode.SECRETARY guard mandatory before classify_intent — intimate mode must never call intent classifier
+- [Phase 04-secretary-skills]: Skill dispatch errors fall through to LLM silently via try/except — chat service never breaks on skill failure
 
 ### Pending Todos
 
@@ -112,5 +116,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 04-03-PLAN.md — CalendarSkill with Google Calendar API v3, conflict confirmation state machine (PendingCalendarAdd on SessionState.pending_calendar_add), and dateparser FR+EN date parsing
+Stopped at: Completed 04-05-PLAN.md — ChatService skill dispatch wired: intent classification in secretary mode, pending_calendar_add confirmation gate, eager skill registration via skills/__init__.py, 8 pytest tests all passing (28 total in suite)
 Resume file: None
