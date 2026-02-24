@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 5 of 7 (Intimate Mode Text Foundation)
-Plan: 4 of 4 in current phase (05-02 and 05-03 both complete, 05-04 remaining or phase done)
-Status: In Progress
-Last activity: 2026-02-24 — Completed 05-02 (crisis_detector gate all modes, content_guard gate intimate-only, _log_guardrail_trigger and _log_crisis audit helpers, 28 tests pass)
+Phase: 5 of 7 (Intimate Mode Text Foundation) — COMPLETE
+Plan: 4 of 4 in current phase — all plans complete
+Status: Phase Complete — ready for Phase 6
+Last activity: 2026-02-24 — Completed 05-04 (19 tests for ContentGuard, CrisisDetector, persona prompts, ChatService gate ordering; 47 total tests pass)
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100% (Phase 5 complete)
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [████████░░] 80%
 | Phase 05-01 P01 | 12 | 3 tasks | 5 files |
 | Phase 05-intimate-mode-text-foundation P03 | 12 | 2 tasks | 3 files |
 | Phase 05-intimate-mode-text-foundation P02 | 8 | 2 tasks | 1 files |
+| Phase 05-intimate-mode-text-foundation P04 | 8 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,7 @@ Recent decisions affecting current work:
 - [Phase 05-intimate-mode-text-foundation]: clear_avatar_cache is no-op for non-existent sessions — persona change before first message handled naturally by DB fetch on first message
 - [Phase 05-intimate-mode-text-foundation]: Crisis gate runs in ALL modes — any mode triggers 988 crisis response; content guard runs ONLY in INTIMATE mode (Pitfall 6 prevention)
 - [Phase 05-intimate-mode-text-foundation]: supabase_admin imported locally inside audit helpers (deferred import) — avoids circular import risk; DB failure non-fatal for message delivery
+- [Phase 05-intimate-mode-text-foundation]: Tests run from backend/ directory where .env file lives — pytest run command is cd backend && python -m pytest
 
 ### Pending Todos
 
@@ -127,5 +129,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-02-PLAN.md — crisis_detector.check_message() gate (all modes) and content_guard.check_message() gate (intimate only) wired into ChatService.handle_message(), audit helpers _log_guardrail_trigger() and _log_crisis() added with supabase_admin try/except, INTM-01 and INTM-02 satisfied, 28 tests pass
+Stopped at: Completed 05-04-PLAN.md — 19 tests for ContentGuard (6 categories + obfuscation), CrisisDetector (Layer 1/2 + false positive), persona prompts (4 distinct + unknown fallback), and ChatService gate ordering. Phase 5 complete, 47 total tests pass.
 Resume file: None
