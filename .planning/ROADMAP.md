@@ -104,10 +104,13 @@ Plans:
   3. User can select from preset personality personas (e.g., playful, dominant, shy, caring)
   4. Content safety guardrails block non-consensual or illegal content requests
   5. Crisis detection identifies suicidal ideation and provides 988 resources
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 05-01-PLAN.md — Per-persona intimate prompts, ContentGuard safety service, CrisisDetector service
+- [ ] 05-02-PLAN.md — ChatService wiring: crisis gate (all modes) + content guard gate (intimate) + audit logging
+- [ ] 05-03-PLAN.md — Persona change endpoint (PATCH /avatars/me/persona) + SessionStore cache invalidation
+- [ ] 05-04-PLAN.md — TDD: intimate mode test suite (ContentGuard, CrisisDetector, persona prompts, gate ordering)
 
 ### Phase 6: Web App & Multi-Platform
 **Goal**: Users can access Ava via web app with direct photo display and choose their preferred interface
@@ -153,6 +156,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Infrastructure & User Management | 5/5 | Complete    | 2026-02-23 |
 | 3. Core Intelligence & Mode Switching | 4/4 | Complete    | 2026-02-23 |
 | 4. Secretary Skills | 5/5 | Complete   | 2026-02-24 |
-| 5. Intimate Mode Text Foundation | 0/TBD | Not started | - |
+| 5. Intimate Mode Text Foundation | 0/4 | Not started | - |
 | 6. Web App & Multi-Platform | 0/TBD | Not started | - |
 | 7. Avatar System & Production | 0/TBD | Not started | - |
