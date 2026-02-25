@@ -1,7 +1,10 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_current_user, get_authed_supabase
 from app.models.avatar import AvatarCreate, AvatarResponse, PersonaUpdateRequest
 from app.services.session.store import get_session_store
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/avatars", tags=["avatars"])
 
@@ -76,3 +79,62 @@ async def update_persona(
     await session_store.clear_avatar_cache(str(user.id))
 
     return {"personality": body.personality.value}
+
+
+@router.post("/me/reference-image")
+async def generate_reference_image(
+    user=Depends(get_current_user),
+    db=Depends(get_authed_supabase),
+):
+    """
+    Generate a reference image for the user's avatar using the ImageProvider.
+    Returns a 24-hour signed URL for the generated image.
+    Called by AvatarSetupPage after form submission.
+    """
+    from app.services.image.replicate_provider import ReplicateProvider
+    from app.services.image.prompt_builder import build_avatar_prompt
+    from app.services.image.watermark import apply_watermark
+    from app.database import supabase_admin
+    import httpx
+    import uuid
+
+    avatar_result = db.from_("avatars").select("*").eq("user_id", str(user.id)).execute()
+    if not avatar_result.data:
+        raise HTTPException(status_code=404, detail="No avatar found — create avatar first")
+    avatar = avatar_result.data[0]
+
+    try:
+        provider = ReplicateProvider()
+        prompt = build_avatar_prompt(avatar, "portrait photo, neutral background, natural light, full face")
+        generated = await provider.generate(prompt, aspect_ratio="2:3")
+
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.get(generated.url)
+            resp.raise_for_status()
+            image_bytes = resp.content
+
+        watermarked = apply_watermark(image_bytes)
+        job_id = str(uuid.uuid4())
+        storage_path = f"{str(user.id)}/reference_{job_id}.jpg"
+
+        supabase_admin.storage.from_("photos").upload(
+            storage_path,
+            watermarked,
+            file_options={"content-type": "image/jpeg", "upsert": "true"},
+        )
+
+        sign_response = (
+            supabase_admin.storage
+            .from_("photos")
+            .create_signed_url(storage_path, 86400)
+        )
+        signed_url = sign_response.get("signedURL") or sign_response.get("signed_url")
+        if not signed_url:
+            raise HTTPException(status_code=500, detail="Failed to generate signed URL")
+
+        return {"reference_image_url": signed_url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Reference image generation failed for user {str(user.id)}: {e}")
+        raise HTTPException(status_code=500, detail="Image generation failed")

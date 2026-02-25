@@ -142,14 +142,24 @@ async def test_secretary_chat_intent_falls_through_to_llm(mock_llm, mock_store):
 
 @pytest.mark.asyncio
 async def test_intimate_mode_bypasses_intent_classifier(mock_llm, mock_store):
-    """Intimate mode must NOT call intent classifier — goes straight to LLM."""
+    """Intimate mode must NOT call intent classifier — goes straight to LLM via openai_client."""
     store, session = mock_store
     session.mode = ConversationMode.INTIMATE  # Set to intimate mode
     service = ChatService(llm=mock_llm, session_store=store)
 
+    # Intimate mode now calls self._openai_client.chat.completions.create() directly
+    # (not self._llm.complete) — build a minimal mock response
+    mock_choice = MagicMock()
+    mock_choice.finish_reason = "stop"
+    mock_choice.message.content = "LLM response"
+    mock_choice.message.tool_calls = None
+    mock_response = MagicMock()
+    mock_response.choices = [mock_choice]
+
     with patch(
         "app.services.chat.classify_intent", new=AsyncMock()
     ) as mock_classify:
+        service._openai_client.chat.completions.create = AsyncMock(return_value=mock_response)
         reply = await service.handle_message(
             user_id="user-123",
             incoming_text="I feel so connected to you",
@@ -158,6 +168,7 @@ async def test_intimate_mode_bypasses_intent_classifier(mock_llm, mock_store):
 
     mock_classify.assert_not_called()  # CRITICAL: classifier must not run in intimate mode
     assert reply == "LLM response"
+    mock_llm.complete.assert_not_called()  # _llm.complete bypassed in intimate mode
 
 
 @pytest.mark.asyncio
