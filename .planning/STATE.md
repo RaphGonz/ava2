@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 7 of 7 (Avatar System & Production) — IN PROGRESS
-Plan: 1 of TBD in current phase — 07-01 complete
-Status: Phase 7 In Progress — 07-01 complete
-Last activity: 2026-02-25 — Completed 07-01 (DB migration 004: avatar gender/nationality + subscriptions table; ImageProvider Protocol, ReplicateProvider, prompt builder, watermark helper)
+Plan: 3 of 6 in current phase — 07-03 complete
+Status: Phase 7 In Progress — 07-03 complete
+Last activity: 2026-02-25 — Completed 07-03 (BullMQ queue singleton + full photo pipeline processor + worker_main.py Docker entry point)
 
-Progress: [████████████+] Phase 7 started — 07-01 complete
+Progress: [████████████+++] Phase 7 in progress — 07-01, 07-02, 07-03 complete
 
 ## Performance Metrics
 
@@ -60,6 +60,8 @@ Progress: [████████████+] Phase 7 started — 07-01 comp
 | Phase 06-web-app-multi-platform P05 | 10 | 2 tasks | 7 files |
 | Phase 06-web-app-multi-platform P06 | 10 | 2 tasks | 0 files |
 | Phase 07-avatar-system-production P01 | 8 | 2 tasks | 7 files |
+| Phase 07-avatar-system-production P02 | 12 | 2 tasks | 11 files |
+| Phase 07-avatar-system-production P03 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -144,6 +146,12 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: subscriptions table uses stripe_price_id column (config-driven) — no hardcoded amounts; supports BILL-02 config-driven pricing
 - [Phase 07-avatar-system-production]: subscriptions RLS: SELECT own row only; all writes via service role (webhook) — user cannot self-modify subscription status
 - [Phase 07-avatar-system-production]: apply_watermark() falls back to ImageFont.load_default() if DejaVu font missing — works in all environments including local dev
+- [Phase 07-avatar-system-production]: stripe_price_id in Settings with empty-string default — billing router raises 503 when price not configured; no hardcoded Stripe amounts (BILL-02)
+- [Phase 07-avatar-system-production]: supabase_admin (service role) used for subscription persistence in webhook handler — Stripe webhook context has no user JWT
+- [Phase 07-avatar-system-production]: require_active_subscription FastAPI dependency raises 402 Payment Required — composable gate for subscription-gated endpoints
+- [Phase 07-avatar-system-production]: Queue singleton lazy init avoids Redis connection at import time; Worker is separate process/container (Queue-Worker isolation pattern)
+- [Phase 07-avatar-system-production]: Avatar locked post-creation: no AvatarUpdate model and no PATCH /avatars/me full-update endpoint — only PATCH /avatars/me/persona (personality only) remains
+- [Phase 07-avatar-system-production]: worker_main.py blocks with asyncio.Future() — Docker stop signal kills process; web delivery uses [PHOTO]url[/PHOTO] marker in messages table
 
 ### Pending Todos
 
@@ -158,5 +166,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-01-PLAN.md — DB migration 004 (avatar gender/nationality + subscriptions table), ImageProvider Protocol, ReplicateProvider, prompt builder, watermark helper. Ready for 07-02.
+Stopped at: Completed 07-03-PLAN.md — BullMQ queue singleton, full photo pipeline processor (8-step: build prompt -> Replicate -> download -> watermark -> Supabase upload -> signed URL -> audit log -> deliver), worker_main.py Docker entry point. Ready for 07-04.
 Resume file: None

@@ -25,14 +25,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **INTM-01**: Bot adopts a chatty, flirty conversational style in intimate mode
 - [x] **INTM-02**: Bot asks the user questions and encourages them in intimate mode
-- [ ] **INTM-03**: Bot sends AI-generated photos of the user's avatar during intimate conversations
+- [x] **INTM-03**: Bot sends AI-generated photos of the user's avatar during intimate conversations
 
 ### Avatar & Personality
 
-- [ ] **AVTR-01**: User can select avatar gender
-- [ ] **AVTR-02**: User can select avatar age (20+ enforced, hard floor)
-- [ ] **AVTR-03**: User can select avatar nationality/race
-- [ ] **AVTR-04**: User can describe avatar appearance in free text for unlimited customization
+- [x] **AVTR-01**: User can select avatar gender
+- [x] **AVTR-02**: User can select avatar age (20+ enforced, hard floor)
+- [x] **AVTR-03**: User can select avatar nationality/race
+- [x] **AVTR-04**: User can describe avatar appearance in free text for unlimited customization
 - [x] **AVTR-05**: Avatar definition feeds into image generation for consistent character photos
 - [x] **PERS-01**: User can choose from preset personality personas (e.g., playful, dominant, shy, caring)
 
@@ -58,8 +58,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Billing
 
-- [ ] **BILL-01**: Flexible billing infrastructure that supports multiple pricing models (subscription, credits, etc.)
-- [ ] **BILL-02**: Billing model is customizable without code changes (configuration-driven)
+- [x] **BILL-01**: Flexible billing infrastructure that supports multiple pricing models (subscription, credits, etc.)
+- [x] **BILL-02**: Billing model is customizable without code changes (configuration-driven)
 
 ### Architecture
 
@@ -149,15 +149,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLAT-02 | Phase 6 | Complete |
 | PLAT-04 | Phase 6 | Complete |
 | PLAT-05 | Phase 6 | Complete |
-| AVTR-01 | Phase 7 | Pending |
-| AVTR-02 | Phase 7 | Pending |
-| AVTR-03 | Phase 7 | Pending |
-| AVTR-04 | Phase 7 | Pending |
+| AVTR-01 | Phase 7 | Complete |
+| AVTR-02 | Phase 7 | Complete |
+| AVTR-03 | Phase 7 | Complete |
+| AVTR-04 | Phase 7 | Complete |
 | AVTR-05 | Phase 7 | Complete |
-| INTM-03 | Phase 7 | Pending |
+| INTM-03 | Phase 7 | Complete |
 | ARCH-03 | Phase 7 | Complete |
-| BILL-01 | Phase 7 | Pending |
-| BILL-02 | Phase 7 | Pending |
+| BILL-01 | Phase 7 | Complete |
+| BILL-02 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 28 total
