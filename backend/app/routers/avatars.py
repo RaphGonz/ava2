@@ -31,6 +31,8 @@ async def create_avatar(
         "age": body.age,
         "personality": body.personality,
         "physical_description": body.physical_description,
+        "gender": body.gender,
+        "nationality": body.nationality,
     }).execute()
 
     if not result.data:

@@ -18,6 +18,8 @@ class AvatarCreate(BaseModel):
     age: int = Field(..., ge=20, description="Avatar age — minimum 20 per compliance policy")
     personality: PersonalityType
     physical_description: Optional[str] = Field(None, max_length=2000)
+    gender: Optional[str] = Field(None, max_length=50)         # AVTR-01: new
+    nationality: Optional[str] = Field(None, max_length=100)   # AVTR-03: new
 
 
 class PersonaUpdateRequest(BaseModel):
@@ -31,4 +33,6 @@ class AvatarResponse(BaseModel):
     age: int
     personality: PersonalityType
     physical_description: Optional[str] = None
+    gender: Optional[str] = None         # AVTR-01
+    nationality: Optional[str] = None    # AVTR-03
     created_at: datetime
