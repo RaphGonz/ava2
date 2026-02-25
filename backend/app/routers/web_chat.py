@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from app.dependencies import get_current_user, get_authed_supabase
+from app.dependencies import get_current_user, get_authed_supabase, require_active_subscription
 from app.adapters.base import NormalizedMessage
 from app.adapters.web_adapter import WebAdapter
 from app.services.user_lookup import get_avatar_for_user
@@ -32,7 +32,7 @@ class ChatRequest(BaseModel):
 @router.post("")
 async def send_message(
     body: ChatRequest,
-    user=Depends(get_current_user),
+    user=Depends(require_active_subscription),  # was: get_current_user
 ):
     """
     Send a message via the web chat interface.

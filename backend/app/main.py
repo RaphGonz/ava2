@@ -6,7 +6,7 @@ import os
 
 from app.routers import auth, avatars, dev, messages, preferences, webhook, health
 from app.routers import google_oauth
-from app.routers import web_chat, photo
+from app.routers import web_chat, photo, billing
 from app.config import settings
 
 app = FastAPI(
@@ -41,6 +41,7 @@ app.include_router(messages.router)
 app.include_router(google_oauth.router)
 app.include_router(web_chat.router)
 app.include_router(photo.router)
+app.include_router(billing.router)
 
 # Serve templates directory for minimal Phase 2 test UI
 # Phase 6 will replace this with the full styled web app

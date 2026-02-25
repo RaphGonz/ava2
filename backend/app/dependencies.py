@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.database import supabase_client
+from app.services.billing.subscription import get_subscription_status
 
 bearer_scheme = HTTPBearer()
 
@@ -60,3 +61,17 @@ async def get_authed_supabase(
             return supabase_client.postgrest.auth(token).from_(table)
 
     return AuthedClient()
+
+
+async def require_active_subscription(user=Depends(get_current_user)):
+    """
+    FastAPI dependency — raises 402 Payment Required if user has no active subscription.
+    Used on POST /chat (web_chat router) and any other gated endpoints.
+    """
+    status_val = get_subscription_status(str(user.id))
+    if status_val != "active":
+        raise HTTPException(
+            status_code=402,
+            detail="Subscription required. Visit /subscribe to activate.",
+        )
+    return user
