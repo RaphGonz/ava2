@@ -30,8 +30,12 @@ class Settings(BaseSettings):
     # Secretary skills — Tavily research
     tavily_api_key: str = ""
 
-    # Image generation (Replicate)
-    replicate_api_token: str = ""  # set REPLICATE_API_TOKEN in .env
+    # Image generation (Replicate — legacy, unused. ComfyUI Cloud is the active provider.)
+    replicate_api_token: str = ""
+
+    # Image generation (ComfyUI Cloud — primary)
+    comfyui_api_key: str = ""      # set COMFYUI_API_KEY in .env
+    comfyui_base_url: str = "https://cloud.comfy.org"
 
     # Billing (Stripe)
     stripe_secret_key: str = ""        # Stripe Dashboard → Developers → API keys (secret)

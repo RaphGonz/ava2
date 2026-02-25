@@ -11,6 +11,7 @@ import asyncio
 import copy
 import json
 import logging
+import random
 from pathlib import Path
 
 import httpx
@@ -75,19 +76,22 @@ class ComfyUIProvider:
     # ------------------------------------------------------------------
 
     def _build_t2i(self, prompt: str) -> tuple[dict, str]:
-        """Text-to-image: inject prompt into node 91."""
+        """Text-to-image: inject prompt and randomized seed into node 91/86:3."""
         workflow = copy.deepcopy(_load_workflow("text_to_image"))
         workflow["91"]["inputs"]["value"] = prompt
+        # Randomize seed to ensure unique generation each call
+        workflow["86:3"]["inputs"]["seed"] = random.randint(0, 2**32 - 1)
         return workflow, "60"
 
     async def _build_i2i(
         self, client: httpx.AsyncClient, prompt: str, reference_image_url: str
     ) -> tuple[dict, str]:
-        """Image-to-image: upload reference image, inject prompt into node 89:68."""
+        """Image-to-image: upload reference image, inject prompt, randomize seed."""
         workflow = copy.deepcopy(_load_workflow("image_to_image"))
         ref_filename = await self._upload_image(client, reference_image_url)
         workflow["41"]["inputs"]["image"] = ref_filename
         workflow["89:68"]["inputs"]["prompt"] = prompt
+        workflow["89:65"]["inputs"]["seed"] = random.randint(0, 2**32 - 1)
         return workflow, "9"
 
     # ------------------------------------------------------------------

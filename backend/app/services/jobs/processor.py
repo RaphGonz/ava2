@@ -6,10 +6,12 @@ Delivery strategy:
   - WhatsApp: Send signed URL link via Meta WhatsApp API (PLAT-03 — no inline NSFW).
 
 Full pipeline per job:
-  1. Build FLUX prompt from avatar fields + scene description
-  2. Call Replicate FLUX API -> temporary CDN URL
-  3. Download image bytes via httpx (download immediately — URL expires ~1h)
-  4. Apply Pillow watermark (compliance requirement per CONTEXT.md)
+  1. Build prompt from avatar fields + scene description
+  2. Call ComfyUI Cloud API (image-to-image if reference exists, else text-to-image)
+     — 4-step flow: POST /api/prompt → poll /api/job/{id}/status →
+       GET /api/history_v2/{id} → GET /api/view (download)
+  3. Image bytes returned directly by ComfyUIProvider
+  4. Apply Pillow watermark (compliance requirement)
   5. Upload watermarked JPEG to Supabase Storage: photos/{user_id}/{job_id}.jpg
   6. Generate 24-hour Supabase signed URL
   7. Audit log (compliance)
@@ -18,7 +20,7 @@ Full pipeline per job:
 """
 import logging
 import httpx
-from app.services.image.replicate_provider import ReplicateProvider
+from app.services.image.comfyui_provider import ComfyUIProvider
 from app.services.image.prompt_builder import build_avatar_prompt
 from app.services.image.watermark import apply_watermark
 from app.database import supabase_admin
@@ -28,7 +30,7 @@ logger = logging.getLogger(__name__)
 PHOTO_BUCKET = "photos"
 SIGNED_URL_EXPIRY = 86400  # 24 hours
 
-_image_provider = ReplicateProvider()
+_image_provider = ComfyUIProvider()
 
 PHOTO_FAILURE_MSG = (
     "I wasn't able to send you a photo right now — please try again later."
@@ -94,25 +96,37 @@ async def process_photo_job(job, token: str | None = None) -> None:
     logger.info(f"Processing photo job {job_id} for user {user_id} channel={channel}")
 
     try:
-        # Step 1: Build FLUX prompt from all avatar fields
+        # Step 1: Build prompt from all avatar fields
         prompt = build_avatar_prompt(avatar, scene_description)
-        logger.debug(f"FLUX prompt ({len(prompt)} chars): {prompt[:120]}...")
+        logger.debug(f"Prompt ({len(prompt)} chars): {prompt[:120]}...")
 
-        # Step 2: Generate via Replicate FLUX
-        generated = await _image_provider.generate(prompt, aspect_ratio="2:3")
-        logger.info(f"Replicate image URL: {generated.url[:80]}")
+        # Step 2: Get reference image signed URL for image-to-image generation
+        ref_sign = (
+            supabase_admin.storage
+            .from_("photos")
+            .create_signed_url(f"{user_id}/reference.jpg", 3600)
+        )
+        reference_image_url = ref_sign.get("signedURL") or ref_sign.get("signed_url")
 
-        # Step 3: Download immediately (URL expires ~1h — RESEARCH.md Pitfall 1)
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.get(generated.url)
-            resp.raise_for_status()
-            image_bytes = resp.content
-        logger.info(f"Downloaded {len(image_bytes)} bytes from Replicate")
+        # Step 3: Generate via ComfyUI Cloud (image-to-image if reference exists)
+        generated = await _image_provider.generate(
+            prompt, reference_image_url=reference_image_url
+        )
 
-        # Step 4: Apply visible watermark (compliance requirement)
+        # Step 4: Get image bytes (ComfyUI returns bytes directly)
+        if generated.image_bytes:
+            image_bytes = generated.image_bytes
+        else:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                resp = await client.get(generated.url)
+                resp.raise_for_status()
+                image_bytes = resp.content
+        logger.info(f"Got {len(image_bytes)} bytes from ComfyUI")
+
+        # Step 5: Apply visible watermark (compliance requirement)
         watermarked_bytes = apply_watermark(image_bytes)
 
-        # Step 5: Upload to Supabase Storage private bucket
+        # Step 6: Upload to Supabase Storage private bucket
         storage_path = f"{user_id}/{job_id}.jpg"
         supabase_admin.storage.from_(PHOTO_BUCKET).upload(
             storage_path,
