@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 7 of 7 (Avatar System & Production) — IN PROGRESS
-Plan: 5 of 6 in current phase — 07-05 complete
-Status: Phase 7 In Progress — 07-01, 07-02, 07-03, 07-04, 07-05 complete
-Last activity: 2026-02-25 — Completed 07-05 (SubscribePage + billing UI + ChatPage 402 paywall banner + Sentry init + Docker Compose production deployment + nginx.conf + .env.example)
+Phase: 7.1 of 7.1 (Switch Image Generation to ComfyUI Cloud) — IN PROGRESS
+Plan: 1 of 2 in current phase — 07.1-01 complete
+Status: Phase 7.1 In Progress — 07.1-01 complete
+Last activity: 2026-02-25 — Completed 07.1-01 (ComfyUI critical bug fix: history_v2 endpoint for outputs, seed randomization, Protocol update, 5-test TDD suite)
 
-Progress: [██████████████+] Phase 7 in progress — 07-01, 07-02, 07-03, 07-04, 07-05 complete
+Progress: [████████████████+] Phase 7.1 in progress — 07.1-01 complete (1/2)
 
 ## Performance Metrics
 
@@ -188,7 +188,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Mid-checkpoint 07-06. ComfyUI Cloud provider implemented (phase 07.1 work done inline). Resume: test the avatar reference image generation with ComfyUI, then complete 07-06 checkpoint approval.
+Stopped at: Completed 07.1-01-PLAN.md. ComfyUI critical bug fixed (history_v2 endpoint), seed randomization added, Protocol updated, 5-test TDD suite passing. Resume: 07.1-02 (cleanup Replicate artifacts, update .env.example, processor.py docstring).
 
 ### What was built this session (outside GSD plans — needs 07-06 or 07.1 plan):
 - ComfyUIProvider (backend/app/services/image/comfyui_provider.py)
