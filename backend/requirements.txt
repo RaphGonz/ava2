@@ -20,3 +20,5 @@ tavily-python==0.7.21
 dateparser==1.3.0
 replicate
 Pillow>=10.0.0
+stripe
+bullmq==2.19.5

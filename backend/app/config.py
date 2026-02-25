@@ -30,6 +30,20 @@ class Settings(BaseSettings):
     # Secretary skills — Tavily research
     tavily_api_key: str = ""
 
+    # Image generation (Replicate)
+    replicate_api_token: str = ""  # set REPLICATE_API_TOKEN in .env
+
+    # Billing (Stripe)
+    stripe_secret_key: str = ""        # Stripe Dashboard → Developers → API keys (secret)
+    stripe_webhook_secret: str = ""    # Stripe Dashboard → Webhooks → signing secret
+    stripe_price_id: str = ""          # Stripe Dashboard → Products → price ID (config-driven BILL-02)
+
+    # Monitoring
+    sentry_dsn: str = ""               # Sentry project DSN (empty string = disabled)
+
+    # Redis — for BullMQ job queue (worker service)
+    redis_url: str = "redis://redis:6379"
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
 
 
