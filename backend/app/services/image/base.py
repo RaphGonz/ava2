@@ -9,9 +9,10 @@ from dataclasses import dataclass
 
 @dataclass
 class GeneratedImage:
-    url: str     # Temporary Replicate CDN URL — download immediately, expires ~1h
-    model: str   # e.g. "black-forest-labs/flux-1.1-pro"
-    prompt: str  # Full prompt used (for audit log)
+    url: str            # CDN URL to download from (empty string if image_bytes is set)
+    model: str          # e.g. "comfyui-qwen" or "black-forest-labs/flux-1.1-pro"
+    prompt: str         # Full prompt used (for audit log)
+    image_bytes: bytes | None = None  # Pre-downloaded bytes (set by ComfyUIProvider)
 
 
 @runtime_checkable
@@ -19,10 +20,12 @@ class ImageProvider(Protocol):
     """
     Structural interface for image generation providers (ARCH-03).
     Swapping providers = swap config + new concrete class. No inheritance needed.
+    reference_image_url is optional — providers that don't support i2i ignore it.
     """
     async def generate(
         self,
         prompt: str,
         aspect_ratio: str = "2:3",
+        reference_image_url: str | None = None,
     ) -> GeneratedImage:
         ...
