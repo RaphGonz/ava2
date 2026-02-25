@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 7 of 7 (Avatar System & Production) — IN PROGRESS
-Plan: 4 of 6 in current phase — 07-04 complete
-Status: Phase 7 In Progress — 07-01, 07-02, 07-03, 07-04 complete
-Last activity: 2026-02-25 — Completed 07-04 (SEND_PHOTO_TOOL + intimate mode photo enqueue in ChatService; AvatarSetupPage + avatars API + App.tsx OnboardingGate + POST /avatars/me/reference-image)
+Plan: 5 of 6 in current phase — 07-05 complete
+Status: Phase 7 In Progress — 07-01, 07-02, 07-03, 07-04, 07-05 complete
+Last activity: 2026-02-25 — Completed 07-05 (SubscribePage + billing UI + ChatPage 402 paywall banner + Sentry init + Docker Compose production deployment + nginx.conf + .env.example)
 
-Progress: [█████████████++] Phase 7 in progress — 07-01, 07-02, 07-03, 07-04 complete
+Progress: [██████████████+] Phase 7 in progress — 07-01, 07-02, 07-03, 07-04, 07-05 complete
 
 ## Performance Metrics
 
@@ -160,6 +160,7 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: No updateAvatar in avatars.ts — avatar locked post-onboarding; only PATCH /avatars/me/persona (personality only) permitted
 - [Phase 07-avatar-system-production]: OnboardingGate uses React Query queryKey ['avatar'] with 5-min staleTime; AvatarSetupPage invalidates this key on approve to clear redirect loop
 - [Phase 07-avatar-system-production]: ApiError class in chat.ts exposes HTTP status code enabling 402 paywall detection without query-layer changes
+- [Phase 07-avatar-system-production]: backend/Dockerfile created (python:3.12-slim) as auto-fix — docker-compose build directive requires it
 
 ### Pending Todos
 
@@ -174,5 +175,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-04-PLAN.md — SEND_PHOTO_TOOL + intimate mode photo enqueue in ChatService; AvatarSetupPage onboarding form + reference image generation loop; App.tsx OnboardingGate; POST /avatars/me/reference-image endpoint. Ready for 07-05.
+Stopped at: Completed 07-05-PLAN.md — SubscribePage + billing API + ChatPage 402 paywall banner + Sentry init; Docker Compose 4-service production stack + nginx.conf + backend/.env.example + Dockerfile. Ready for 07-06.
 Resume file: None
