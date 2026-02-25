@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 7 of 7 (Avatar System & Production) — IN PROGRESS
-Plan: 3 of 6 in current phase — 07-03 complete
-Status: Phase 7 In Progress — 07-03 complete
-Last activity: 2026-02-25 — Completed 07-03 (BullMQ queue singleton + full photo pipeline processor + worker_main.py Docker entry point)
+Plan: 4 of 6 in current phase — 07-04 complete
+Status: Phase 7 In Progress — 07-01, 07-02, 07-03, 07-04 complete
+Last activity: 2026-02-25 — Completed 07-04 (SEND_PHOTO_TOOL + intimate mode photo enqueue in ChatService; AvatarSetupPage + avatars API + App.tsx OnboardingGate + POST /avatars/me/reference-image)
 
-Progress: [████████████+++] Phase 7 in progress — 07-01, 07-02, 07-03 complete
+Progress: [█████████████++] Phase 7 in progress — 07-01, 07-02, 07-03, 07-04 complete
 
 ## Performance Metrics
 
@@ -62,6 +62,8 @@ Progress: [████████████+++] Phase 7 in progress — 07-0
 | Phase 07-avatar-system-production P01 | 8 | 2 tasks | 7 files |
 | Phase 07-avatar-system-production P02 | 12 | 2 tasks | 11 files |
 | Phase 07-avatar-system-production P03 | 8 | 2 tasks | 6 files |
+| Phase 07-avatar-system-production P04 | 18 | 2 tasks | 6 files |
+| Phase 07-avatar-system-production P05 | 23 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -152,6 +154,12 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: Queue singleton lazy init avoids Redis connection at import time; Worker is separate process/container (Queue-Worker isolation pattern)
 - [Phase 07-avatar-system-production]: Avatar locked post-creation: no AvatarUpdate model and no PATCH /avatars/me full-update endpoint — only PATCH /avatars/me/persona (personality only) remains
 - [Phase 07-avatar-system-production]: worker_main.py blocks with asyncio.Future() — Docker stop signal kills process; web delivery uses [PHOTO]url[/PHOTO] marker in messages table
+- [Phase 07-avatar-system-production]: Intimate mode LLM calls use self._openai_client.chat.completions.create() directly with tools=[SEND_PHOTO_TOOL] — not self._llm.complete() — to enable tool_calls finish_reason detection
+- [Phase 07-avatar-system-production]: PHOTO_PLACEHOLDER_MSG appended to session history (not the raw tool_calls message) to prevent OpenAI tool message ordering error (Pitfall 3)
+- [Phase 07-avatar-system-production]: channel defaults to "web" in ChatService.handle_message() — WhatsApp channel override is a post-beta improvement when channel info is plumbed into handle_message() signature
+- [Phase 07-avatar-system-production]: No updateAvatar in avatars.ts — avatar locked post-onboarding; only PATCH /avatars/me/persona (personality only) permitted
+- [Phase 07-avatar-system-production]: OnboardingGate uses React Query queryKey ['avatar'] with 5-min staleTime; AvatarSetupPage invalidates this key on approve to clear redirect loop
+- [Phase 07-avatar-system-production]: ApiError class in chat.ts exposes HTTP status code enabling 402 paywall detection without query-layer changes
 
 ### Pending Todos
 
@@ -166,5 +174,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-03-PLAN.md — BullMQ queue singleton, full photo pipeline processor (8-step: build prompt -> Replicate -> download -> watermark -> Supabase upload -> signed URL -> audit log -> deliver), worker_main.py Docker entry point. Ready for 07-04.
+Stopped at: Completed 07-04-PLAN.md — SEND_PHOTO_TOOL + intimate mode photo enqueue in ChatService; AvatarSetupPage onboarding form + reference image generation loop; App.tsx OnboardingGate; POST /avatars/me/reference-image endpoint. Ready for 07-05.
 Resume file: None
