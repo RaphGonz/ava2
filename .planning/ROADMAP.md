@@ -145,10 +145,15 @@ Plans:
   6. Billing infrastructure supports multiple pricing models (subscription, credits)
   7. BullMQ async processing handles webhooks reliably at scale
   8. System ready for beta launch (monitoring, logging, error handling production-grade)
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- (To be created during planning)
+- [ ] 07-01-PLAN.md — DB migration (avatar gender/nationality + subscriptions table) + ImageProvider Protocol + Replicate provider + watermark
+- [ ] 07-02-PLAN.md — Avatar model extension (gender/nationality fields) + Stripe billing backend (checkout + webhook + subscription gate)
+- [ ] 07-03-PLAN.md — BullMQ worker pipeline (queue + processor: Replicate → watermark → Supabase Storage → deliver)
+- [ ] 07-04-PLAN.md — ChatService send_photo tool call + AvatarSetupPage onboarding flow + App.tsx gate
+- [ ] 07-05-PLAN.md — SubscribePage + billing frontend + Docker Compose production + Sentry init + .env.example
+- [ ] 07-06-PLAN.md — Automated verification + human checkpoint for Phase 7 system
 
 ## Progress
 
@@ -163,4 +168,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Secretary Skills | 5/5 | Complete   | 2026-02-24 |
 | 5. Intimate Mode Text Foundation | 4/4 | Complete    | 2026-02-24 |
 | 6. Web App & Multi-Platform | 6/6 | Complete    | 2026-02-24 |
-| 7. Avatar System & Production | 0/TBD | Not started | - |
+| 7. Avatar System & Production | 0/6 | Not started | - |
