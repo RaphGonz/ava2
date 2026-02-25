@@ -33,7 +33,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **AVTR-02**: User can select avatar age (20+ enforced, hard floor)
 - [ ] **AVTR-03**: User can select avatar nationality/race
 - [ ] **AVTR-04**: User can describe avatar appearance in free text for unlimited customization
-- [ ] **AVTR-05**: Avatar definition feeds into image generation for consistent character photos
+- [x] **AVTR-05**: Avatar definition feeds into image generation for consistent character photos
 - [x] **PERS-01**: User can choose from preset personality personas (e.g., playful, dominant, shy, caring)
 
 ### Platforms & Delivery
@@ -65,7 +65,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **ARCH-01**: Modular skill system — new capabilities (OCR, memory, agentic skills) can be added as plugins
 - [x] **ARCH-02**: Modular AI layer — LLM provider is swappable without changing business logic
-- [ ] **ARCH-03**: Modular image generation — image API provider is swappable without changing photo flow
+- [x] **ARCH-03**: Modular image generation — image API provider is swappable without changing photo flow
 - [x] **ARCH-04**: Cloud-hosted on VPS/AWS, always-on for message handling
 
 ## v2 Requirements
@@ -153,9 +153,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AVTR-02 | Phase 7 | Pending |
 | AVTR-03 | Phase 7 | Pending |
 | AVTR-04 | Phase 7 | Pending |
-| AVTR-05 | Phase 7 | Pending |
+| AVTR-05 | Phase 7 | Complete |
 | INTM-03 | Phase 7 | Pending |
-| ARCH-03 | Phase 7 | Pending |
+| ARCH-03 | Phase 7 | Complete |
 | BILL-01 | Phase 7 | Pending |
 | BILL-02 | Phase 7 | Pending |
 

@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 7 of 7 (Avatar System & Production) — NOT STARTED
-Plan: 0 of TBD in current phase — Phase 6 complete
-Status: Phase 6 Complete — Ready for Phase 7
-Last activity: 2026-02-24 — Completed 06-06 (Phase 6 end-to-end verification — human approved all 5 live tests: auth flow, web chat round-trip, settings persistence, channel='web' isolation, photo endpoint authenticated)
+Phase: 7 of 7 (Avatar System & Production) — IN PROGRESS
+Plan: 1 of TBD in current phase — 07-01 complete
+Status: Phase 7 In Progress — 07-01 complete
+Last activity: 2026-02-25 — Completed 07-01 (DB migration 004: avatar gender/nationality + subscriptions table; ImageProvider Protocol, ReplicateProvider, prompt builder, watermark helper)
 
-Progress: [████████████] Phase 6 complete — Phase 7 not started
+Progress: [████████████+] Phase 7 started — 07-01 complete
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [████████████] Phase 6 complete — Phase 7 no
 | Phase 06-web-app-multi-platform P04 | 11 | 2 tasks | 8 files |
 | Phase 06-web-app-multi-platform P05 | 10 | 2 tasks | 7 files |
 | Phase 06-web-app-multi-platform P06 | 10 | 2 tasks | 0 files |
+| Phase 07-avatar-system-production P01 | 8 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,11 @@ Recent decisions affecting current work:
 - [Phase 06-web-app-multi-platform]: ChatBubble uses rounded-br-sm / rounded-bl-sm for messenger-style bubble tail effect
 - [Phase 06-web-app-multi-platform]: Persona selector fires immediately (PATCH /avatars/me/persona on click); platform/spiciness/phrase accumulated in local state and saved together via Save Settings button
 - [Phase 06-web-app-multi-platform]: Photo signed-URL endpoint returns 500 (storage bucket not yet created) — bucket creation is Phase 7 scope, endpoint is registered and authenticated correctly
+- [Phase 07-avatar-system-production]: ImageProvider Protocol uses structural typing (runtime_checkable) — identical pattern to LLMProvider from Phase 3; swapping providers requires only config change + new concrete class, no inheritance
+- [Phase 07-avatar-system-production]: replicate module imported lazily inside generate() — defers pydantic v1/Python 3.14 incompatibility to call time; local dev environment can import and Protocol-check without running generate()
+- [Phase 07-avatar-system-production]: subscriptions table uses stripe_price_id column (config-driven) — no hardcoded amounts; supports BILL-02 config-driven pricing
+- [Phase 07-avatar-system-production]: subscriptions RLS: SELECT own row only; all writes via service role (webhook) — user cannot self-modify subscription status
+- [Phase 07-avatar-system-production]: apply_watermark() falls back to ImageFont.load_default() if DejaVu font missing — works in all environments including local dev
 
 ### Pending Todos
 
@@ -151,6 +157,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-24
-Stopped at: Completed 06-06-PLAN.md — Phase 6 fully verified by human; all 5 live tests passed; phase complete. Ready for Phase 7 planning.
+Last session: 2026-02-25
+Stopped at: Completed 07-01-PLAN.md — DB migration 004 (avatar gender/nationality + subscriptions table), ImageProvider Protocol, ReplicateProvider, prompt builder, watermark helper. Ready for 07-02.
 Resume file: None
