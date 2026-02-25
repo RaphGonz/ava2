@@ -13,6 +13,7 @@ Flow for each incoming message:
   5. Append user message and assistant reply to session history
   6. Return reply text (caller sends via WhatsApp or HTTP)
 """
+import json
 import logging
 from dataclasses import dataclass, field
 from app.services.session.store import SessionStore, SessionState, get_session_store
@@ -30,6 +31,35 @@ from app.services.crisis.detector import crisis_detector, CRISIS_RESPONSE
 from app.database import supabase_admin
 
 logger = logging.getLogger(__name__)
+
+# Tool definition for intimate mode LLM calls (INTM-03)
+# LLM calls this when it decides the moment is right for a photo
+SEND_PHOTO_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "send_photo",
+        "description": (
+            "Send an AI-generated photo of yourself to the user. "
+            "Use when the user asks for a photo, or when you decide the moment is right. "
+            "Describe the scene, pose, setting, and mood in detail."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "scene_description": {
+                    "type": "string",
+                    "description": (
+                        "Detailed description of the photo: "
+                        "setting, lighting, pose, mood, what you are wearing or doing."
+                    ),
+                },
+            },
+            "required": ["scene_description"],
+        },
+    },
+}
+
+PHOTO_PLACEHOLDER_MSG = "I'm sending you a photo... give me a moment 📸"
 
 # Keywords that confirm a pending calendar conflict — lives here so it runs before
 # intent classification, where 'yes' would otherwise be classified as 'chat'.
@@ -278,7 +308,42 @@ class ChatService:
         user_message: Message = {"role": "user", "content": incoming_text}
 
         try:
-            reply = await self._llm.complete(history + [user_message], system_prompt)
+            if current_mode == ConversationMode.INTIMATE:
+                # Intimate mode: include send_photo tool — LLM decides when to send a photo
+                full_messages = [{"role": "system", "content": system_prompt}] + history + [user_message]
+                response = await self._openai_client.chat.completions.create(
+                    model=self._intent_model,
+                    messages=full_messages,
+                    tools=[SEND_PHOTO_TOOL],
+                    tool_choice="auto",
+                )
+                choice = response.choices[0]
+                if choice.finish_reason == "tool_calls" and choice.message.tool_calls:
+                    # LLM wants to send a photo
+                    tool_call = choice.message.tool_calls[0]
+                    if tool_call.function.name == "send_photo":
+                        args = json.loads(tool_call.function.arguments)
+                        scene_description = args.get("scene_description", "a beautiful photo")
+                        # Enqueue BullMQ job (non-blocking — do not await delivery)
+                        from app.services.jobs.queue import enqueue_photo_job
+                        channel = "web"  # default; webhook.py may override for WhatsApp
+                        await enqueue_photo_job(
+                            user_id=user_id,
+                            scene_description=scene_description,
+                            avatar=avatar,
+                            channel=channel,
+                        )
+                        reply = PHOTO_PLACEHOLDER_MSG
+                        # CRITICAL: append placeholder text (NOT the tool_calls message)
+                        # to history — prevents OpenAI "tool message must follow tool_calls" error
+                        # (RESEARCH.md Pitfall 3)
+                    else:
+                        reply = choice.message.content or LLM_ERROR_MSG
+                else:
+                    reply = choice.message.content or LLM_ERROR_MSG
+            else:
+                # Secretary mode: standard LLM call (no tools)
+                reply = await self._llm.complete(history + [user_message], system_prompt)
         except Exception as e:
             logger.error(f"LLM call failed for user {user_id}: {e}")
             reply = LLM_ERROR_MSG
