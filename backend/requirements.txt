@@ -22,3 +22,4 @@ replicate
 Pillow>=10.0.0
 stripe
 bullmq==2.19.5
+sentry-sdk

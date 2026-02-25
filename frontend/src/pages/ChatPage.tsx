@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
-import { useChatHistory, useSendMessage } from '../api/chat'
+import { useChatHistory, useSendMessage, ApiError } from '../api/chat'
 import MessageList from '../components/MessageList'
 import ChatInput from '../components/ChatInput'
 
@@ -8,9 +9,16 @@ export default function ChatPage() {
   const token = useAuthStore(s => s.token)
   const clearAuth = useAuthStore(s => s.clearAuth)
   const navigate = useNavigate()
+  const [subscriptionRequired, setSubscriptionRequired] = useState(false)
 
   const { data: messages = [], isLoading } = useChatHistory(token)
-  const sendMutation = useSendMessage(token)
+  const sendMutation = useSendMessage(token, {
+    onError: (err: unknown) => {
+      if (err instanceof ApiError && err.status === 402) {
+        setSubscriptionRequired(true)
+      }
+    },
+  })
 
   function handleSend(text: string) {
     sendMutation.mutate(text)
@@ -52,6 +60,21 @@ export default function ChatPage() {
 
       {/* Messages */}
       <MessageList messages={messages} isLoading={isLoading} />
+
+      {/* Subscription required banner */}
+      {subscriptionRequired && (
+        <div className="bg-yellow-900/50 border border-yellow-600 rounded-lg p-3 mx-4 mb-2 flex items-center justify-between">
+          <p className="text-yellow-200 text-sm">
+            Subscription required to send messages.
+          </p>
+          <a
+            href="/subscribe"
+            className="text-yellow-400 underline text-sm font-medium ml-4 whitespace-nowrap"
+          >
+            Subscribe
+          </a>
+        </div>
+      )}
 
       {/* Input */}
       <ChatInput onSend={handleSend} disabled={sendMutation.isPending} />

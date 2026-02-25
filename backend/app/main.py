@@ -1,3 +1,4 @@
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +9,15 @@ from app.routers import auth, avatars, dev, messages, preferences, webhook, heal
 from app.routers import google_oauth
 from app.routers import web_chat, photo, billing
 from app.config import settings
+
+# Sentry init — call BEFORE FastAPI app creation
+# Empty DSN (dev default) = disabled; production DSN in env
+sentry_sdk.init(
+    dsn=settings.sentry_dsn,
+    environment=settings.app_env,
+    traces_sample_rate=0.1,  # 10% of requests for performance tracing
+    # FastAPI integration activates automatically — no explicit FastApiIntegration() needed
+)
 
 app = FastAPI(
     title="Ava API",

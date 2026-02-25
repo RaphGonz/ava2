@@ -22,7 +22,19 @@ export function useChatHistory(token: string | null) {
   })
 }
 
-export function useSendMessage(token: string | null) {
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
+interface UseSendMessageOptions {
+  onError?: (err: unknown) => void
+}
+
+export function useSendMessage(token: string | null, options?: UseSendMessageOptions) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (text: string) =>
@@ -33,10 +45,14 @@ export function useSendMessage(token: string | null) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text }),
-      }).then(r => {
-        if (!r.ok) throw new Error('Failed to send message')
+      }).then(async r => {
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({ detail: 'Failed to send message' }))
+          throw new ApiError(body.detail || 'Failed to send message', r.status)
+        }
         return r.json() as Promise<{ reply: string }>
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chat-history'] }),
+    onError: options?.onError,
   })
 }
