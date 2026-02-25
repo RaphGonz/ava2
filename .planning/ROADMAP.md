@@ -174,7 +174,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 **Goal:** Fix critical `_poll_and_download` bug and complete the ComfyUI Cloud provider — replacing Replicate as the active image generation backend
 **Depends on:** Phase 7
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 07.1-01-PLAN.md — Fix ComfyUIProvider (critical history_v2 bug + seed randomization) + update ImageProvider Protocol + TDD tests

@@ -64,6 +64,8 @@ Progress: [██████████████+] Phase 7 in progress — 
 | Phase 07-avatar-system-production P03 | 8 | 2 tasks | 6 files |
 | Phase 07-avatar-system-production P04 | 18 | 2 tasks | 6 files |
 | Phase 07-avatar-system-production P05 | 23 | 2 tasks | 10 files |
+| Phase 07.1-switch-image-generation-to-comfyui-cloud P02 | 15 | 2 tasks | 5 files |
+| Phase 07.1-switch-image-generation-to-comfyui-cloud P01 | 16 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -161,12 +163,23 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: OnboardingGate uses React Query queryKey ['avatar'] with 5-min staleTime; AvatarSetupPage invalidates this key on approve to clear redirect loop
 - [Phase 07-avatar-system-production]: ApiError class in chat.ts exposes HTTP status code enabling 402 paywall detection without query-layer changes
 - [Phase 07-avatar-system-production]: backend/Dockerfile created (python:3.12-slim) as auto-fix — docker-compose build directive requires it
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: replicate removed from requirements.txt; lazy import in replicate_provider.py kept as dead-code emergency fallback per RESEARCH.md
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: ComfyUI status endpoint returns only status field — output filenames require separate /api/history_v2/{id} call (true 4-step flow)
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: _fetch_history_and_download retries up to 3 times on empty outputs (ComfyUI race condition: history not persisted immediately after status=completed)
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: random.randint(0, 2**32-1) seed injected in both _build_t2i (node 86:3) and _build_i2i (node 89:65) — unique images across calls
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: history_v2 endpoint used for output retrieval — status endpoint returns only {status:...} with no image data (critical bug fix)
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: random.randint(0, 2**32-1) used for ComfyUI seed generation — non-cryptographic use case, simpler than secrets module
+- [Phase 07.1-switch-image-generation-to-comfyui-cloud]: ImageProvider Protocol updated with reference_image_url: str | None = None — documents actual interface, ReplicateProvider stays compatible
 
 ### Pending Todos
 
 - Register webhook URL in Meta Developer Console after starting ngrok
 - Submit WhatsApp Business Account verification (takes 2-15 business days)
 - Add WhatsApp credentials to backend/.env when they arrive
+
+### Roadmap Evolution
+
+- Phase 07.1 inserted after Phase 07: Switch image generation to ComfyUI Cloud (URGENT)
 
 ### Blockers/Concerns
 
@@ -175,5 +188,24 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-05-PLAN.md — SubscribePage + billing API + ChatPage 402 paywall banner + Sentry init; Docker Compose 4-service production stack + nginx.conf + backend/.env.example + Dockerfile. Ready for 07-06.
+Stopped at: Mid-checkpoint 07-06. ComfyUI Cloud provider implemented (phase 07.1 work done inline). Resume: test the avatar reference image generation with ComfyUI, then complete 07-06 checkpoint approval.
+
+### What was built this session (outside GSD plans — needs 07-06 or 07.1 plan):
+- ComfyUIProvider (backend/app/services/image/comfyui_provider.py)
+- Workflows: backend/app/services/image/workflows/text_to_image.json + image_to_image.json
+- base.py: GeneratedImage.image_bytes field added
+- config.py: comfyui_api_key + comfyui_base_url added
+- processor.py: switched from ReplicateProvider → ComfyUIProvider + reference image lookup
+- avatars.py: switched to ComfyUIProvider, reference stored at fixed {user_id}/reference.jpg
+- replicate_provider.py: switched to direct httpx REST (kept as fallback)
+- Migration 004 SQL fixed (DO $$ blocks for constraints/policies)
+- SignupPage + /signup route added to frontend
+- vite.config.ts: /billing proxy added
+
+### Resume steps:
+1. Restart uvicorn (picks up COMFYUI_API_KEY)
+2. Try avatar reference image generation at /avatar-setup
+3. If ComfyUI output format differs from expected, check logs for full status response
+4. Once image generation works → type "approved" on 07-06 checkpoint
+5. Then /gsd:plan-phase 07.1 to formally document the ComfyUI work
 Resume file: None
