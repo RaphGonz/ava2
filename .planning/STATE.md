@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 7 of 7 (Avatar System & Production) — All plans complete, awaiting human verify
-Plan: 9 of 9 in current phase — 07-09 complete (GAP-3 fire-and-forget reference image + polling)
-Status: Phase 7 ALL PLANS DONE — GAP-1 (07-08), GAP-2 (07-07), GAP-3 (07-09) all fixed; human verify required
-Last activity: 2026-03-02 — 07-09 complete: BackgroundTasks 202 endpoint + AvatarSetupPage polling loop
+Plan: 10 of 10 in current phase — 07-10 complete (GAP-4 PGRST204 fix — reference_image_url column)
+Status: Phase 7 ALL PLANS DONE — GAP-1 (07-08), GAP-2 (07-07), GAP-3 (07-09), GAP-4 (07-10) all fixed; human verify required
+Last activity: 2026-03-02 — 07-10 complete: reference_image_url column added to migration 004 and AvatarResponse; Supabase schema updated
 
-Progress: [█████████████████] Phase 7 complete — 9/9 plans done, human verify pending
+Progress: [█████████████████] Phase 7 complete — 10/10 plans done, human verify pending
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [█████████████████] Phase 7 complete
 | Phase 07-avatar-system-production P07 | 5 | 1 tasks | 1 files |
 | Phase 07-avatar-system-production P08 | 8 | 1 tasks | 2 files |
 | Phase 07-avatar-system-production P09 | 12 | 2 tasks | 3 files |
+| Phase 07-avatar-system-production P10 | 15 | 4 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -180,6 +181,8 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: BackgroundTasks injected by FastAPI without Depends() for fire-and-forget reference image generation (GAP-3 fix)
 - [Phase 07-avatar-system-production]: reference_image_url cleared to None before queuing background task -- polling correctly waits for new image
 - [Phase 07-avatar-system-production]: pollForReferenceImage returns cleanup function stored in useRef (stopPollingRef) -- Regenerate cancels active poll before starting new one
+- [Phase 07-avatar-system-production]: reference_image_url TEXT column added to migration 004 with IF NOT EXISTS guard — idempotent, safe to re-run
+- [Phase 07-avatar-system-production]: Background task write-back fields must be in both the migration ALTER TABLE block AND the Pydantic response model — missing either causes PGRST204 or silent polling failure
 
 ### Pending Todos
 
@@ -195,11 +198,12 @@ Recent decisions affecting current work:
 
 - [GAP-2 RESOLVED] ComfyUI delivery fixed in 07-07 (ce1834c): _fetch_history_and_download now unwraps history_data[prompt_id] before reading outputs
 - [GAP-1 RESOLVED] Prompt builder full-body fix addressed in 07-06 gap-closure (prompt_builder.py)
+- [GAP-4 RESOLVED] PGRST204 crash fixed in 07-10 (8e8a524): reference_image_url TEXT column added to migration 004 ALTER TABLE block and to AvatarResponse model; column applied via Supabase Dashboard SQL Editor
 
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 07-09-PLAN.md (GAP-3 fire-and-forget + polling fix). All 9 Phase 7 plans complete. Awaiting human verification of full avatar onboarding flow with non-blocking generation.
+Stopped at: Completed 07-10-PLAN.md (GAP-4 PGRST204 fix — reference_image_url column added to migration and AvatarResponse). All Phase 7 code-level gaps (GAP-1 through GAP-4) closed. Awaiting human verification of full avatar onboarding flow.
 
 ### Resume steps:
 1. Run human verification: navigate to /avatar-setup, fill form, submit — confirm spinner appears within 2s (not 60-120s timeout), image loads after 60-90s, Regenerate re-polls, "Looks perfect" navigates to /chat
