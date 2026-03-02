@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Launch Ready
-status: defining_requirements
+status: roadmap_complete
 last_updated: "2026-03-02"
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,25 +18,25 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app or web app the user already uses.
-**Current focus:** v1.1 Launch Ready — defining requirements
+**Current focus:** v1.1 Launch Ready — roadmap defined, ready to plan Phase 8
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 8 — Infrastructure & Deployment (not started)
 Plan: —
-Status: Defining requirements for v1.1
-Last activity: 2026-03-02 — Milestone v1.1 started
+Status: Roadmap complete, awaiting plan-phase
+Last activity: 2026-03-02 — v1.1 roadmap created (Phases 8–12)
 
-Progress: [█████████████████] Phase 7 complete — 10/10 plans done, human verify pending
+Progress: [                   ] v1.1 Phase 8–12: 0/5 phases started
 
 ## Performance Metrics
 
-**Velocity:**
-- Total plans completed: 11
-- Average duration: 12 min
-- Total execution time: 2.3 hours
+**Velocity (v1.0 reference):**
+- Total plans completed: 38 (v1.0)
+- Average duration: ~12 min/plan
+- Total execution time: ~7.6 hours (v1.0)
 
-**By Phase:**
+**By Phase (v1.0 archive):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
@@ -196,16 +196,30 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: pollForReferenceImage returns cleanup function stored in useRef (stopPollingRef) -- Regenerate cancels active poll before starting new one
 - [Phase 07-avatar-system-production]: reference_image_url TEXT column added to migration 004 with IF NOT EXISTS guard — idempotent, safe to re-run
 - [Phase 07-avatar-system-production]: Background task write-back fields must be in both the migration ALTER TABLE block AND the Pydantic response model — missing either causes PGRST204 or silent polling failure
+- [v1.1 roadmap]: Google OAuth uses @supabase/supabase-js on frontend for PKCE flow — one-time exception to frontend-has-no-direct-Supabase-client rule; must not be generalized to other flows
+- [v1.1 roadmap]: nginx replaced with Caddy for automatic HTTPS — Caddyfile handles TLS termination, SPA serving, and API proxying; no Certbot bootstrap required
+- [v1.1 roadmap]: New env vars required: RESEND_API_KEY, RESEND_FROM_ADDRESS, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY; Google OAuth Client ID+Secret go into Supabase Dashboard only
+- [v1.1 roadmap]: email_collision_migration must run before Google Sign-In button is enabled — marks all existing password-signup users as email-verified in Supabase
+- [v1.1 roadmap]: Stripe cancellation must use cancel_at_period_end=True (not stripe.Subscription.cancel()) — immediate cancel causes 402 errors while user is still on confirmation screen
+- [v1.1 roadmap]: Landing page copy must never use "intimate," "explicit," "NSFW," or "adult" — Stripe will terminate the account; frame as "AI companion/assistant"
+- [v1.1 roadmap]: Admin dashboard protected by require_admin dependency reading app_metadata.role == "admin" from JWT — ProtectedRoute (login check) is not sufficient
+- [v1.1 roadmap]: usage_events table emission points wired in Phase 8–11 as those code paths are touched — data accumulates before admin dashboard is built in Phase 12
+- [v1.1 roadmap]: SAFE-03 (TAKE IT DOWN Act, May 19 2026 deadline) is tracked separately — not a feature phase; requires documented process and contact mechanism, not a code change
 
 ### Pending Todos
 
 - Register webhook URL in Meta Developer Console after starting ngrok
 - Submit WhatsApp Business Account verification (takes 2-15 business days)
 - Add WhatsApp credentials to backend/.env when they arrive
+- Provision production VPS (Hetzner CX32 recommended: 4 vCPU, 8 GB RAM — CX22 has OOM risk during image generation bursts)
+- Verify Stripe account business description does not reference adult/intimate content before landing page launches
+- Update Supabase Dashboard Site URL from localhost to production domain before Google OAuth goes live
+- Address SAFE-03 TAKE IT DOWN Act compliance (May 19, 2026 deadline) — documented process required, not a code change
 
 ### Roadmap Evolution
 
 - Phase 07.1 inserted after Phase 07: Switch image generation to ComfyUI Cloud (URGENT)
+- v1.1 roadmap created 2026-03-02: Phases 8–12 defined for Launch Ready milestone
 
 ### Blockers/Concerns
 
@@ -216,9 +230,10 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 07-10-PLAN.md (GAP-4 PGRST204 fix — reference_image_url column added to migration and AvatarResponse). All Phase 7 code-level gaps (GAP-1 through GAP-4) closed. Awaiting human verification of full avatar onboarding flow.
+Stopped at: v1.1 roadmap created — Phases 8–12 defined with success criteria and full requirement coverage (21/21 requirements mapped). Ready to begin planning Phase 8.
 
 ### Resume steps:
-1. Run human verification: navigate to /avatar-setup, fill form, submit — confirm spinner appears within 2s (not 60-120s timeout), image loads after 60-90s, Regenerate re-polls, "Looks perfect" navigates to /chat
-2. On approval, mark Phase 7 complete and requirements AVTR-01 through AVTR-05, INTM-03, ARCH-03, BILL-01, BILL-02
-Resume file: None
+1. Run `/gsd:plan-phase 8` to generate the execution plan for Phase 8: Infrastructure & Deployment
+2. Phase 8 covers: INFRA-01 (VPS), INFRA-02 (HTTPS/Caddy), INFRA-03 (firewall), INFRA-04 (API credentials), EMAI-01 (email DNS)
+3. Key constraint: Email DNS (SPF/DKIM/DMARC) must propagate 24-48 hours — configure early in Phase 8 to unblock Phase 9 email features
+Resume file: .planning/ROADMAP.md
