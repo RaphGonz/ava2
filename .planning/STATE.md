@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 7.1 of 7.1 (Switch Image Generation to ComfyUI Cloud) — IN PROGRESS
-Plan: 1 of 2 in current phase — 07.1-01 complete
-Status: Phase 7.1 In Progress — 07.1-01 complete
-Last activity: 2026-02-25 — Completed 07.1-01 (ComfyUI critical bug fix: history_v2 endpoint for outputs, seed randomization, Protocol update, 5-test TDD suite)
+Phase: 7 of 7 (Avatar System & Production) — BLOCKED on gap closure
+Plan: 6 of 6 in current phase — 07-06 partial (automated PASS, human verify revealed 2 gaps)
+Status: Phase 7 Blocked — 2 implementation gaps found in 07-06 human verification; gap-closure required before phase can complete
+Last activity: 2026-03-02 — 07-06 human verify partial: GAP-2 (ComfyUI delivery broken) + GAP-1 (portrait-only prompt)
 
-Progress: [████████████████+] Phase 7.1 in progress — 07.1-01 complete (1/2)
+Progress: [████████████████-] Phase 7 blocked — 07-06 partial (5.5/6 plans, gap closure pending)
 
 ## Performance Metrics
 
@@ -183,29 +183,17 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-None.
+- [GAP-2 CRITICAL] ComfyUI image delivery broken — avatar stuck in generating/pending state after ComfyUI completes generation; result never written back to app; AvatarSetupPage locked. Files: backend/app/services/jobs/processor.py, backend/app/routers/avatars.py
+- [GAP-1 HIGH] Prompt builder generates portrait-only images — build_avatar_prompt() lacks full-body composition directives; ComfyUI produces head/shoulders crop instead of full body. File: backend/app/services/image/prompt_builder.py
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Stopped at: Completed 07.1-01-PLAN.md. ComfyUI critical bug fixed (history_v2 endpoint), seed randomization added, Protocol updated, 5-test TDD suite passing. Resume: 07.1-02 (cleanup Replicate artifacts, update .env.example, processor.py docstring).
-
-### What was built this session (outside GSD plans — needs 07-06 or 07.1 plan):
-- ComfyUIProvider (backend/app/services/image/comfyui_provider.py)
-- Workflows: backend/app/services/image/workflows/text_to_image.json + image_to_image.json
-- base.py: GeneratedImage.image_bytes field added
-- config.py: comfyui_api_key + comfyui_base_url added
-- processor.py: switched from ReplicateProvider → ComfyUIProvider + reference image lookup
-- avatars.py: switched to ComfyUIProvider, reference stored at fixed {user_id}/reference.jpg
-- replicate_provider.py: switched to direct httpx REST (kept as fallback)
-- Migration 004 SQL fixed (DO $$ blocks for constraints/policies)
-- SignupPage + /signup route added to frontend
-- vite.config.ts: /billing proxy added
+Last session: 2026-03-02
+Stopped at: Completed 07-06 verification (partial). Task 1 automated checks passed (db7afea). Task 2 human verify found 2 blocking gaps (GAP-1: portrait-only prompt; GAP-2: ComfyUI delivery broken). Phase 7 blocked pending gap closure. Next: create gap-closure plans for GAP-2 (delivery) and GAP-1 (prompt builder) then re-run 07-06 human verify.
 
 ### Resume steps:
-1. Restart uvicorn (picks up COMFYUI_API_KEY)
-2. Try avatar reference image generation at /avatar-setup
-3. If ComfyUI output format differs from expected, check logs for full status response
-4. Once image generation works → type "approved" on 07-06 checkpoint
-5. Then /gsd:plan-phase 07.1 to formally document the ComfyUI work
+1. Fix GAP-2: trace processor.py → confirm worker writes reference_image_url + status "complete" back to avatar row after ComfyUI completes
+2. Fix GAP-1: add full-body composition suffix in prompt_builder.py build_avatar_prompt()
+3. Re-run 07-06 Task 2 human verification (Tests 1-5)
+4. On approval, mark Phase 7 complete and requirements AVTR-01 through AVTR-05, INTM-03, ARCH-03, BILL-01, BILL-02
 Resume file: None

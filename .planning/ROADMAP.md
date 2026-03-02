@@ -153,7 +153,7 @@ Plans:
 - [ ] 07-03-PLAN.md — BullMQ worker pipeline (queue + processor: Replicate → watermark → Supabase Storage → deliver)
 - [ ] 07-04-PLAN.md — ChatService send_photo tool call + AvatarSetupPage onboarding flow + App.tsx gate
 - [ ] 07-05-PLAN.md — SubscribePage + billing frontend + Docker Compose production + Sentry init + .env.example
-- [ ] 07-06-PLAN.md — Automated verification + human checkpoint for Phase 7 system
+- [~] 07-06-PLAN.md — Automated verification + human checkpoint for Phase 7 system (PARTIAL: automated PASS, human verify found 2 gaps — see 07-06-SUMMARY.md)
 
 ## Progress
 
@@ -168,7 +168,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Secretary Skills | 5/5 | Complete   | 2026-02-24 |
 | 5. Intimate Mode Text Foundation | 4/4 | Complete    | 2026-02-24 |
 | 6. Web App & Multi-Platform | 6/6 | Complete    | 2026-02-24 |
-| 7. Avatar System & Production | 5/6 | In Progress|  |
+| 7. Avatar System & Production | 5.5/6 | Blocked — gap closure required | |
 
 ### Phase 07.1: Switch image generation to ComfyUI Cloud (INSERTED)
 
