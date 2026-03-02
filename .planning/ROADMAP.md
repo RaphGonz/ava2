@@ -145,7 +145,7 @@ Plans:
   6. Billing infrastructure supports multiple pricing models (subscription, credits)
   7. BullMQ async processing handles webhooks reliably at scale
   8. System ready for beta launch (monitoring, logging, error handling production-grade)
-**Plans**: 9 plans
+**Plans**: 10 plans
 
 Plans:
 - [ ] 07-01-PLAN.md — DB migration (avatar gender/nationality + subscriptions table) + ImageProvider Protocol + Replicate provider + watermark
@@ -157,6 +157,7 @@ Plans:
 - [ ] 07-07-PLAN.md — GAP-2 fix: ComfyUI history_v2 response parsing (prompt_id unwrap) + httpx timeout increase
 - [ ] 07-08-PLAN.md — GAP-1 fix: full-body composition directive in build_avatar_prompt() + scene_description update in avatars.py
 - [ ] 07-09-PLAN.md — GAP-3 fix: convert reference-image endpoint to 202 + BackgroundTasks + frontend polling loop
+- [ ] 07-10-PLAN.md — GAP-4 fix: add reference_image_url column to migration 004 + AvatarResponse model + Supabase schema apply
 
 ## Progress
 
@@ -171,7 +172,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Secretary Skills | 5/5 | Complete   | 2026-02-24 |
 | 5. Intimate Mode Text Foundation | 4/4 | Complete    | 2026-02-24 |
 | 6. Web App & Multi-Platform | 6/6 | Complete    | 2026-02-24 |
-| 7. Avatar System & Production | 9/9 | Complete   | 2026-03-02 |
+| 7. Avatar System & Production | 9/10 | In progress (GAP-4 plan created) | 2026-03-02 |
 
 ### Phase 07.1: Switch image generation to ComfyUI Cloud (INSERTED)
 
