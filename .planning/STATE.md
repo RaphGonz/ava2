@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 7 of 7 (Avatar System & Production) — Gap closure complete, awaiting human verify
-Plan: 7 of 8 in current phase — 07-07 complete (GAP-2 ComfyUI delivery fix)
-Status: Phase 7 gap closure done — GAP-2 fixed (07-07), GAP-1 fixed (07-06 earlier); re-run 07-06 Task 2 human verify
-Last activity: 2026-03-02 — 07-07 complete: GAP-2 ComfyUI history_v2 prompt_id unwrap fix
+Phase: 7 of 7 (Avatar System & Production) — All plans complete, awaiting human verify
+Plan: 8 of 8 in current phase — 07-08 complete (GAP-1 full-body prompt fix)
+Status: Phase 7 ALL PLANS DONE — GAP-1 (07-08) and GAP-2 (07-07) both fixed; human verify required
+Last activity: 2026-03-02 — 07-08 complete: GAP-1 full-body composition directive in prompt_builder.py
 
-Progress: [████████████████-] Phase 7 gap closure complete — 7/8 plans done, human verify pending
+Progress: [█████████████████] Phase 7 complete — 8/8 plans done, human verify pending
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [████████████████-] Phase 7 gap closur
 | Phase 07.1-switch-image-generation-to-comfyui-cloud P02 | 15 | 2 tasks | 5 files |
 | Phase 07.1-switch-image-generation-to-comfyui-cloud P01 | 16 | 2 tasks | 3 files |
 | Phase 07-avatar-system-production P07 | 5 | 1 tasks | 1 files |
+| Phase 07-avatar-system-production P08 | 8 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -174,6 +175,7 @@ Recent decisions affecting current work:
 - [Phase 07-avatar-system-production]: history_v2 response wrapped under prompt_id key — job_data = history_data.get(prompt_id, {}) before accessing outputs
 - [Phase 07-avatar-system-production]: _download_output now accepts pre-extracted outputs dict — no double .get('outputs') lookup at history_data root
 - [Phase 07-avatar-system-production]: httpx.AsyncClient timeout changed from single 60s to per-operation: connect=10s, read=120s, write=30s, pool=10s for large ComfyUI image downloads
+- [Phase 07-avatar-system-production]: Full-body directive placed in build_avatar_prompt() not callers — processor.py intimate-mode photos get full-body framing automatically; portrait bias removed from safety prefix
 
 ### Pending Todos
 
@@ -193,10 +195,9 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 07-07-PLAN.md (GAP-2 ComfyUI delivery fix). Both GAP-1 and GAP-2 resolved. Phase 7 awaiting human verification of full avatar onboarding flow.
+Stopped at: Completed 07-08-PLAN.md (GAP-1 full-body prompt fix). All 8 Phase 7 plans complete. Awaiting human verification of full avatar onboarding flow with full-body images.
 
 ### Resume steps:
-1. Re-run 07-06 Task 2 human verification (Tests 1-5) with COMFYUI_API_KEY configured
-2. Verify avatar onboarding end-to-end: form submit → ComfyUI generates → reference_image_url appears in AvatarSetupPage
-3. On approval, mark Phase 7 complete and requirements AVTR-01 through AVTR-05, INTM-03, ARCH-03, BILL-01, BILL-02
+1. Run human verification: generate reference image via /avatar-setup, confirm image shows avatar head-to-toe (not face crop)
+2. On approval, mark Phase 7 complete and requirements AVTR-01 through AVTR-05, INTM-03, ARCH-03, BILL-01, BILL-02
 Resume file: None
