@@ -91,12 +91,11 @@ async def generate_reference_image(
     Returns a 24-hour signed URL for the generated image.
     Called by AvatarSetupPage after form submission.
     """
-    from app.services.image.replicate_provider import ReplicateProvider
+    from app.services.image.comfyui_provider import ComfyUIProvider
     from app.services.image.prompt_builder import build_avatar_prompt
     from app.services.image.watermark import apply_watermark
     from app.database import supabase_admin
     import httpx
-    import uuid
 
     avatar_result = db.from_("avatars").select("*").eq("user_id", str(user.id)).execute()
     if not avatar_result.data:
@@ -104,18 +103,23 @@ async def generate_reference_image(
     avatar = avatar_result.data[0]
 
     try:
-        provider = ReplicateProvider()
-        prompt = build_avatar_prompt(avatar, "portrait photo, neutral background, natural light, full face")
-        generated = await provider.generate(prompt, aspect_ratio="2:3")
+        provider = ComfyUIProvider()
+        prompt = build_avatar_prompt(
+            avatar,
+            "neutral background, natural light, full body visible, standing"
+        )
+        generated = await provider.generate(prompt)
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.get(generated.url)
-            resp.raise_for_status()
-            image_bytes = resp.content
+        image_bytes = generated.image_bytes
+        if not image_bytes:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                resp = await client.get(generated.url)
+                resp.raise_for_status()
+                image_bytes = resp.content
 
         watermarked = apply_watermark(image_bytes)
-        job_id = str(uuid.uuid4())
-        storage_path = f"{str(user.id)}/reference_{job_id}.jpg"
+        # Fixed path so the photo processor can always find the reference image
+        storage_path = f"{str(user.id)}/reference.jpg"
 
         supabase_admin.storage.from_("photos").upload(
             storage_path,
