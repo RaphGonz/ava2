@@ -35,4 +35,5 @@ class AvatarResponse(BaseModel):
     physical_description: Optional[str] = None
     gender: Optional[str] = None         # AVTR-01
     nationality: Optional[str] = None    # AVTR-03
+    reference_image_url: Optional[str] = None
     created_at: datetime

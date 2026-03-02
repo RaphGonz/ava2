@@ -15,17 +15,12 @@
 --     RLS: user can read their own row; only service role writes (via webhook).
 --
 -- How to apply:
---   Option 1 — Supabase Dashboard SQL Editor:
+--   Supabase Dashboard SQL Editor:
 --     Copy and paste the entire contents of this file into the SQL Editor at
 --     https://supabase.com/dashboard/project/<your-project>/sql
 --     Click "Run".
 --
---   Option 2 — psql:
---     psql "postgresql://postgres:<password>@db.<your-project>.supabase.co:5432/postgres" \
---       -f migrations/004_phase7_avatar_fields.sql
---
--- NOTE: Both parts use IF NOT EXISTS guards throughout — migration is idempotent
--- and safe to re-run (same pattern as 003_phase6_preferences.sql).
+-- NOTE: Idempotent — safe to re-run. DO blocks catch duplicate errors.
 -- =============================================================================
 
 
@@ -33,27 +28,22 @@
 -- Part 1: Avatar new fields
 -- =============================================================================
 
-BEGIN;
-
 ALTER TABLE public.avatars
-  ADD COLUMN IF NOT EXISTS gender      TEXT,
-  ADD COLUMN IF NOT EXISTS nationality TEXT;
-
-COMMIT;
+  ADD COLUMN IF NOT EXISTS gender             TEXT,
+  ADD COLUMN IF NOT EXISTS nationality        TEXT,
+  ADD COLUMN IF NOT EXISTS reference_image_url TEXT;
 
 
 -- =============================================================================
 -- Part 2: Subscriptions table
 -- =============================================================================
 
-BEGIN;
-
 CREATE TABLE IF NOT EXISTS public.subscriptions (
   id                     UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id                UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   stripe_customer_id     TEXT,
   stripe_subscription_id TEXT UNIQUE,
-  stripe_price_id        TEXT,           -- config-driven, no hardcoded amounts
+  stripe_price_id        TEXT,
   status                 TEXT NOT NULL DEFAULT 'inactive'
                            CHECK (status IN ('active', 'inactive', 'past_due', 'canceled')),
   current_period_end     TIMESTAMPTZ,
@@ -61,15 +51,16 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   updated_at             TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Unique user constraint (one subscription row per user)
-ALTER TABLE public.subscriptions
-  ADD CONSTRAINT IF NOT EXISTS subscriptions_user_id_unique UNIQUE (user_id);
+DO $$ BEGIN
+  ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_user_id_unique UNIQUE (user_id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- RLS: user can read their own row; only service role writes (via webhook)
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "subscriptions_select_own"
-  ON public.subscriptions FOR SELECT
-  USING (auth.uid() = user_id);
-
-COMMIT;
+DO $$ BEGIN
+  CREATE POLICY "subscriptions_select_own"
+    ON public.subscriptions FOR SELECT
+    USING (auth.uid() = user_id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
