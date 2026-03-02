@@ -1,32 +1,31 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MVP
-status: milestone_complete
+milestone: v1.1
+milestone_name: Launch Ready
+status: defining_requirements
 last_updated: "2026-03-02"
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 38
-  completed_plans: 38
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-02 after v1.0 milestone)
+See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app or web app the user already uses.
-**Current focus:** Planning next milestone (v1.1) — run `/gsd:new-milestone`
-**Current focus:** Phase 7 - Avatar System & Production
+**Current focus:** v1.1 Launch Ready — defining requirements
 
 ## Current Position
 
-Phase: 7 of 7 (Avatar System & Production) — All plans complete, awaiting human verify
-Plan: 10 of 10 in current phase — 07-10 complete (GAP-4 PGRST204 fix — reference_image_url column)
-Status: Phase 7 ALL PLANS DONE — GAP-1 (07-08), GAP-2 (07-07), GAP-3 (07-09), GAP-4 (07-10) all fixed; human verify required
-Last activity: 2026-03-02 — 07-10 complete: reference_image_url column added to migration 004 and AvatarResponse; Supabase schema updated
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v1.1
+Last activity: 2026-03-02 — Milestone v1.1 started
 
 Progress: [█████████████████] Phase 7 complete — 10/10 plans done, human verify pending
 

@@ -30,11 +30,29 @@ A single AI companion that seamlessly switches between getting things done (secr
 - ✓ Content safety: age verification (20+ floor), ContentGuard, crisis detection (988) — v1.0
 - ✓ NSFW delivery via secure web links (not inline WhatsApp) — v1.0
 
+## Current Milestone: v1.1 — Launch Ready
+
+**Goal:** Transform the v1.0 MVP into a production-deployable, professional product that can acquire and retain real paying users.
+
+**Target features:**
+- Landing page (Figma-based): hero, features, pricing, Sign Up CTA — the acquisition funnel
+- Production deployment: VPS (Hetzner/DigitalOcean), Docker Compose, domain + SSL, all APIs wired
+- Admin dashboard: `/admin` page with usage analytics (active users, messages, photos, subscriptions)
+- Auth polish: Google Sign-In/Sign-Up + password reset via email
+- Transactional emails: welcome on signup, receipt after subscribing, cancellation confirmation
+- Subscription management: user-facing plan page (plan, billing date) + cancellation with exit survey
+
 ### Active
 
+- [ ] Landing page that converts visitors to paying users (Figma design provided at build time)
+- [ ] Production VPS deployment with domain, SSL, and all production API connections
+- [ ] Admin analytics dashboard (/admin) for usage monitoring
+- [ ] Google OAuth sign-in / sign-up
+- [ ] Password reset via email link
+- [ ] Transactional emails (welcome, receipt, cancellation)
+- [ ] User-facing subscription management page (current plan, billing date, cancel)
+- [ ] Cancellation churn flow: exit survey before confirming cancel
 - [ ] SAFE-03: Operationalize TAKE IT DOWN Act 48-hour takedown process (policy exists, process not implemented)
-- [ ] Secretary: Reminder system (set and trigger time-based reminders)
-- [ ] Photos escalate from mild to explicit based on conversation context (current: single tier based on spiciness_level)
 - [ ] WhatsApp Business Account verification (submitted, awaiting Meta approval)
 
 ### Out of Scope
@@ -101,4 +119,4 @@ A single AI companion that seamlessly switches between getting things done (secr
 - **Content safety**: Age verification + ContentGuard + crisis detection are mandatory
 
 ---
-*Last updated: 2026-03-02 after v1.0 milestone*
+*Last updated: 2026-03-02 — v1.1 milestone started*
