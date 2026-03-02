@@ -1,10 +1,24 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: MVP
+status: milestone_complete
+last_updated: "2026-03-02"
+progress:
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 38
+  completed_plans: 38
+---
+
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-23)
+See: .planning/PROJECT.md (updated 2026-03-02 after v1.0 milestone)
 
-**Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app the user already uses.
+**Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app or web app the user already uses.
+**Current focus:** Planning next milestone (v1.1) — run `/gsd:new-milestone`
 **Current focus:** Phase 7 - Avatar System & Production
 
 ## Current Position
