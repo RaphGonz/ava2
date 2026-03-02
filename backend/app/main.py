@@ -1,3 +1,6 @@
+import logging
+from contextlib import asynccontextmanager
+
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +13,8 @@ from app.routers import google_oauth
 from app.routers import web_chat, photo, billing
 from app.config import settings
 
+logger = logging.getLogger(__name__)
+
 # Sentry init — call BEFORE FastAPI app creation
 # Empty DSN (dev default) = disabled; production DSN in env
 sentry_sdk.init(
@@ -19,10 +24,50 @@ sentry_sdk.init(
     # FastAPI integration activates automatically — no explicit FastApiIntegration() needed
 )
 
+
+def _ensure_storage_buckets() -> None:
+    """
+    Idempotently create Supabase Storage buckets required by the application.
+    Called at startup so the buckets exist before any upload attempt.
+
+    Buckets:
+      - photos (private): reference images and generated scene photos.
+
+    Uses service role client — only service role can create buckets.
+    Silently ignores 'already exists' errors so this is safe to call on every boot.
+    """
+    from app.database import supabase_admin
+    from storage3.exceptions import StorageApiError
+
+    try:
+        supabase_admin.storage.create_bucket("photos", options={"public": False})
+        logger.info("Supabase Storage: created 'photos' bucket")
+    except StorageApiError as e:
+        # "The resource already exists" — bucket was already created, nothing to do
+        if "already exists" in str(e).lower() or "Duplicate" in str(e):
+            logger.debug("Supabase Storage: 'photos' bucket already exists — skipping creation")
+        else:
+            # Unexpected storage error at startup — log loudly but do not crash the app
+            logger.error(f"Supabase Storage: failed to create 'photos' bucket at startup: {e}")
+    except Exception as e:
+        logger.error(f"Supabase Storage: unexpected error ensuring 'photos' bucket: {e}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan: run startup tasks before yielding, teardown after.
+    Replaces the deprecated @app.on_event("startup") pattern.
+    """
+    _ensure_storage_buckets()
+    yield
+
+
 app = FastAPI(
     title="Ava API",
     description="AI companion backend — Phase 2: Infrastructure & User Management",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # CORS middleware — allow localhost origins for development and production frontend

@@ -62,7 +62,7 @@ def get_subscription_status(user_id: str) -> str | None:
         supabase_admin.from_("subscriptions")
         .select("status")
         .eq("user_id", user_id)
-        .maybe_single()
+        .limit(1)
         .execute()
     )
-    return result.data.get("status") if result.data else None
+    return result.data[0]["status"] if result.data else None

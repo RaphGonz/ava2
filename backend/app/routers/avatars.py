@@ -1,5 +1,7 @@
+import asyncio
 import logging
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+import traceback
+from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_current_user, get_authed_supabase
 from app.models.avatar import AvatarCreate, AvatarResponse, PersonaUpdateRequest
 from app.services.session.store import get_session_store
@@ -19,74 +21,118 @@ async def _generate_reference_image_task(user_id: str) -> None:
     Failures are logged but NOT re-raised -- the background task must not crash the worker.
     The frontend polling loop will time out with a user-facing error message after 5 minutes.
     """
+    # Sentinel log: very first line of function -- confirms task body is executing.
+    # Uses print() in addition to logger to bypass any logging configuration issues.
+    import sys
+    print(f"[BG_TASK] _generate_reference_image_task ENTERED for user {user_id}", flush=True, file=sys.stderr)
+    logger.error(f"[BG_TASK] _generate_reference_image_task ENTERED for user {user_id}")
+
     from app.services.image.comfyui_provider import ComfyUIProvider
     from app.services.image.prompt_builder import build_avatar_prompt
     from app.services.image.watermark import apply_watermark
     from app.database import supabase_admin
+    from storage3.exceptions import StorageApiError
     import httpx
 
     try:
         # Fetch avatar using service role (no user JWT in background context)
+        logger.error(f"[BG_TASK][STEP-0] Fetching avatar for user {user_id}")
         avatar_result = supabase_admin.from_("avatars").select("*").eq("user_id", user_id).execute()
         if not avatar_result.data:
             logger.error(f"Background task: no avatar found for user {user_id}")
             return
 
         avatar = avatar_result.data[0]
+        logger.error(f"[BG_TASK][STEP-0] Avatar fetched OK: {avatar.get('id')}")
 
         # Step 1: Generate image via ComfyUI
+        logger.error(f"[BG_TASK][STEP-1] Starting ComfyUI generation for user {user_id}")
         provider = ComfyUIProvider()
         prompt = build_avatar_prompt(
             avatar,
             "neutral background, natural light, full body visible, standing"
         )
         generated = await provider.generate(prompt)
+        logger.error(f"[BG_TASK][STEP-1] ComfyUI generation complete, image_bytes={len(generated.image_bytes) if generated.image_bytes else 0}")
 
         # Step 2: Get image bytes (provider returns them directly)
         image_bytes = generated.image_bytes
         if not image_bytes:
+            logger.error(f"[BG_TASK][STEP-2] image_bytes empty, downloading from URL")
             async with httpx.AsyncClient(timeout=httpx.Timeout(connect=10, read=120, write=30, pool=10)) as client:
                 resp = await client.get(generated.url)
                 resp.raise_for_status()
                 image_bytes = resp.content
+        logger.error(f"[BG_TASK][STEP-2] image_bytes ready: {len(image_bytes)} bytes")
 
         # Step 3: Apply watermark (compliance requirement -- TAKE IT DOWN Act)
+        logger.error(f"[BG_TASK][STEP-3] Applying watermark")
         watermarked = apply_watermark(image_bytes)
+        logger.error(f"[BG_TASK][STEP-3] Watermark applied: {len(watermarked)} bytes")
 
         # Step 4: Upload to Supabase Storage
         # Fixed path so the photo processor can always find the reference image
         storage_path = f"{user_id}/reference.jpg"
+        logger.error(f"[BG_TASK][STEP-4] Ensuring bucket and uploading to {storage_path}")
+        # Ensure bucket exists — startup creates it, but guard here for resilience
+        try:
+            supabase_admin.storage.create_bucket("photos", options={"public": False})
+            logger.error("[BG_TASK][STEP-4] Created 'photos' storage bucket")
+        except StorageApiError as bucket_err:
+            bucket_err_str = str(bucket_err).lower()
+            if "already exists" in bucket_err_str or "duplicate" in bucket_err_str:
+                logger.error("[BG_TASK][STEP-4] 'photos' bucket already exists (expected)")
+            else:
+                logger.error(f"Background task: failed to ensure 'photos' bucket: {bucket_err}")
+                return
         supabase_admin.storage.from_("photos").upload(
             storage_path,
             watermarked,
             file_options={"content-type": "image/jpeg", "upsert": "true"},
         )
+        logger.error(f"[BG_TASK][STEP-4] Upload complete for {storage_path}")
 
         # Step 5: Create 24-hour signed URL
+        logger.error(f"[BG_TASK][STEP-5] Creating signed URL for {storage_path}")
         sign_response = (
             supabase_admin.storage
             .from_("photos")
             .create_signed_url(storage_path, 86400)
         )
-        signed_url = sign_response.get("signedURL") or sign_response.get("signed_url")
+        logger.error(f"[BG_TASK][STEP-5] sign_response keys: {list(sign_response.keys()) if sign_response else None}")
+        signed_url = sign_response.get("signedURL") or sign_response.get("signedUrl") or sign_response.get("signed_url")
         if not signed_url:
-            logger.error(f"Background task: failed to create signed URL for user {user_id}")
+            logger.error(f"Background task: failed to create signed URL for user {user_id}, sign_response={sign_response}")
             return
+        logger.error(f"[BG_TASK][STEP-5] Signed URL created (length={len(signed_url)})")
 
         # Step 6: Write reference_image_url to the avatar row
         # The frontend polls GET /avatars/me -- when this field is non-null, polling stops.
+        logger.error(f"[BG_TASK][STEP-6] Writing reference_image_url to DB for user {user_id}")
         update_result = supabase_admin.from_("avatars").update(
             {"reference_image_url": signed_url}
         ).eq("user_id", user_id).execute()
 
         if not update_result.data:
-            logger.error(f"Background task: failed to update reference_image_url for user {user_id}")
+            logger.error(f"Background task: failed to update reference_image_url for user {user_id}: update returned empty data")
             return
 
-        logger.info(f"Background task: reference image ready for user {user_id}")
+        logger.error(f"[BG_TASK][STEP-6] DB update successful. reference image ready for user {user_id}")
 
+    except asyncio.CancelledError:
+        # CancelledError is BaseException, not Exception — must be caught explicitly.
+        # This should not normally happen since we use asyncio.ensure_future() to decouple
+        # the task from the request lifecycle, but we log it for observability if it does.
+        logger.error(
+            f"[BG_TASK] Background task CANCELLED for user {user_id} — "
+            "this indicates unexpected task cancellation. reference_image_url was NOT written."
+        )
+        raise  # Re-raise CancelledError so the event loop handles it correctly
     except Exception as e:
-        logger.error(f"Background task: reference image generation failed for user {user_id}: {e}")
+        logger.error(
+            f"Background task: reference image generation failed for user {user_id}: {e}\n"
+            + traceback.format_exc()
+        )
         # Do NOT re-raise -- background task failure must not crash the event loop
 
 
@@ -164,19 +210,29 @@ async def update_persona(
 
 @router.post("/me/reference-image", status_code=202)
 async def generate_reference_image(
-    background_tasks: BackgroundTasks,
     user=Depends(get_current_user),
     db=Depends(get_authed_supabase),
 ):
     """
     Kick off reference image generation for the user's avatar.
 
-    Returns 202 immediately -- the actual ComfyUI generation (60-120s) runs as a
-    FastAPI BackgroundTask. The client should poll GET /avatars/me every 3 seconds
+    Returns 202 immediately -- the actual ComfyUI generation (60-120s) runs as an
+    independent asyncio Task. The client should poll GET /avatars/me every 3 seconds
     until avatar.reference_image_url is non-null.
 
     GAP-3 fix: previously this endpoint awaited provider.generate() synchronously,
     blocking the HTTP connection for 60-120s and triggering Nginx proxy_read_timeout (60s).
+
+    BUG FIX (2026-03-02): previously used FastAPI BackgroundTasks which are tied to the
+    request lifecycle via Starlette HTTPMiddleware (used internally by CORSMiddleware).
+    When the HTTP connection closes after the 202 response, Starlette propagates
+    asyncio.CancelledError into the background task at the first await point
+    (asyncio.sleep inside _poll_and_download). CancelledError is BaseException (not
+    Exception), so the except Exception block does not catch it — the task dies silently
+    with zero log output and reference_image_url stays NULL forever.
+
+    Fix: asyncio.ensure_future() schedules an independent Task that is NOT part of the
+    request Task tree and cannot be cancelled by connection closure.
     """
     # Confirm avatar exists before queuing (fast DB check -- no timeout risk)
     avatar_result = db.from_("avatars").select("id").eq("user_id", str(user.id)).execute()
@@ -188,7 +244,10 @@ async def generate_reference_image(
         {"reference_image_url": None}
     ).eq("user_id", str(user.id)).execute()
 
-    # Schedule the full pipeline as a background task -- returns immediately
-    background_tasks.add_task(_generate_reference_image_task, str(user.id))
+    # Schedule as an independent asyncio Task -- decoupled from request lifecycle.
+    # asyncio.ensure_future() creates a Task on the running event loop that is NOT
+    # a child of the current request Task and therefore cannot be cancelled on
+    # connection close (unlike FastAPI BackgroundTasks with CORSMiddleware present).
+    asyncio.ensure_future(_generate_reference_image_task(str(user.id)))
 
     return {"status": "generating"}

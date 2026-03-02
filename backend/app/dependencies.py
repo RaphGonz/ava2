@@ -67,7 +67,11 @@ async def require_active_subscription(user=Depends(get_current_user)):
     """
     FastAPI dependency — raises 402 Payment Required if user has no active subscription.
     Used on POST /chat (web_chat router) and any other gated endpoints.
+    Bypassed when STRIPE_SECRET_KEY is not configured (local dev without Stripe).
     """
+    from app.config import settings
+    if not settings.stripe_secret_key:
+        return user  # Stripe not configured — allow chat in dev
     status_val = get_subscription_status(str(user.id))
     if status_val != "active":
         raise HTTPException(
