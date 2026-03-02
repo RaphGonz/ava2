@@ -5,7 +5,8 @@ Uses two workflows:
   - image_to_image.json : scene photo from reference image (Qwen Edit / FluxKontext)
 
 API: cloud.comfy.org — X-API-Key auth, POST /api/prompt, poll GET /api/job/{id}/status,
-     download via GET /api/view?filename=...&type=output.
+     then GET /api/history_v2/{id} (returns {"{prompt_id}": {"outputs": {...}}}),
+     download via GET /api/view?filename=...&subfolder=...&type=output.
 """
 import asyncio
 import copy
@@ -53,7 +54,9 @@ class ComfyUIProvider:
         if not settings.comfyui_api_key:
             raise RuntimeError("COMFYUI_API_KEY is not set in .env")
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(connect=10.0, read=120.0, write=30.0, pool=10.0)
+        ) as client:
             if reference_image_url:
                 workflow, output_node = await self._build_i2i(
                     client, prompt, reference_image_url
@@ -171,6 +174,7 @@ class ComfyUIProvider:
     ) -> bytes:
         """
         GET /api/history_v2/{prompt_id} to retrieve output node filenames.
+        ComfyUI Cloud returns: { "{prompt_id}": { "outputs": {...}, "status": {...} } }
         Retries up to max_retries times when outputs are empty (race condition).
         Then downloads via GET /api/view.
         """
@@ -181,12 +185,16 @@ class ComfyUIProvider:
             )
             hist_resp.raise_for_status()
             history_data = hist_resp.json()
-            outputs = history_data.get("outputs", {})
+
+            # ComfyUI Cloud history_v2 wraps data under the prompt_id key
+            job_data = history_data.get(prompt_id, {})
+            outputs = job_data.get("outputs", {})
+
             if outputs:
-                return await self._download_output(client, history_data, output_node)
+                return await self._download_output(client, outputs, output_node)
             logger.warning(
                 f"ComfyUI history_v2 outputs empty (attempt {attempt}/{max_retries})"
-                f" for job {prompt_id} — retrying"
+                f" for job {prompt_id} — retrying. Raw keys: {list(history_data.keys())}"
             )
             await asyncio.sleep(POLL_INTERVAL)
 
@@ -196,18 +204,20 @@ class ComfyUIProvider:
         )
 
     async def _download_output(
-        self, client: httpx.AsyncClient, history_data: dict, output_node: str
+        self, client: httpx.AsyncClient, outputs: dict, output_node: str
     ) -> bytes:
-        """Extract filename from history outputs and download the image."""
-        outputs = history_data.get("outputs", {})
+        """Extract filename from outputs dict and download the image."""
         node_out = outputs.get(output_node, {})
         images = node_out.get("images", [])
         if not images:
-            # Log full response so we can debug format mismatches
-            logger.error(f"No images in output node {output_node}. Full history: {history_data}")
+            # Log full outputs so we can debug node key mismatches
+            logger.error(
+                f"No images in output node '{output_node}'. "
+                f"Available output nodes: {list(outputs.keys())}"
+            )
             raise RuntimeError(
                 f"ComfyUI: no images found in output node '{output_node}'. "
-                f"Keys available: {list(outputs.keys())}"
+                f"Available nodes: {list(outputs.keys())}"
             )
 
         img_meta = images[0]
