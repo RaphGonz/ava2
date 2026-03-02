@@ -1,331 +1,534 @@
 # Feature Research
 
-**Domain:** Dual-Mode AI Companion (Productivity Assistant + Intimate Partner)
-**Researched:** 2026-02-23
-**Confidence:** HIGH
+**Domain:** Dual-Mode AI Companion — v1.1 Launch-Ready Features
+**Researched:** 2026-03-02
+**Confidence:** HIGH (v1.0 core); HIGH (v1.1 SaaS patterns, well-established)
+
+---
+
+## Scope Note
+
+This document covers two scopes:
+
+- **Part A** — v1.1 Launch-Ready Features (7 new features being researched now)
+- **Part B** — v1.0 Core AI Companion Features (preserved from prior research, 2026-02-23)
+
+Roadmap and requirements work for v1.1 should reference Part A primarily.
+
+---
+
+# Part A: v1.1 Launch-Ready Features
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete.
+Features users assume exist. Missing these = product feels incomplete or untrustworthy.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **Text-based conversation** | Core interaction method for all chatbots | LOW | Standard LLM integration |
-| **Context memory within session** | Users expect AI to remember earlier conversation | LOW | Short-term context window (standard in modern LLMs) |
-| **Personality customization** | All AI companions offer this (Replika, Character.AI, Candy.AI) | MEDIUM | Preset personas required; free-text descriptions are bonus |
-| **Avatar appearance customization** | Visual representation is table stakes for companions | MEDIUM | Gender, age, race/nationality selection minimum |
-| **Basic image generation** | Companions generate photos of themselves (Candy.AI, Replika AR) | MEDIUM | Text-to-image API integration |
-| **Response in under 2 seconds** | Users won't tolerate slow responses in messaging | MEDIUM | Latency optimization, streaming responses |
-| **Mobile-first interface** | AI companions are mobile products | LOW | WhatsApp IS the interface for v1 |
-| **Privacy controls** | Data safety is non-negotiable in 2026 | MEDIUM | Transparent data policies, opt-in tracking |
-| **Clear purpose statement** | Users need to know what bot can do | LOW | Onboarding welcome message with capabilities |
-| **Human-like conversational flow** | Chatbots must handle natural language, not rigid commands | MEDIUM | Modern LLMs handle this; needs prompt engineering |
-| **Subscription or credit-based billing** | Freemium with paid tiers is industry standard | MEDIUM | Flexible billing system (per project requirements) |
-| **Age verification** | Essential for NSFW content (legal/ethical requirement) | HIGH | Must be bulletproof (20+ enforced per project) |
-| **Content safety guardrails** | Post-Grok 2026, moderation is mandatory for NSFW features | HIGH | Prevent non-consensual content, abuse, minors |
+| **Landing page with clear value prop** | Every SaaS has one; users expect to understand the product before signing up | LOW | Hero + features + pricing + CTA. Conversion-critical. Figma design will be provided. |
+| **Sign in with Google** | Dominant auth pattern in 2026; "email+password is friction" | LOW | Supabase supports Google OAuth natively; PKCE handled by `@supabase/supabase-js` |
+| **Password reset via email** | Industry standard; users expect it; OWASP requirement | LOW | Supabase has built-in password reset flow; just need UI + email routing |
+| **View current plan and billing date** | Users paying monthly need to know what they're paying for | LOW | Stripe subscription object has `current_period_end`; display it |
+| **Cancel subscription self-service** | Required by consumer protection law in most markets; users demand it | MEDIUM | Stripe handles actual cancellation; need UI flow + churn survey |
+| **Welcome email on signup** | Users expect a confirmation + orientation email immediately | LOW | Highest open rate of any email type (4x normal); do not skip |
+| **Payment receipt email** | Expected by every paying user; required for tax/accounting | LOW | Stripe webhook `invoice.paid` → send receipt |
+| **Cancellation confirmation email** | Users need proof their account is cancelled; reduces chargebacks | LOW | Stripe webhook `customer.subscription.deleted` → send email |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not required, but valuable.
+Features that go beyond table stakes and build trust, reduce churn, or improve conversion.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **Dual-mode switching (secretary + intimate)** | Unique value prop: one AI for work AND personal connection | HIGH | Fuzzy intent detection for mode switching ("I'm alone" / "stop") |
-| **WhatsApp-native experience** | Meets users where they already are (no app download) | MEDIUM | WhatsApp Business API integration |
-| **Context-aware image escalation** | Photos escalate from mild to explicit based on conversation flow | HIGH | Requires conversation analysis + dynamic prompt generation |
-| **Long-term memory across sessions** | AI remembers preferences, past conversations beyond current chat | HIGH | External memory system (vector DB or knowledge graph) |
-| **Productivity tool integrations** | Calendar, reminders, research skills differentiate from pure companions | MEDIUM | Google Calendar API, reminder system, web search |
-| **Modular skill system** | Future-proofing for OCR, agentic skills, new capabilities | HIGH | Plugin architecture allows adding features without core rewrites |
-| **Platform-agnostic design** | Messaging adapter pattern enables Telegram, Facebook, Discord expansion | MEDIUM | Abstraction layer between core logic and messaging platforms |
-| **Preset personas with depth** | Quality-controlled personalities vs user-generated chaos | MEDIUM | Data-driven persona system (config, not code) |
-| **Seamless mode transitions** | Natural switching without jarring context loss | HIGH | Conversation state management across modes |
-| **Multi-modal responses** | Text + image generation in single flow | MEDIUM | Orchestrator pattern to combine LLM + image API responses |
-| **Voice integration** | Voice messages and calls (future v2+) | HIGH | Voice-to-text, text-to-speech, realtime audio models |
-| **Reduced context-switching friction** | Users don't restart conversations when switching tasks | MEDIUM | Memory + conversation threading |
-| **On-device processing (hybrid)** | Privacy + cost control for routine tasks | HIGH | Local models for simple tasks, cloud for complex reasoning |
+| **Exit survey before cancel** | Captures churn reasons; enables targeted saves (discount, pause) | MEDIUM | 25-30% of cancellations can be saved with right offer; data feeds product roadmap |
+| **Targeted retention offer in churn flow** | "Here's 20% off" or "Pause instead of cancel" presented based on survey answer | MEDIUM | Tied to exit survey response; dynamic offer based on stated reason |
+| **Admin analytics dashboard** | Operator visibility into active users, revenue, content metrics; enables data-driven decisions | MEDIUM | Build custom `/admin` page; Stripe + Supabase data; no third-party dashboard needed |
+| **Pricing table on landing page** | Transparent pricing reduces decision anxiety; leads who see pricing convert higher | LOW | Single tier (v1.1); clear feature list per plan |
+| **Social proof on landing page** | Trust signals near CTAs lift conversion; companion-app users respond to peer validation | LOW | User count, testimonials, or "X photos generated" style metrics |
+| **Subscription pause option** | Alternative to full cancel; reduces hard churn; common in consumer subscriptions | MEDIUM | Stripe supports subscription pausing natively; UI integration needed |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems.
-
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| **Open-ended chatbot without purpose** | Users want "general AI companion" | WhatsApp 2026 policy prohibits open-ended bots; requires concrete business tasks | Define clear use cases: secretary tasks (calendar, reminders, research) + companion persona interactions |
-| **Unlimited free tier** | Attract maximum users | Unsustainable costs with LLM + image generation APIs | Freemium with message/image limits, credit top-ups |
-| **Real-time streaming responses** | Feels more responsive | Complex implementation, marginal UX improvement in messaging | Standard message-reply with <2s latency is sufficient |
-| **Custom personality via free text** | Maximum flexibility | Quality control nightmare, inconsistent behavior, moderation burden | Preset personas users can select, with minor customization (appearance description) |
-| **Unfiltered NSFW without safeguards** | Demand from adult market | Legal liability (Grok controversy 2026), regulatory crackdown in 12+ countries | Context-aware escalation with consent checks, age verification, no non-consensual content |
-| **Self-hosted option** | Privacy-conscious users request | High support burden, version fragmentation, security risk | Transparent cloud privacy policies, opt-in data controls, local storage options for sensitive data |
-| **Multi-language support in v1** | Expand addressable market | Delays launch, increases testing complexity, cultural nuance issues | English-only v1, add languages post-validation based on demand |
-| **Video/voice from day one** | "Everyone else has it" | Significantly increases complexity and cost | Text + images v1, voice v2 after core is validated |
-| **Infinite memory without controls** | "Remember everything forever" | Privacy concerns, GDPR compliance issues, context pollution | User-controlled memory (edit/delete), retention policies, explainable AI |
-| **Trying to be everything** | Match every competitor feature | Scope creep kills projects | Focus on dual-mode differentiation, modular expansion later |
+| **Build custom billing portal** | "We need full control over the billing UI" | Significant dev time; Stripe Customer Portal handles 90% of use cases for free | Use Stripe Customer Portal for complex billing ops; build only the plan-view and cancel CTA in the app |
+| **Multi-step complex onboarding wizard** | "Guide users through every feature" | Friction before value; users abandon before completing | Single welcome email with 3 key actions; keep signup → first chat path under 60 seconds |
+| **Mandatory marketing email opt-in on signup** | "Build the email list" | Reduces signup conversion; GDPR requires separate consent from transactional emails | Send only transactional emails without consent; offer optional newsletter opt-in separately |
+| **Full analytics platform (Mixpanel/Amplitude)** | "We need deep user analytics" | Overkill for a new product; adds cost and complexity | Simple admin dashboard with Supabase queries + Stripe webhooks covers all needs for launch |
+| **Social login with multiple providers** | "Give users all options" | Each provider adds integration work; Google covers 70-80% of users | Google OAuth only for v1.1; add Apple/GitHub/Facebook based on user demand post-launch |
+| **Complex multi-tier pricing on landing page** | "Show all options" | Analysis paralysis reduces conversion for new products | Single plan or two clear tiers max; pricing page can expand later |
 
-## Feature Dependencies
+---
+
+## v1.1 Feature Deep-Dives
+
+### 1. Landing Page
+
+**What makes a good SaaS/companion landing page:**
+
+The hero section is the most important element. Visitors decide within 5 seconds. Requirements:
+- Headline: outcome-focused, under 8 words ("Your AI companion who gets things done")
+- Subheadline: one sentence explaining the dual-mode differentiator
+- Primary CTA: "Get Started" or "Start Free" — single button, above the fold
+- No navigation clutter that competes with the CTA
+
+**Structural formula** (validated for SaaS landing pages, 2026):
+1. Hero — value prop + CTA
+2. Social proof strip — user count or "X conversations today" (even if small, signals activity)
+3. Features section — 3-4 key capabilities with icons/visuals
+4. How it works — 3-step visual (sign up → build avatar → start chatting)
+5. Pricing — transparent; single plan for v1.1
+6. Second CTA — repeat the primary CTA
+7. FAQ — address 3-4 common objections (privacy, content safety, cancellation)
+
+**Companion-app specific considerations:**
+- Adult content nature means Google/Facebook ads are restricted; landing page must convert organic + word-of-mouth traffic efficiently
+- Social proof matters more when the product is intimate/personal; anonymized testimonials or user counts build trust
+- Pricing must be visible; hiding it increases bounce rate for subscription products
+- Privacy reassurance near the CTA ("Your chats stay private") reduces conversion friction specific to this domain
+
+**Table stakes vs differentiators for the landing page:**
+- Table stakes: hero, features, pricing, CTA, mobile responsive
+- Differentiator: social proof, how-it-works visual, FAQ section, testimonials
+
+**Complexity:** LOW — Figma design provided; implementation is React + Tailwind, no backend needed
+
+---
+
+### 2. Admin Analytics Dashboard
+
+**What metrics matter most at launch (new SaaS):**
+
+For a new product, vanity metrics waste attention. The metrics that matter are:
+
+**Tier 1 — Health indicators (check daily):**
+- Active users last 7 days (DAU/WAU) — leading indicator of engagement and churn risk
+- Messages sent (total + per user average) — validates product is being used
+- Photos generated — validates image feature adoption; tracks ComfyUI spend
+- Subscriptions active — revenue health; compare to signups to see conversion rate
+- New signups (last 7/30 days) — acquisition signal
+
+**Tier 2 — Revenue health (check weekly):**
+- MRR (Monthly Recurring Revenue) — core health metric
+- Churn this month (count + %) — retention signal
+- Subscription conversion rate (signups → paying) — funnel efficiency
+
+**Tier 3 — Operational (check on alerts):**
+- Failed image generation rate — ComfyUI reliability
+- Error rate (5xx) — system health
+
+**What to skip at launch:**
+- LTV, CAC, NPS — too little data to be meaningful at launch
+- Cohort analysis — add after 90 days of data
+- Revenue expansion metrics — no upsells yet
+
+**Implementation approach:**
+- `/admin` page with route guard (admin role check)
+- Supabase queries for user/message/photo counts
+- Stripe API for subscription counts and MRR
+- No third-party analytics tool needed; simple SQL aggregations
+
+**Complexity:** MEDIUM — SQL queries straightforward; auth guard + dashboard UI takes time
+
+---
+
+### 3. Cancellation / Churn Flow
+
+**Industry-validated flow structure:**
 
 ```
-[Long-term Memory]
-    └──requires──> [User Accounts & Data Isolation]
-                       └──requires──> [Authentication System]
+User clicks "Cancel subscription"
+    → Step 1: Exit survey (1 primary question + optional follow-up)
+    → Step 2: Retention offer (based on survey answer, presented before final confirm)
+    → Step 3: Confirm cancellation (final action; no more friction after this point)
+    → Immediate: Cancellation confirmation email
+    → Access retained until end of billing period
+```
 
-[Context-Aware Image Escalation]
-    └──requires──> [Conversation Context Analysis]
-    └──requires──> [Image Generation API]
-    └──requires──> [Content Safety System]
+**Exit survey — primary question:**
 
-[Dual-Mode Switching]
-    └──requires──> [Fuzzy Intent Detection]
-    └──requires──> [Conversation State Management]
-    └──enhances──> [Long-term Memory] (modes need separate context)
+"Why are you cancelling today?" (multiple choice, pick one)
 
-[Secretary Skills (Calendar/Reminders)]
-    └──requires──> [User Account System]
-    └──requires──> [External API Integrations]
+Recommended options (validated across SaaS industry):
+1. Too expensive / can't afford it right now
+2. Not using it enough to justify the cost
+3. Missing a feature I need
+4. Switching to a different service
+5. Technical problems or poor quality
+6. Just wanted to try it
+7. Other (text field)
 
-[Modular Skill System]
-    └──requires──> [Plugin Architecture]
-    └──enhances──> [All Future Features]
+**Second question (optional, shown after primary):**
+"Is there anything we could do to change your mind?" (open text, 2-3 sentence limit)
 
-[WhatsApp Integration]
-    └──requires──> [Business API Access] (Meta approval process)
-    └──requires──> [Webhook Infrastructure]
+**Retention offers by reason:**
 
-[Subscription Billing]
-    └──requires──> [Payment Gateway Integration]
-    └──requires──> [Usage Tracking]
+| Survey Answer | Offer to Show |
+|---------------|---------------|
+| Too expensive | 30% discount for 2 months |
+| Not using it enough | Pause subscription for 30 days instead |
+| Missing a feature | "We're working on X — here's our roadmap; stay another month free" |
+| Switching to competitor | No offer; just confirm and exit gracefully |
+| Technical problems | Connect to support immediately; offer service credit |
+| Just wanted to try it | No offer; confirm and exit |
 
-[Content Safety Guardrails]
-    └──required-by──> [Image Generation]
-    └──required-by──> [NSFW Features]
-    └──conflicts──> [Open-Ended Unfiltered Chat] (regulatory compliance)
+**Key rules:**
+- Trigger exit survey AFTER user clicks cancel, not before (respect intent; increases honesty)
+- Maximum 2 questions; survey response rate drops 17% per additional question above 5
+- Do not show the retention offer before the survey answer — target it to the stated reason
+- After final confirm, DO NOT show more popups or friction; it damages brand
+- Churnkey.co data: targeted cancellation flows save 25-30% of at-risk subscribers
+- Access should remain active until billing period ends (Stripe `cancel_at_period_end`)
 
-[Messaging Adapter Pattern]
-    └──enhances──> [WhatsApp Integration]
-    └──enables──> [Future Platform Expansion]
+**Complexity:** MEDIUM — UI/UX is straightforward; the offer logic adds branching complexity
+
+---
+
+### 4. User-Facing Subscription Management
+
+**What users expect to see:**
+
+| Element | Why Needed | Source |
+|---------|-----------|--------|
+| Current plan name and price | Users forget what they're paying | Basic expectation |
+| Next billing date | "When will I be charged again?" is top support question | Basic expectation |
+| Payment method (last 4 digits) | Confirm which card is on file | Basic expectation |
+| Upgrade/downgrade options | Self-serve plan changes reduce support burden | Table stakes |
+| Cancel button | Required by law in most markets; users demand it | Table stakes |
+| Invoice/receipt history | Users need for tax/accounting | Table stakes |
+
+**Implementation approach — two options:**
+
+Option A: Stripe Customer Portal (recommended for v1.1)
+- Redirect user to Stripe's hosted portal (`/api/billing/portal` → `POST /billing-portal/sessions`)
+- Stripe handles plan changes, payment method updates, invoice history, cancellation
+- Co-branded with your logo; no custom UI needed
+- Con: less control over churn flow (can't intercept with exit survey before cancel)
+
+Option B: Custom subscription page + Stripe API
+- Build the plan/billing display in-app (React page with Stripe subscription data)
+- Handle cancel via custom flow that includes the exit survey
+- Con: more dev work; must handle Stripe data display manually
+
+**Recommendation:** Hybrid approach
+- Build a simple in-app "Billing" page showing plan name, next billing date, payment method
+- "Cancel Subscription" button triggers the custom exit survey flow (so churn data is captured)
+- "Manage Payment Method" and "View Invoices" redirect to Stripe Customer Portal
+
+This gives the best of both worlds: churn flow control + Stripe's billing management robustness.
+
+**Complexity:** MEDIUM — Stripe API queries for subscription data; portal redirect is simple; custom cancel flow adds complexity
+
+---
+
+### 5. Transactional Emails
+
+**Email 1: Welcome Email (trigger: user signs up)**
+
+Purpose: Orient user, reduce first-session abandonment, set expectations.
+
+Content structure:
+- Subject: "Welcome to Ava — here's how to get started" (personalized, not "Welcome!")
+- Opening: "Hi [Name], your AI companion is ready."
+- 3 bullet points: what Ava does (dual mode), how to start (go to web app or WhatsApp link), one key action (build your avatar)
+- Single CTA button: "Start chatting with Ava"
+- Tone: warm, direct; matches intimate/personal brand
+
+Do NOT include: long feature lists, multiple CTAs, newsletter signup in first email.
+
+Note: Welcome emails have 4x open rate and 5x click rate of standard emails — make the single CTA count.
+
+**Email 2: Payment Receipt (trigger: Stripe `invoice.paid` webhook)**
+
+Purpose: Confirm charge, provide tax record, build trust.
+
+Content structure:
+- Subject: "Your Ava receipt — [Amount] charged on [Date]"
+- Clear amount, date, last 4 card digits, billing period covered
+- Link to invoice PDF (Stripe provides hosted invoice URL)
+- "Manage your subscription" link → billing page
+- Sender: billing@[domain] (not noreply — reduces spam classification)
+
+Do NOT include: upsells, feature announcements in the receipt email — users scrutinize receipts; off-topic content erodes trust.
+
+**Email 3: Cancellation Confirmation (trigger: Stripe `customer.subscription.deleted` or `cancel_at_period_end` set)**
+
+Purpose: Confirm cancellation, state access expiry date, leave door open to return.
+
+Content structure:
+- Subject: "Your Ava subscription has been cancelled"
+- Confirm cancellation, state exact date access ends
+- What happens to their data (important for GDPR/trust: "Your avatar and conversation history are saved for 30 days")
+- Optional: single low-pressure re-subscribe CTA ("Changed your mind? Reactivate any time")
+- No offer (the offer was in the churn flow; repeating it in the email feels manipulative)
+- Sender: support@[domain] (human-feeling, not billing)
+
+**Email delivery infrastructure (Supabase + SMTP):**
+
+Supabase Auth handles welcome/password-reset emails natively via its SMTP integration. For receipt and cancellation emails triggered by Stripe webhooks, a transactional email provider is needed:
+- Resend (recommended): modern API, generous free tier (3,000 emails/month), excellent deliverability, React Email template support
+- Postmark: excellent deliverability, higher cost
+- SendGrid: widely used but more complex setup
+
+Supabase + Resend is the lowest-friction stack for this project's existing architecture.
+
+**Complexity:** LOW for email content/templates; LOW-MEDIUM for webhook-triggered delivery setup
+
+---
+
+### 6. Google OAuth
+
+**Standard flow for Supabase + React:**
+
+Supabase provides native Google OAuth via `supabase.auth.signInWithOAuth({ provider: 'google' })`. This handles PKCE automatically for web clients. The implementation is:
+
+1. Google Cloud Console: create OAuth 2.0 Web Client, add authorized redirect URIs (Supabase callback URL)
+2. Supabase Dashboard: enable Google provider, paste Client ID + Secret
+3. Frontend: call `signInWithOAuth` on button click; Supabase handles the redirect, code exchange, and session creation
+4. Backend: Supabase JWT validates automatically via RLS; no backend changes needed
+
+**Security best practices (from Google's official docs):**
+- Never embed client secret in frontend code; Supabase backend holds it
+- Use PKCE (enabled by default in `@supabase/supabase-js` v2+)
+- Use incremental authorization — only request profile + email scopes at login; don't request Google Calendar scopes upfront
+- Do not use embedded webviews for OAuth — Google blocks this (policy enforcement)
+- Redirect URI must exactly match what's in Google Cloud Console
+
+**UX considerations:**
+- "Continue with Google" button must use Google's official branding guidelines (specific button style, "G" logo)
+- Show the button prominently on both login and signup pages
+- For existing email+password users, handle account linking edge case (same email registered via both methods)
+
+**Account linking edge case:** When a user who signed up with email+password tries Google OAuth with the same email, Supabase will either link automatically (if configured) or throw an error. This must be handled gracefully with a clear message.
+
+**Complexity:** LOW — Supabase abstracts nearly all OAuth complexity; main work is Google Cloud Console setup and button UI
+
+---
+
+### 7. Password Reset
+
+**Standard OWASP-compliant flow:**
+
+```
+User enters email on "Forgot Password" page
+    → Generic response shown: "If an account exists for that email, a reset link has been sent"
+    → Supabase sends email with time-limited reset link (default: 1 hour)
+    → User clicks link → Supabase validates token, redirects to /reset-password
+    → User enters new password (with strength requirements shown inline)
+    → Password updated → all existing sessions invalidated → redirect to login
+```
+
+**Security requirements (OWASP standard):**
+- Always return the same response regardless of whether email exists (prevent email enumeration)
+- Token expires after 15-60 minutes (Supabase default is 1 hour; acceptable)
+- Token is single-use: invalidated immediately after successful reset
+- All existing sessions invalidated after reset (security requirement)
+- Store only token hash in DB, never plaintext
+
+**UX best practices:**
+- "Forgot password?" link must be near the password field (not buried in settings)
+- After successful reset, show success message with clear next step ("Password updated — log in")
+- Inline password strength indicator during new password entry (green checkmarks for requirements)
+- On mobile: large buttons, sufficient tap target size
+
+**Supabase implementation:** `supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://[domain]/reset-password' })` — one API call. The `/reset-password` page calls `supabase.auth.updateUser({ password: newPassword })` after the user lands with the session token in the URL.
+
+**Note:** Supabase handles the token generation, email sending (via SMTP integration), and validation. The main implementation work is the UI for the two pages (request form + new password form).
+
+**Complexity:** LOW — Supabase handles the hard parts; two simple UI pages needed
+
+---
+
+## Feature Dependencies (v1.1)
+
+```
+[Google OAuth]
+    └──requires──> [Supabase Google Provider configuration]
+    └──shares UI with──> [Password Reset] (both on login/signup pages)
+
+[Password Reset]
+    └──requires──> [Transactional Email delivery] (SMTP/Resend)
+    └──built on──> [Supabase auth.resetPasswordForEmail]
+
+[Landing Page]
+    └──requires──> [Pricing information] (plan name, price)
+    └──links to──> [Signup page] (primary CTA destination)
+
+[Subscription Management Page]
+    └──requires──> [Stripe API integration] (subscription data)
+    └──links to──> [Cancellation Churn Flow]
+
+[Cancellation Churn Flow]
+    └──requires──> [Subscription Management Page] (entry point)
+    └──requires──> [Stripe cancel_at_period_end API]
+    └──triggers──> [Cancellation Confirmation Email]
+
+[Admin Dashboard]
+    └──requires──> [Admin role guard] (route protection)
+    └──requires──> [Supabase aggregation queries]
+    └──requires──> [Stripe API for MRR/subscription counts]
+
+[Transactional Emails]
+    └──welcome email triggered by──> [Supabase auth signup event]
+    └──receipt email triggered by──> [Stripe invoice.paid webhook]
+    └──cancellation email triggered by──> [Stripe subscription.deleted webhook]
+    └──requires──> [Resend or SMTP provider configured]
 ```
 
 ### Dependency Notes
 
-- **Long-term Memory requires User Accounts:** Can't persist data without user identity and data isolation
-- **Image Escalation requires Multiple Systems:** Conversation analysis determines context, image API generates content, safety system ensures compliance
-- **Dual-Mode Switching enhances Memory:** Each mode needs separate context to avoid bleeding professional data into intimate mode
-- **Secretary Skills require External APIs:** Calendar/reminder features need Google Calendar integration and reminder scheduling
-- **Modular Skill System is foundational:** Plugin architecture enables all future features without core rewrites
-- **WhatsApp Integration requires Meta Approval:** Business API access is gatekept; plan for approval timeline
-- **Content Safety conflicts with Open-Ended Chat:** WhatsApp 2026 policy + regulatory environment (Grok controversy) prohibit unfiltered open-ended bots
-- **Messaging Adapter Pattern enables expansion:** Abstraction layer allows adding Telegram, Facebook, Discord later without touching core logic
+- **Google OAuth must not block password reset:** They are parallel auth features; both should ship together in the same auth-polish phase
+- **Cancellation churn flow requires subscription management page:** The cancel button lives on the billing page; they ship together
+- **Transactional emails require Resend/SMTP before Stripe webhooks can send receipts:** Email infrastructure must be set up before webhook handlers emit emails
+- **Admin dashboard is standalone:** No user-facing dependencies; can ship in any order relative to other v1.1 features
+- **Landing page is standalone:** No backend dependencies for display; links to existing signup flow
 
-## MVP Definition
+---
 
-### Launch With (v1)
+## MVP Definition (v1.1 Milestone)
 
-Minimum viable product — what's needed to validate the dual-mode concept.
+### Must Ship for v1.1
 
-- [x] **Text-based conversation** — Core interaction (LLM integration)
-- [x] **User accounts & authentication** — Multi-user product with data isolation
-- [x] **Dual-mode switching** — The core differentiator (fuzzy intent detection for "I'm alone" / "stop")
-- [x] **Preset personality system** — 3-5 personas (playful, dominant, shy, caring, professional)
-- [x] **Avatar customization** — Gender, age (20+), race/nationality, free-text appearance description
-- [x] **Basic image generation** — Photos of user's avatar (text-to-image API)
-- [x] **WhatsApp integration** — Messaging platform via Business API
-- [x] **Short-term memory** — Context within current session
-- [x] **Secretary: Calendar integration** — Google Calendar add/view meetings
-- [x] **Secretary: Reminder system** — Set and trigger reminders
-- [x] **Secretary: Basic research** — Answer questions, look things up
-- [x] **Age verification** — 20+ floor enforcement (bulletproof)
-- [x] **Content safety guardrails** — Prevent non-consensual content, abuse
-- [x] **Subscription billing** — Freemium with paid tiers (flexible system per requirements)
-- [x] **Onboarding flow** — Clear welcome message explaining dual modes and capabilities
-- [x] **Privacy controls** — Transparent data policies, user consent
+All 7 features below are table stakes for a "launch ready" product. None are optional.
 
-### Add After Validation (v1.x)
+- [ ] **Landing page** — Without it, there is no acquisition funnel; the product cannot acquire organic users
+- [ ] **Google OAuth** — Expected by modern users; email+password-only is friction that reduces conversion
+- [ ] **Password reset** — Required by user expectation and security best practices; blocking issue for real users
+- [ ] **User subscription management page** — Paying users need to see their plan; missing = trust failure
+- [ ] **Cancellation churn flow with exit survey** — Required for retention data and legal compliance (self-serve cancel)
+- [ ] **Transactional emails (welcome, receipt, cancellation)** — Professional product baseline; Stripe receipts especially are expected by every paying user
+- [ ] **Admin analytics dashboard** — Operator cannot make product decisions without visibility into usage
 
-Features to add once core is working and users validate the concept.
+### Recommended Phase Groupings
 
-- [ ] **Long-term memory** — Remember preferences, conversations across sessions (trigger: users request continuity)
-- [ ] **Context-aware image escalation** — Photos escalate from mild to explicit based on conversation (trigger: intimate mode adoption)
-- [ ] **Additional secretary skills** — OCR, document processing, more agentic capabilities (trigger: productivity feature usage)
-- [ ] **More preset personas** — Expand from 3-5 to 10+ personalities (trigger: persona preference patterns)
-- [ ] **Usage analytics** — User insights for feature prioritization (trigger: post-launch optimization)
-- [ ] **Improved latency** — Sub-1s responses, streaming (trigger: user complaints about speed)
-- [ ] **Enhanced conversation threading** — Better context management across topics (trigger: conversation quality issues)
-- [ ] **Multi-image generation** — Multiple photos in response to requests (trigger: user demand for variety)
+**Phase A: Auth Polish** (Google OAuth + Password Reset)
+These belong together; both touch the login/signup UI and auth system.
 
-### Future Consideration (v2+)
+**Phase B: Landing Page**
+Independent; requires Figma design handoff before starting. Can run in parallel with Phase A.
 
-Features to defer until product-market fit is established.
+**Phase C: Billing & Subscription Management** (Subscription page + Cancellation flow + Transactional emails)
+These are tightly coupled: billing page hosts cancel button; cancel triggers email; emails need Stripe webhooks.
 
-- [ ] **Voice messages & calls** — Audio interaction (defer: complexity, cost, UX validation needed)
-- [ ] **Video generation** — Animated avatar videos (defer: extremely high cost and complexity)
-- [ ] **Additional messaging platforms** — Telegram, Facebook, Discord (defer: validate on WhatsApp first)
-- [ ] **Multi-language support** — Beyond English (defer: adds complexity, localization burden)
-- [ ] **Custom personas** — User-created personalities beyond presets (defer: quality control issues)
-- [ ] **Group chat support** — Multi-user conversations (defer: complex mode-switching implications)
-- [ ] **Native mobile app** — Beyond messaging platforms (defer: WhatsApp validates concept first)
-- [ ] **On-device processing** — Hybrid local/cloud inference (defer: optimization after scale)
-- [ ] **Advanced agentic capabilities** — Web browsing, code execution, complex tool use (defer: security and safety implications)
-- [ ] **AR/VR integration** — Replika-style AR experiences (defer: niche feature, high development cost)
+**Phase D: Admin Dashboard**
+Standalone; can slot anywhere. Lower urgency relative to user-facing features.
+
+### Add After v1.1
+
+- [ ] **Subscription pause option** — Reduces hard churn; add after seeing exit survey data to validate demand
+- [ ] **Reactivation flow** — "Welcome back" email to churned users; needs a base of churned users first
+- [ ] **Newsletter / marketing email sequence** — Nurture leads who visited but didn't convert; add post-launch
+
+---
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Dual-mode switching | HIGH | HIGH | P1 |
-| WhatsApp integration | HIGH | MEDIUM | P1 |
-| Preset personality system | HIGH | MEDIUM | P1 |
-| Avatar customization | HIGH | MEDIUM | P1 |
-| Basic image generation | HIGH | MEDIUM | P1 |
-| Age verification | HIGH | HIGH | P1 |
-| Content safety guardrails | HIGH | HIGH | P1 |
-| User accounts | HIGH | MEDIUM | P1 |
-| Short-term memory | HIGH | LOW | P1 |
-| Secretary: Calendar | MEDIUM | MEDIUM | P1 |
-| Secretary: Reminders | MEDIUM | MEDIUM | P1 |
-| Secretary: Research | MEDIUM | LOW | P1 |
-| Subscription billing | HIGH | MEDIUM | P1 |
-| Onboarding flow | HIGH | LOW | P1 |
-| Long-term memory | HIGH | HIGH | P2 |
-| Context-aware image escalation | MEDIUM | HIGH | P2 |
-| Additional secretary skills (OCR) | MEDIUM | HIGH | P2 |
-| More preset personas | MEDIUM | LOW | P2 |
-| Voice messages & calls | MEDIUM | HIGH | P3 |
-| Video generation | LOW | HIGH | P3 |
-| Additional messaging platforms | MEDIUM | MEDIUM | P3 |
-| Multi-language support | MEDIUM | HIGH | P3 |
-| Native mobile app | LOW | HIGH | P3 |
-| Group chat support | LOW | HIGH | P3 |
+| Landing page | HIGH | LOW | P1 |
+| Google OAuth | HIGH | LOW | P1 |
+| Password reset | HIGH | LOW | P1 |
+| Welcome email | HIGH | LOW | P1 |
+| Payment receipt email | HIGH | LOW | P1 |
+| Cancellation confirmation email | HIGH | LOW | P1 |
+| User subscription management page | HIGH | MEDIUM | P1 |
+| Cancellation churn flow + exit survey | HIGH | MEDIUM | P1 |
+| Admin analytics dashboard | MEDIUM | MEDIUM | P1 |
+| Retention offer in churn flow | MEDIUM | MEDIUM | P2 |
+| Subscription pause option | MEDIUM | MEDIUM | P2 |
+| Apple / GitHub OAuth | LOW | MEDIUM | P3 |
+| Multi-tier pricing on landing page | LOW | LOW | P3 |
+| Reactivation email sequence | MEDIUM | LOW | P3 |
 
-**Priority key:**
-- **P1: Must have for launch** — Core differentiator or table stakes feature
-- **P2: Should have, add when possible** — Enhances value prop, add post-validation
-- **P3: Nice to have, future consideration** — Defer until product-market fit established
-
-## Competitor Feature Analysis
-
-| Feature | Replika (Wellness) | Character.AI (Fiction) | Candy.AI / Crushon (NSFW) | ChatGPT (Productivity) | Our Approach (Ava) |
-|---------|-------------------|----------------------|--------------------------|----------------------|-------------------|
-| **Text conversation** | Yes | Yes | Yes | Yes | Yes (core) |
-| **Voice calls** | Yes | Limited | Voice messages | No (enterprise only) | v2+ (defer) |
-| **Video calls** | Yes (AR) | No | No | No | v3+ (defer) |
-| **Memory** | Yes (diary) | Session + cross-session | Yes (remembers preferences) | Session + persistent (ChatGPT Plus) | Short-term v1, long-term v1.x |
-| **Personality customization** | Limited (relationship mode) | High (user-created characters) | High (detailed customization) | Custom instructions | Preset personas (controlled quality) |
-| **Image generation** | AR avatars | Limited | High-quality photorealistic | DALL-E integration (separate) | Avatar photos (escalating context) |
-| **NSFW content** | No (removed 2026) | No (filtered) | Yes (core feature) | No | Yes (age-gated, consent-based, safety-first) |
-| **Productivity features** | Wellness (meditation, CBT) | Creative writing support | None | Calendar, research, task mgmt | Calendar, reminders, research (core differentiator) |
-| **Platform** | Native app | Web + mobile app | Web + mobile app | Web, mobile, API | WhatsApp (v1), expand later |
-| **Billing** | $9.99/mo subscription | $9.99/mo Plus tier | $5-20/mo tiers | $20/mo Plus, $200/mo Pro | Freemium + flexible tiers |
-| **Mode switching** | No (wellness only) | No (fiction/RP only) | No (intimate only) | No (productivity only) | **YES (CORE DIFFERENTIATOR)** |
-| **Modular architecture** | Unknown | Unknown | Unknown | API-driven | Yes (future-proof for expansion) |
-
-**Key Insights:**
-
-- **Replika** pivoted away from romantic/NSFW to wellness-only in 2026 (regulatory pressure), leaving a gap
-- **Character.AI** dominates fiction/roleplay but is filtered; no productivity features
-- **Candy.AI / Crushon.AI** lead NSFW but offer zero productivity value; pure intimate companions
-- **ChatGPT** dominates productivity but is strictly non-romantic, no personalization beyond custom instructions
-- **GAP IN MARKET:** No product combines productivity assistant + intimate companion in dual-mode design
-- **Ava's differentiator:** Secretary mode (calendar, reminders, research) + Intimate mode (personalized companion) with seamless switching
+---
 
 ## Sources
 
-### AI Companion Features
+### Landing Page Best Practices
+- [20 Best SaaS Landing Pages + 2026 Best Practices — fibr.ai](https://fibr.ai/landing-page/saas-landing-pages)
+- [18 B2B SaaS Landing Page Best Practices That Convert — SaaS Hero](https://www.saashero.net/design/saas-landing-page-best-practices/)
+- [Best CTA Placement Strategies for 2026 — LandingPageFlow](https://www.landingpageflow.com/post/best-cta-placement-strategies-for-landing-pages)
+- [15 SaaS Landing Page Best Practices — Userpilot](https://userpilot.com/blog/saas-landing-page-best-practices/)
+- [The AI Companion Market in 2025 — Market Clarity](https://mktclarity.com/blogs/news/ai-companion-market)
 
-- [Replika AI: A complete overview for 2025](https://www.eesel.ai/blog/replika-ai)
-- [Replika Review 2026 - Personal AI Companion & Support](https://companionguide.ai/companions/replika)
-- [Replika Review: Features, Pricing, and Alternatives 2026](https://findmyaitool.io/tool/replika-ai-review-best-ai-friend/)
-- [Replika AI Review After 7 Weeks - Complete Guide 2026](https://companionguide.ai/news/replika-ai-comprehensive-review-2025)
-- [Character.AI in 2026: Features, Usage Guide, and What's Coming Next](https://autoppt.com/blog/character-ai-evolution-complete-guide/)
-- [Character AI Review (February 2026) - Worth It?](https://www.wpcrafter.com/review/character-ai/)
-- [10 Best AI Companions in 2026 for Chat, Support & Connection](https://www.finestofthefine.com/post/best-ai-companions)
-- [5 Key Features to Look for in an AI Companion App in 2026](https://pixflow.net/blog/features-to-look-for-in-an-ai-companion-app/)
-- [9 Best AI Companion Apps in 2026 (Tested & Reviewed)](https://www.cyberlink.com/blog/trending-topics/3932/ai-companion-app)
-- [Best AI Companion Apps in 2026 — Friends, Partners & More](https://ai-companion-app.com/best-ai-companion-apps-2026/)
+### Admin Dashboard Metrics
+- [SaaS Metrics Dashboard Template: Ultimate 2025 Guide — Flowjam](https://www.flowjam.com/blog/saas-metrics-dashboard-template-ultimate-2025-guide-free-files)
+- [Ultimate Guide to SaaS Dashboard Metrics — Phoenix Strategy Group](https://www.phoenixstrategy.group/blog/ultimate-guide-to-saas-dashboard-metrics)
+- [Top 12 Key SaaS Business Metrics — ZoomCharts](https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/blog/top-12-key-saas-business-metrics-you-must-track-in-2025)
 
-### Intimate Companion Features
+### Cancellation / Churn Flow
+- [Cancellation Flow Examples from Famous SaaS — Userpilot](https://userpilot.com/blog/cancellation-flow-examples/)
+- [How to Build Cancellation Surveys that Reduce Churn — Churnkey](https://churnkey.co/resources/customer-exit-survey/)
+- [Exit Surveys: Examples & Questions for Churn Reduction — Usersnap](https://usersnap.com/blog/exit-surveys/)
+- [How to Build Cancellation & Exit Surveys — Paddle](https://www.paddle.com/resources/customer-exit-survey)
+- [12 Proven Ways to Reduce SaaS Churn Rate — Baremetrics](https://baremetrics.com/blog/proven-ways-reduce-saas-churn-rate)
 
-- [Candy AI Review 2026: Guide To Your Perfect AI Companion](https://howtotechinfo.com/candy-ai/)
-- [Crushon AI Review 2026: Best NSFW AI Girlfriend Platform?](https://freerdps.com/blog/crushon-ai-review/)
-- [Candy.ai vs CrushOn.ai: Which One Is Better In 2025?](https://www.aigirlfriendscout.com/comparisons/candy-ai-vs-crushon-ai)
-- [Best AI Companion Apps 2026 — For Emotional Connection & More](https://aigirlfriendpicks.com/best-ai-companion-app)
+### Subscription Management
+- [Integrate the customer portal with the API — Stripe Docs](https://docs.stripe.com/customer-management/integrate-customer-portal)
+- [Customer self-service with a customer portal — Stripe Docs](https://docs.stripe.com/customer-management)
+- [How to Master SaaS Subscription Management — Ratio Blog](https://www.ratiotech.com/blog/saas-subscription-management)
 
-### Productivity Assistant Features
+### Transactional Emails
+- [Transactional Email Best Practices — Postmark](https://postmarkapp.com/guides/transactional-email-best-practices)
+- [10 Must-Have Transactional Email Templates for SaaS — Userpilot](https://userpilot.com/blog/transactional-email-templates/)
+- [15+ Cancellation Email Examples for SaaS — Userlist](https://userlist.com/blog/saas-cancellation-emails/)
+- [The Complete Guide to Non-Sucky SaaS Transactional Emails — Fix My Churn](https://fixmychurn.com/complete-guide-transactional-emails/)
 
-- [ChatGPT 2026: the latest features you should know](https://www.gend.co/blog/chatgpt-2026-latest-features)
-- [ChatGPT New Features (2025): GPT-5, Memory, Agents & Major Updates](https://mindliftly.com/future-of-chatgpt-2025-2026-roadmap-gpt-5-next-ai-trends/)
-- [Top 15 Best AI Assistants in 2026](https://sintra.ai/blog/top-15-best-ai-assistants-in-2025)
-- [I Tested the Top 10 AI Scheduling Assistants in 2026](https://www.lindy.ai/blog/ai-scheduling-assistant)
-- [20 Best AI Scheduling Assistant Reviewed in 2026](https://thedigitalprojectmanager.com/tools/ai-scheduling-assistant/)
+### Google OAuth
+- [Login with Google — Supabase Docs](https://supabase.com/docs/guides/auth/social-login/auth-google)
+- [Best Practices for Implementing Sign in with Google — Google Developers](https://developers.google.com/identity/siwg/best-practices)
+- [OAuth 2.0 Best Practices — Google Developers](https://developers.google.com/identity/protocols/oauth2/resources/best-practices)
 
-### Voice & Memory Features
-
-- [Beni AI: Face to face AI companion calls with voice, motion, memory](https://www.producthunt.com/products/beni-ai-video-call-ai-companion)
-- [AI Companion Guide (2026): Types, Costs, Benefits & Real Use Cases](https://aiinsightsnews.net/ai-companion/)
-- [25 Best AI Companion Apps (2026): Ranked After $400 & 2,000 Hours](https://aicompanionguides.com/blog/ultimate-comparison-25-platforms-ranked/)
-- [#1 AI Girlfriend Voice Call App 2026 | Real Phone Calls](https://solm8.ai/journal/best-ai-girlfriend-voice-calls-2026)
-
-### Avatar & Image Generation
-
-- [How to Create AI Avatar in Instagram: Complete 2026 Guide](https://www.snaplama.com/blog/how-to-create-ai-avatar-in-instagram-complete-2026-guide)
-- [Best AI Avatar Generators in 2026 (Free & Paid): 18 Tools Compared](https://www.bluehost.com/blog/best-ai-avatar-generators/)
-- [5 Best AI Chatbot Avatar Makers: Create Digital/Lifelike Avatars Online Free](https://www.vidnoz.com/ai-solutions/chatbot-avatar.html)
-
-### Personality & Relationship Modes
-
-- [9 Best AI Companion Apps in 2026 (Tested & Reviewed)](https://www.cyberlink.com/blog/trending-topics/3932/ai-companion-app)
-- [OurDream AI Review 2026 Real User Test Not Just Hype](https://scribehow.com/page/OurDream_AI_Review_2026_Real_User_Test_Not_Just_Hype__jkAddGT0RmKegMWw_2Qtog)
-- [11 Best AI Companion Girlfriends & Boyfriend Sites In 2026](https://howtotechinfo.com/best-ai-companion-girlfriends-boyfriend-sites/)
-
-### Mode Switching & Context
-
-- [10 Best AI Chatbots in 2026: Top Rated for Coding, Writing & Search](https://vertu.com/lifestyle/top-10-ai-chatbots-to-use-in-2026-features-strengths-and-use-cases/)
-- [Top 10 AI Assistants With Memory in 2026](https://www.dume.ai/blog/top-10-ai-assistants-with-memory-in-2026)
-- [The 2026 Guide to AI Chatbots: From Tools to Intelligent Partners](https://skywork.ai/skypage/en/ai-chatbots-guide/2020792834635550720)
-
-### WhatsApp Integration
-
-- [Create a WhatsApp Bot: The Complete Guide (2026)](https://www.voiceflow.com/blog/whatsapp-chatbot)
-- [WhatsApp's 2026 AI Policy Explained](https://learn.turn.io/l/en/article/khmn56xu3a-whats-app-s-2026-ai-policy-explained)
-- [WhatsApp Business API Integration 2026 | Guide](https://chatarmin.com/en/blog/whats-app-business-api-integration)
-- [How to Build an AI WhatsApp Chatbot & Automate Everything](https://m.aisensy.com/blog/ai-whatsapp-chatbot-guide/)
-- [Top 7 WhatsApp Chatbots in 2026 (+ Step-by-Step Video Tutorial)](https://botpress.com/blog/top-whatsapp-chatbots)
-
-### Differentiation & Competition
-
-- [When Every Company Can Use the Same AI Models, Context Becomes a Competitive Advantage](https://hbr.org/2026/02/when-every-company-can-use-the-same-ai-models-context-becomes-a-competitive-advantage)
-- [North America AI Companion Market Overview & Trends 2026-32](https://www.marknteladvisors.com/research-library/ai-companion-market-north-america)
-- [Rise of AI Companion Platforms Market Reshaping Human Digital Engagement](https://www.intelmarketresearch.com/blog/565/human-digital-engagement-rise-of-ai-companion-platforms)
-
-### Anti-Features & Mistakes
-
-- [ISACA Now Blog 2025 Avoiding AI Pitfalls in 2026](https://www.isaca.org/resources/news-and-trends/isaca-now-blog/2025/avoiding-ai-pitfalls-in-2026-lessons-learned-from-top-2025-incidents)
-- [10+ Epic LLM/ Conversational AI/ Chatbot Failures in 2026](https://research.aimultiple.com/chatbot-fail/)
-- [Chatbot Mistakes: Common Pitfalls and How to Avoid Them](https://www.chatbot.com/blog/common-chatbot-mistakes/)
-- [AI Chatbot Mistakes - Why Chatbots Fail & How to Fix Them](https://www.sparkouttech.com/ai-chatbot-mistakes/)
-- [10 Common Chatbot Mistakes and How to Avoid Them](https://fastbots.ai/blog/10-common-chatbot-mistakes-and-how-to-avoid-them)
-
-### NSFW & Content Moderation
-
-- [Grok xAI NSFW Image Generation Policy 2026: Complete Guide](https://yingtu.ai/blog/grok-xai-nsfw-image-generation-policy)
-- [State of AI Content Moderation 2026](https://www.foiwe.com/state-of-ai-content-moderation-2026/)
-- [When Generative AI Is Intimate, Sexy, and Violent: Examining Not-Safe-For-Work (NSFW) Chatbots](https://arxiv.org/html/2601.14324v1)
-- [SoulGen AI & Adult Image Generation Market Guide 2026](https://companionguide.ai/news/soulgen-ai-adult-image-generation-guide-2025)
-
-### Monetization & Billing
-
-- [The Complete Guide to the AI Companion Market in 2026](https://companionguide.ai/news/ai-companion-market-120m-revenue.html)
-- [Compare AI monetization solutions for SaaS (2026 edition)](https://blog.alguna.com/ai-monetization-solutions-saas/)
-- [Top 8 Platforms for Monetizing AI Companions and Exclusive AI Content (2026)](https://www.getchatads.com/blog/top-eight-platforms-for-monetizing-ai-companions-and-exclusive-ai-content/)
-- [The 2026 Guide to SaaS, AI, and Agentic Pricing Models](https://www.getmonetizely.com/blogs/the-2026-guide-to-saas-ai-and-agentic-pricing-models)
-
-### Onboarding & UX Best Practices
-
-- [Best Practices for Chatbot Deployment in 2026: A Guide](https://mxchat.ai/best-practices-for-chatbot-deployment-in-2026-a-guide/)
-- [7 User Onboarding Best Practices for 2026](https://formbricks.com/blog/user-onboarding-best-practices)
-- [24 Chatbot Best Practices You Can't Afford to Miss in 2026](https://botpress.com/blog/chatbot-best-practices)
-- [AI Chatbot UX: 2026's Top Design Best Practices](https://www.letsgroto.com/blog/ux-best-practices-for-ai-chatbots)
+### Password Reset
+- [Forgot Password Cheat Sheet — OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)
+- [Password Reset Best Practices — Authgear](https://www.authgear.com/post/authentication-security-password-reset-best-practices-and-more)
+- [Implementing a Forgot Password Flow — SuperTokens](https://supertokens.com/blog/implementing-a-forgot-password-flow)
 
 ---
-*Feature research for: Dual-Mode AI Companion (Ava)*
-*Researched: 2026-02-23*
+
+# Part B: v1.0 Core Features (preserved from prior research, 2026-02-23)
+
+> This section documents the v1.0 AI companion feature landscape. It is preserved for reference.
+> All items marked [x] are already shipped. Do not re-research or re-plan these.
+
+### v1.0 Table Stakes (All Shipped)
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Text-based conversation** | Core interaction method | LOW | Shipped |
+| **Context memory within session** | Users expect AI to remember conversation | LOW | Shipped |
+| **Personality customization** | All companions offer this | MEDIUM | Shipped — 4 preset personas |
+| **Avatar appearance customization** | Visual representation expected | MEDIUM | Shipped — gender, age, nationality, free text |
+| **Basic image generation** | Companions generate photos | MEDIUM | Shipped — ComfyUI Cloud |
+| **Mobile-first interface** | AI companions are mobile products | LOW | Shipped — WhatsApp IS the interface |
+| **Privacy controls** | Data safety non-negotiable | MEDIUM | Shipped — RLS, Supabase |
+| **Subscription billing** | Freemium standard | MEDIUM | Shipped — Stripe |
+| **Age verification** | NSFW legal requirement | HIGH | Shipped — 20+ enforced |
+| **Content safety guardrails** | Mandatory for NSFW | HIGH | Shipped — ContentGuard + crisis detection |
+
+### v1.0 Differentiators (All Shipped)
+
+| Feature | Value Proposition | Notes |
+|---------|-------------------|-------|
+| **Dual-mode switching** | Unique: one AI for work AND personal | Shipped — fuzzy intent detection |
+| **WhatsApp-native experience** | Meets users where they are | Shipped — WhatsApp Business API |
+| **Productivity integrations** | Calendar, research — no competitor does this | Shipped — Google Calendar + Tavily |
+| **Modular skill system** | Future-proof plugin architecture | Shipped — Protocol pattern |
+| **Platform-agnostic design** | Messaging adapter enables expansion | Shipped — WhatsApp + Web adapters |
+
+### v1.0 Competitor Gap
+
+No AI companion product combines productivity assistant + intimate companion in dual-mode design:
+- Replika: wellness-only (pivoted away from intimate in 2026)
+- Character.AI: fiction/RP only, no productivity
+- Candy.AI / Crushon.AI: intimate only, no productivity
+- ChatGPT: productivity only, no personalization
+
+Ava's market position is this gap.
+
+---
+
+*Feature research for: Dual-Mode AI Companion — v1.1 Launch-Ready Features*
+*Researched: 2026-03-02*

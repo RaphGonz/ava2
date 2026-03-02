@@ -1,375 +1,440 @@
-# Technology Stack
-
-**Project:** Ava - Dual-Mode AI Companion
-**Researched:** 2026-02-23
-**Confidence:** MEDIUM-HIGH
-
-## Recommended Stack
-
-### Core Framework
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **Node.js** | 20.x LTS | Runtime environment | Event-driven, non-blocking I/O ideal for real-time messaging webhooks. Industry standard for chatbot backends in 2025-2026. |
-| **TypeScript** | 5.x | Type-safe JavaScript | Mandatory for modular architecture. Strict mode catches errors at compile time, makes refactoring safer, and enables IDE autocomplete. ESM-native in 2025. |
-| **Fastify** | 5.x | HTTP framework | 3-4x faster than Express (70K vs 20K req/sec), first-class TypeScript support, schema validation built-in. Better for webhook handling at scale. |
-| **PostgreSQL** | 16.x | Primary database | Best multi-tenant support via Row-Level Security + schemas. JSONB for flexible avatar/persona data. Battle-tested for SaaS at scale. |
-
-**Confidence:** HIGH - These choices are industry standard for 2025-2026 Node.js chatbot development.
-
-### LLM & AI Integration
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **LangChain.js** | 0.3.x | LLM orchestration | Best-in-class for agent workflows, tool calling, and conversation memory. Abstracts provider differences (OpenAI, Anthropic, etc.). Proven for production chatbots. |
-| **OpenRouter** | API v1 | Unified LLM gateway | Access 500+ models (OpenAI, Anthropic, Claude, etc.) through one API. Automatic failover, cost optimization, and BYOK support. Perfect for swappable LLM backends. |
-| **@anthropic-ai/sdk** | 0.78.x | Direct Anthropic access | For when you need Claude-specific features (long context, function calling). Used alongside OpenRouter for flexibility. |
-| **Zod** | 3.x | Schema validation | LangChain tool definitions, environment variable validation, API request/response schemas. TypeScript-first runtime validation. |
-
-**Confidence:** HIGH - LangChain + OpenRouter is the 2025 standard for modular LLM applications. Direct SDKs provide fallback options.
-
-**Rationale:** LangChain focuses on orchestration and agents (perfect for secretary mode skills), while OpenRouter provides the swappable backend requirement. This combination delivers the modular AI layer specified in PROJECT.md.
-
-### Image Generation
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **Replicate API** | v1 | Image generation gateway | Access to Stable Diffusion, Flux, and consistent character models. Pay-per-use ($0.002-0.004/image). API-based, no infrastructure needed. |
-| **Fal.ai** | v1 | Alternative/fallback | Faster inference (2-4s vs 5-10s), similar pricing. Use for production if Replicate has latency issues. |
-| **getimg.ai** | API v2 | Consistent character system | Character reference feature (@ElementName reuse). Specifically designed for maintaining character consistency across generations. |
-
-**Confidence:** MEDIUM - Image generation APIs are rapidly evolving. Multiple providers recommended as landscape shifts frequently.
-
-**Rationale:**
-- **Replicate** is the standard for API-based Stable Diffusion in 2025-2026 (no self-hosting needed)
-- **getimg.ai** solves the "consistent character" requirement through their @ElementName system
-- **Fal.ai** as backup ensures no single point of failure
-- All three have per-image pricing (no monthly minimums), critical for early-stage SaaS
-
-**What NOT to use:** Self-hosted Stable Diffusion (operational complexity, GPU costs, maintenance burden). OpenAI DALL-E (limited character consistency, higher cost per image).
-
-### Messaging Integration
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **WhatsApp Business API** | Cloud API v21+ | Official WhatsApp integration | Required for production multi-user product. Webhooks-based, hosted by Meta, supports media uploads. |
-| **whatsapp-web.js** | 1.34.x | Development/MVP alternative | Unofficial library using Puppeteer. ONLY for MVP testing - Meta can ban accounts. DO NOT use for production SaaS. |
-
-**Confidence:** HIGH - Official WhatsApp Business API is mandatory for production. No viable alternatives for multi-user SaaS.
-
-**Critical Note:** The official WhatsApp Node.js SDK (github.com/WhatsApp/WhatsApp-Nodejs-SDK) was **archived in June 2023**. Use direct REST API calls or community maintained SDKs like `@whiskeysockets/baileys` (unofficial) for development. For production, integrate directly with WhatsApp Cloud API webhooks.
-
-**Migration path:**
-1. **MVP/Development:** whatsapp-web.js (fast iteration, no approval needed)
-2. **Production:** WhatsApp Business API (requires Meta verification, takes 2-4 weeks)
-
-### Database & ORM
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **Drizzle ORM** | 0.36.x | Database toolkit | SQL-first TypeScript ORM. 7.4kb bundle, serverless-optimized, faster than Prisma. Edge-ready for modern hosting. Migration story clearer than Prisma 7 changes. |
-| **PostgreSQL** | 16.x | Relational database | Multi-tenancy via Row-Level Security. JSONB for avatar configs. pgvector for future semantic search (memory system). |
-| **Redis** | 7.x | Cache & job queue | Session storage, LLM response caching, BullMQ job queue backend. Essential for webhook deduplication. |
-
-**Confidence:** HIGH - Drizzle is the 2025-2026 recommended ORM for new TypeScript projects. PostgreSQL is industry standard for multi-tenant SaaS.
-
-**Why Drizzle over Prisma:**
-- Prisma 6→7 migration churn (Rust engine removed, schema changes)
-- Drizzle has SQL-like API (easier for debugging, closer to the database)
-- Smaller bundle size critical for serverless deployments
-- TypeScript-first, better IDE experience
-
-### Background Jobs & Queue
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **BullMQ** | 5.x | Job queue | Redis-backed queue for webhook processing, scheduled reminders, image generation jobs. Built for "exactly once" semantics. Best Node.js queue in 2025. |
-| **Redis** | 7.x | Queue backend | BullMQ storage, rate limiting, caching. Single instance serves multiple purposes. |
-
-**Confidence:** HIGH - BullMQ is the industry standard for Node.js background jobs since Bull deprecation.
-
-**Why BullMQ:** WhatsApp webhooks can arrive out-of-order or duplicate. BullMQ handles retries, deduplication, rate limiting (critical for LLM API quotas), and parallel processing. Essential for production chatbot reliability.
-
-### Supporting Libraries
-
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| **Zod** | 3.x | Runtime validation | Environment variables, API schemas, LLM tool definitions. Replaces Joi/Yup. TypeScript-first. |
-| **googleapis** | 140.x | Google Calendar API | Official Node.js client for Calendar integration (secretary mode). OAuth2 flow built-in. |
-| **tsx** | 4.x | TypeScript runner | Development execution (replaces ts-node). Faster, ESM-native, works with Node 20+ watch mode. |
-| **vitest** | 2.x | Testing framework | Replaces Jest. 10-20x faster in watch mode, native ESM, better TypeScript support. Vite-ecosystem standard. |
-| **pino** | 9.x | Logging | Fast JSON logger. Cloudflare/Vercel compatible. Structured logging for debugging LLM conversations. |
-| **dotenv** | 16.x | Environment variables | Load .env files. Pair with Zod for validation. Standard for local development. |
-| **Awilix** | 10.x | Dependency injection | Container for plugin/skill system. Constructor injection for testability. TypeScript-compatible. |
-
-**Confidence:** HIGH - These are current best-practice libraries for TypeScript Node.js in 2025-2026.
-
-### External Services
-
-| Service | Purpose | Why Recommended |
-|---------|---------|-----------------|
-| **OpenRouter** | LLM aggregator | Unified API for OpenAI, Anthropic, Claude, Gemini, etc. Automatic failover, cost tracking, BYOK support. |
-| **Replicate** | Image generation | Stable Diffusion models as API. Pay-per-use, no GPU management. |
-| **WhatsApp Business API** | Messaging platform | Official API required for production. Webhook-based architecture. |
-| **Google Calendar API** | Calendar integration | Official API for secretary mode. OAuth2 flow for user auth. |
-| **Railway / Render** | Hosting | Managed PostgreSQL + Redis + Node.js. Simpler than AWS for early-stage SaaS. Auto-scaling webhooks. |
-
-**Confidence:** MEDIUM-HIGH - Railway/Render are common for early-stage SaaS. AWS/GCP viable alternatives with more complexity.
-
-## Alternatives Considered
-
-| Category | Recommended | Alternative | Why Not Alternative |
-|----------|-------------|-------------|---------------------|
-| **Framework** | Fastify | Express.js | Express is 3-4x slower (20K vs 70K req/sec). Fastify has better TypeScript support and built-in validation. |
-| **Framework** | Fastify | NestJS | NestJS adds architectural overhead. Fastify + modules achieves same modularity with less abstraction. Better for small team. |
-| **ORM** | Drizzle | Prisma | Prisma 6→7 migration churn, larger bundle size, less SQL transparency. Drizzle is the 2025-2026 trend for new projects. |
-| **Testing** | Vitest | Jest | Jest is 10-20x slower in watch mode, worse ESM support, requires ts-jest for TypeScript. Vitest is Vite-ecosystem standard. |
-| **LLM Framework** | LangChain | LlamaIndex | LlamaIndex is data-focused (RAG). LangChain better for agent orchestration (secretary skills). Combine if RAG needed later. |
-| **Image API** | Replicate | Self-hosted SD | Self-hosting requires GPU management, model updates, scaling. API is pay-per-use with no ops burden. |
-| **WhatsApp (prod)** | Business API | whatsapp-web.js | whatsapp-web.js is UNOFFICIAL, Meta bans accounts. Only for MVP. Production requires official API. |
-| **Queue** | BullMQ | Agenda | Agenda is MongoDB-based, slower, less feature-complete. BullMQ is Redis-backed, industry standard since Bull deprecated. |
-
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| **Official WhatsApp SDK** | Archived since June 2023, no longer maintained | Direct REST API calls to WhatsApp Cloud API or community SDKs |
-| **ts-node** | Slower than tsx, poor ESM support, abandoned for 2025 workflows | tsx (4x faster, ESM-native, works with Node.js watch mode) |
-| **Jest** | 10-20x slower than Vitest, complex ESM configuration, worse TypeScript DX | Vitest (Vite-native, faster, better TypeScript) |
-| **Self-hosted Stable Diffusion** | GPU costs, model management, scaling complexity, updates burden | Replicate/Fal.ai APIs (pay-per-use, managed infrastructure) |
-| **OpenAI DALL-E** | Limited character consistency, $0.04/image (10-20x Replicate cost) | Replicate + getimg.ai (consistent characters, $0.002-0.004/image) |
-| **Mongoose (MongoDB)** | Multi-tenancy harder than PostgreSQL RLS, no pgvector for future semantic search | PostgreSQL + Drizzle ORM |
-| **CommonJS (require)** | ESM is the 2025 standard, better tree-shaking, native browser compatibility | ES Modules (import/export) with "type": "module" in package.json |
-
-## Installation
-
-```bash
-# Core Framework
-npm install fastify@5 @fastify/cors @fastify/helmet
-npm install drizzle-orm@0.36 postgres
-npm install bullmq@5 ioredis@5
-
-# LLM & AI
-npm install langchain@0.3 @langchain/openai @langchain/anthropic
-npm install @anthropic-ai/sdk@0.78
-npm install zod@3
-
-# Google Calendar Integration
-npm install googleapis@140
-
-# Validation & Config
-npm install zod@3 dotenv@16
-
-# Dependency Injection (Plugin System)
-npm install awilix@10
-
-# Logging
-npm install pino@9 pino-pretty@11
-
-# Dev Dependencies
-npm install -D typescript@5 @types/node@20
-npm install -D tsx@4 vitest@2
-npm install -D drizzle-kit@0.27 # Database migrations
-npm install -D @typescript-eslint/parser @typescript-eslint/eslint-plugin
-npm install -D prettier eslint
-```
-
-## Stack Patterns by Variant
-
-### For Serverless Deployment (Vercel/Cloudflare Workers)
-
-**Modify:**
-- Use Vercel AI SDK instead of LangChain (lighter bundle)
-- Use edge-compatible Redis (Upstash) instead of ioredis
-- Use connection pooling for PostgreSQL (PgBouncer)
-- Webhooks → Edge functions, Jobs → separate service
-
-**Why:** Serverless has cold start constraints. Vercel AI SDK is optimized for edge runtime. Standard stack assumes long-running server.
-
-### For Self-Hosted VPS
-
-**Add:**
-- Docker + docker-compose for orchestration
-- Nginx for reverse proxy
-- PM2 for process management (or use Docker's restart policies)
-- Letsencrypt for SSL
-
-**Why:** VPS requires explicit process management and reverse proxy configuration.
-
-### For Development/MVP
-
-**Swap:**
-- WhatsApp Business API → whatsapp-web.js (faster iteration, no approval)
-- PostgreSQL → SQLite + Drizzle (simpler local setup)
-- Redis → In-memory cache (eliminate dependency)
-
-**Why:** Faster local development. Migrate to production stack before launch.
-
-## Version Compatibility
-
-| Package | Requires | Notes |
-|---------|----------|-------|
-| fastify@5 | Node 20+ | Uses native fetch, async hooks improvements |
-| langchain@0.3 | Node 18+ | ESM-only, requires "type": "module" |
-| drizzle-orm@0.36 | TypeScript 5+ | Uses latest TS features, satisfies operator |
-| vitest@2 | Vite 5+ | Auto-installs Vite if not present |
-| tsx@4 | Node 18.6+ | Uses native --loader (no ts-node compatibility) |
-| bullmq@5 | Redis 6.2+ | Uses Redis streams, not available in older Redis |
-
-## Configuration Best Practices
-
-### Environment Variable Validation (Zod)
-
-```typescript
-// config/env.ts
-import { z } from 'zod';
-
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']),
-  PORT: z.string().transform(Number).pipe(z.number().positive()),
-  DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url(),
-  OPENROUTER_API_KEY: z.string().min(10),
-  WHATSAPP_VERIFY_TOKEN: z.string(),
-  WHATSAPP_ACCESS_TOKEN: z.string(),
-  GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
-});
-
-export const env = envSchema.parse(process.env);
-```
-
-### Dependency Injection Container (Awilix)
-
-```typescript
-// container.ts
-import { createContainer, asClass, asValue } from 'awilix';
-import { LLMService } from './services/llm';
-import { ImageService } from './services/image';
-import { CalendarSkill } from './skills/calendar';
-
-export const container = createContainer();
-
-container.register({
-  // Services (singletons)
-  llmService: asClass(LLMService).singleton(),
-  imageService: asClass(ImageService).singleton(),
-
-  // Skills (modular plugins)
-  calendarSkill: asClass(CalendarSkill).singleton(),
-
-  // Config
-  config: asValue(env),
-});
-```
-
-### Plugin/Skill Interface
-
-```typescript
-// types/skill.ts
-export interface Skill {
-  name: string;
-  description: string;
-  tools: ToolDefinition[]; // LangChain tools
-  execute(context: ConversationContext): Promise<SkillResult>;
-}
-
-// Skills register themselves in DI container
-// New skills = new file + container registration
-// No modifications to existing code
-```
-
-## TypeScript Configuration
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["ES2022"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
-}
-```
-
-## Docker Configuration
-
-```dockerfile
-# Multi-stage build for production
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run build
-
-FROM node:20-alpine AS runner
-
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package*.json ./
-
-ENV NODE_ENV=production
-EXPOSE 3000
-
-CMD ["node", "dist/index.js"]
-```
-
-## Sources
-
-### Official Documentation (HIGH Confidence)
-- [WhatsApp Business Platform Node.js SDK](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/) - Official SDK (archived 2023)
-- [WhatsApp Cloud API Documentation](https://developers.facebook.com/docs/whatsapp/cloud-api) - Current official integration
-- [Google Calendar API Node.js Quickstart](https://developers.google.com/workspace/calendar/api/quickstart/nodejs) - Official Google docs
-- [Anthropic SDK npm](https://www.npmjs.com/package/@anthropic-ai/sdk) - Version 0.78.0
-- [BullMQ Official Documentation](https://docs.bullmq.io/) - Queue implementation guide
-- [Drizzle ORM Documentation](https://orm.drizzle.team/) - Official ORM docs
-- [OpenRouter API Documentation](https://openrouter.ai/docs) - Unified LLM gateway
-
-### Technical Comparisons & Benchmarks (MEDIUM-HIGH Confidence)
-- [Drizzle vs Prisma 2026 Comparison](https://www.bytebase.com/blog/drizzle-vs-prisma/) - Detailed ORM comparison
-- [Express vs Fastify vs NestJS Performance](https://www.index.dev/skill-vs-skill/backend-nestjs-vs-expressjs-vs-fastify) - 2026 benchmarks
-- [Vitest vs Jest 2026 Migration Guide](https://www.sitepoint.com/vitest-vs-jest-2026-migration-benchmark/) - Performance data
-- [LangChain vs LlamaIndex 2026](https://contabo.com/blog/llamaindex-vs-langchain-which-one-to-choose-in-2026/) - LLM framework comparison
-- [Multi-tenant PostgreSQL Architecture](https://www.bytebase.com/blog/multi-tenant-database-architecture-patterns-explained/) - SaaS database patterns
-- [Node.js in 2025: Modern Practices](https://medium.com/lets-code-future/node-js-in-2025-modern-practices-you-should-be-using-ae1890ca575b) - Current best practices
-
-### Image Generation APIs (MEDIUM Confidence)
-- [AI Image Model Pricing Comparison 2026](https://pricepertoken.com/image) - Replicate vs Fal.ai costs
-- [Best AI Character Generator 2026](https://www.neolemon.com/blog/best-ai-character-generator-for-consistent-characters-2025/) - Consistent character solutions
-- [Replicate Consistent Characters Guide](https://replicate.com/blog/generate-consistent-characters) - Implementation patterns
-- [getimg.ai Features](https://getimg.ai/features/consistent-ai-characters) - Character reference system
-
-### Integration Guides (MEDIUM Confidence)
-- [WhatsApp Business API Integration 2025](https://javascript.plainenglish.io/mastering-whatsapp-business-api-integration-a-step-by-step-node-js-guide-2025-edition-1b604c8c83a5) - Step-by-step guide
-- [whatsapp-web.js Guide](https://wwebjs.dev/guide/) - Unofficial library documentation
-- [Claude API Integration 2025](https://collabnix.com/claude-api-integration-guide-2025-complete-developer-tutorial-with-code-examples/) - Anthropic integration
-- [OpenRouter Practical Guide](https://medium.com/@milesk_33/a-practical-guide-to-openrouter-unified-llm-apis-model-routing-and-real-world-use-d3c4c07ed170) - Multi-model routing
-
-### Development Tools & Practices (MEDIUM-HIGH Confidence)
-- [JWT Authentication Best Practices 2025](https://medium.com/deno-the-complete-reference/5-jwt-authentication-best-practices-for-node-js-apps-f1aaceda3f81) - Security patterns
-- [Zod Environment Variable Validation](https://creatures.dev/blog/env-type-safety-and-validation/) - Config validation
-- [Docker + TypeScript Best Practices 2025](https://medium.com/@robinviktorsson/containerizing-a-typescript-node-js-application-with-docker-a-step-by-step-guide-be7fc87191f8) - Containerization
-- [Dependency Injection in Node.js TypeScript](https://www.lodely.com/blog/dependency-injection-in-nodejs-typescript) - Plugin architecture patterns
-
-### Community Resources (LOW-MEDIUM Confidence)
-- [LLM Orchestration in 2026](https://research.aimultiple.com/llm-orchestration/) - Framework overview (requires verification for production use)
-- [State Machine Chatbot Patterns](https://rogerjunior.medium.com/how-to-build-a-chatbot-from-scratch-with-javascript-using-state-machines-95597c436517) - Conversation flow architecture
+# Stack Research
+
+**Domain:** v1.1 Launch Ready — new capability additions to existing Ava production stack
+**Researched:** 2026-03-02
+**Confidence:** HIGH
 
 ---
 
-*Stack research completed: 2026-02-23*
-*Overall confidence: MEDIUM-HIGH - Core technologies HIGH confidence, image generation APIs MEDIUM confidence due to rapid market changes*
+## Scope: Additions Only
+
+This is a subsequent-milestone research file. It documents only the NEW packages and configuration
+needed for v1.1 features. It does not re-research or replace anything already shipped.
+
+### Existing Stack (Do Not Modify)
+
+| Area | Technology | Version |
+|------|-----------|---------|
+| Backend framework | FastAPI + uvicorn/gunicorn | >=0.115.0 |
+| Language | Python | 3.12 |
+| Database | Supabase (PostgreSQL + RLS) | `supabase==2.25.1` |
+| Auth | Supabase JWT (email/password) via Python SDK | same |
+| Billing | Stripe | `stripe` (pinned in requirements.txt) |
+| Queue | BullMQ + Redis | `bullmq==2.19.5` |
+| Monitoring | Sentry | `sentry-sdk` |
+| Frontend framework | React | 19.2.0 |
+| Build tool | Vite | ^7.3.1 |
+| CSS | Tailwind | v4.2.1 |
+| State | Zustand | ^5.0.11 |
+| Data fetching | TanStack Query | ^5.90.21 |
+| Routing | React Router | ^7.13.1 |
+
+### Critical Architectural Constraint
+
+The frontend has NO direct Supabase JS client. Auth flows through a FastAPI proxy:
+
+```
+Frontend  →  FastAPI  →  Supabase Python SDK  →  Supabase Cloud
+```
+
+The frontend calls `/auth/*` REST endpoints and receives `{ access_token, user_id }`.
+JWT is decoded manually in `auth.ts` using `atob()`. This pattern must be preserved
+for all new auth features. Adding `@supabase/supabase-js` to the frontend would create
+a split-auth architecture — do not do it.
+
+---
+
+## New Capabilities and Their Stack Additions
+
+### 1. Transactional Email
+
+**What:** Welcome on signup, receipt after subscribing, cancellation confirmation.
+
+**Add: `resend` Python SDK**
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `resend` | `^2.23.0` | Send transactional emails from FastAPI | Simple HTTP API, first-class Python SDK, async-compatible with FastAPI BackgroundTasks, EU data center available (GDPR), domain verification required once. Latest release 2026-02-23 (actively maintained). |
+
+**Integration pattern:**
+
+```python
+# Pattern: non-blocking email via FastAPI BackgroundTasks
+import resend
+from fastapi import BackgroundTasks
+
+resend.api_key = settings.RESEND_API_KEY
+
+def send_welcome_email(to_email: str):
+    resend.Emails.send({
+        "from": "Ava <hello@yourdomain.com>",
+        "to": [to_email],
+        "subject": "Welcome to Ava",
+        "html": "<p>Your account is ready.</p>",
+    })
+
+@router.post("/signup")
+async def signup(body: SignupRequest, background_tasks: BackgroundTasks):
+    # ... create user ...
+    background_tasks.add_task(send_welcome_email, body.email)
+```
+
+**Trigger points:**
+- Welcome: fire from `/auth/signup` handler after successful Supabase user creation
+- Receipt: fire from the Stripe webhook handler (`invoice.payment_succeeded`) — already in `webhook.py`
+- Cancellation: fire from the Stripe webhook handler (`customer.subscription.deleted`)
+
+**No frontend changes needed.** Emails are backend-triggered events.
+
+**New env vars required:** `RESEND_API_KEY`, `RESEND_FROM_ADDRESS`
+
+---
+
+### 2. Google OAuth Sign-In / Sign-Up
+
+**What:** "Sign in with Google" button on login and signup pages.
+
+**Add: Nothing new — Supabase Python SDK already supports OAuth**
+
+`supabase==2.25.1` (already in requirements.txt) provides `supabase.auth.sign_in_with_oauth()`.
+No new Python package required.
+
+**How the flow works with the existing proxy pattern:**
+
+```
+1. User clicks "Sign in with Google" on frontend
+2. Frontend: GET /auth/google/signin  (new backend route)
+3. Backend: supabase.auth.sign_in_with_oauth({"provider": "google", "options": {"redirect_to": callback_url}})
+           → returns { url: "https://accounts.google.com/o/oauth2/..." }
+4. Frontend: window.location.href = url  (redirect to Google)
+5. Google authenticates → redirects to Supabase → Supabase redirects to /auth/google/signin-callback
+6. Backend /auth/google/signin-callback: receives ?code= param, exchanges via Supabase, returns access_token + user_id
+7. Frontend: stores access_token + user_id in Zustand (same as existing email/password flow)
+```
+
+**Two new FastAPI routes needed (no new packages):**
+
+```python
+# GET /auth/google/signin
+# Returns JSON: { "oauth_url": "https://accounts.google.com/..." }
+# Frontend redirects to this URL
+
+# GET /auth/google/signin-callback?code=...&...
+# Exchanges code via Supabase Python SDK
+# Returns JSON: { "access_token": "...", "user_id": "..." }  — same TokenResponse model
+```
+
+**Note:** The existing `/auth/google/connect` and `/auth/google/callback` routes in `google_oauth.py`
+are for Google CALENDAR connection (stores OAuth tokens for Calendar API calls). These are a different
+OAuth flow — do not conflate them. The new sign-in routes should live in `auth.py`.
+
+**Configuration required (no code changes, just dashboard setup):**
+- Supabase Dashboard: Authentication > Providers > Enable Google, add Client ID + Secret
+- Google Cloud Console: Add Supabase callback URL to Authorized Redirect URIs
+  - Format: `https://<project-ref>.supabase.co/auth/v1/callback`
+- Add `/auth/google/signin-callback` to Supabase's allowed redirect URLs
+
+**Frontend change:** Add "Sign in with Google" button that calls `GET /auth/google/signin`
+then redirects to the returned URL. Handle `/auth/google/signin-callback` as a public route
+in React Router that reads the access_token from the response and stores it.
+
+---
+
+### 3. Password Reset via Email Link
+
+**What:** "Forgot password?" link → email with reset link → new password form.
+
+**Add: Nothing new — Supabase Python SDK handles this end-to-end**
+
+`supabase.auth.reset_password_for_email()` sends the email automatically via Supabase's
+built-in email infrastructure. No Resend call needed here — Supabase sends the reset email.
+
+**Flow:**
+
+```
+1. User clicks "Forgot password?" on /login
+2. Frontend: POST /auth/reset-password { email }
+3. Backend: supabase.auth.reset_password_for_email(email, {"redirect_to": "https://yourdomain.com/update-password"})
+           → Supabase sends email with link; no return value needed
+4. Frontend: shows "Check your email" message
+5. User clicks link → browser opens yourdomain.com/update-password?access_token=...
+6. Frontend /update-password: reads access_token from URL, shows new-password form
+7. Frontend: POST /auth/update-password { new_password, access_token }
+8. Backend: uses provided access_token as Bearer JWT, calls supabase.auth.update_user({"password": new_password})
+```
+
+**Two new FastAPI routes needed (no new packages):**
+
+```python
+# POST /auth/reset-password { email: str }
+# Calls supabase.auth.reset_password_for_email(email, redirect_to=...)
+# Returns 200 always (don't reveal whether email exists)
+
+# POST /auth/update-password { new_password: str }
+# Authenticated endpoint — uses the reset-link access_token as Bearer
+# Calls supabase.auth.update_user({"password": new_password})
+```
+
+**One new frontend page needed:** `/update-password` — a public route (not behind ProtectedRoute)
+that parses the `access_token` from the URL hash (Supabase appends it as `#access_token=...`),
+displays a new-password form, and POSTs to `/auth/update-password`.
+
+**Configuration required:**
+- Supabase Dashboard: Add `https://yourdomain.com/update-password` to
+  Authentication > Redirect Configuration > Allowed Redirect URLs
+- Supabase's default email template for password reset is used as-is; customization is optional
+
+---
+
+### 4. Admin Analytics Dashboard
+
+**What:** `/admin` page showing active users, messages sent, photos generated, subscriptions,
+revenue over time. Read-only. Visible only to admins.
+
+**Add: `recharts` on frontend (one new package)**
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `recharts` | `^3.7.0` | Line/bar charts for the `/admin` dashboard page | React-native SVG library, composable components, works with React 19 (peer dep accepts `^18.0.0 \|\| ^19.0.0`), no separate D3 install, ~350kb unparsed (acceptable for admin-only page), latest stable as of 2026-02-xx. |
+
+**Architecture (no external analytics SaaS):**
+
+The data already lives in Supabase PostgreSQL. Build on what exists.
+
+**Step 1 — Event tracking table (new Supabase migration):**
+
+```sql
+CREATE TABLE analytics_events (
+  id          bigserial PRIMARY KEY,
+  user_id     uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  event_type  text NOT NULL,  -- 'message_sent', 'photo_generated', 'subscription_created', etc.
+  created_at  timestamptz DEFAULT now(),
+  metadata    jsonb DEFAULT '{}'
+);
+-- No RLS — admin-only access via service role
+CREATE INDEX idx_analytics_events_type_time ON analytics_events(event_type, created_at);
+```
+
+**Step 2 — Backend inserts events** via `supabase_admin` (already exists in `database.py`) at
+existing code points: message handler, image pipeline completion, Stripe webhook handler.
+
+**Step 3 — FastAPI analytics routes** under `GET /admin/analytics/*`, protected by admin check.
+Routes return pre-aggregated JSON (daily counts, totals). No heavy SQL in the browser.
+
+**Step 4 — Admin role gate** using Supabase `app_metadata`:
+
+```python
+# Set admin role server-side only (never from frontend)
+# supabase_admin.auth.admin.update_user_by_id(user_id, {"app_metadata": {"role": "admin"}})
+
+# FastAPI dependency
+def require_admin(user_data = Depends(get_current_user)):
+    role = (user_data.get("app_metadata") or {}).get("role")
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    return user_data
+```
+
+`app_metadata` is set only by the service role key (cannot be self-elevated by users).
+It is embedded in the Supabase JWT, so `get_current_user()` already decodes it — no extra
+database call needed to check the role.
+
+**Step 5 — Frontend `/admin` route**: New React page behind `ProtectedRoute` + admin flag check.
+Calls `/admin/analytics/*` endpoints, renders summary cards + Recharts line/bar charts.
+
+**What NOT to add for analytics:**
+- PostHog / Mixpanel / Amplitude — external analytics SaaS adds vendor dependency and
+  pricing risk; custom events table in existing Supabase is sufficient for a usage dashboard
+- PostHog self-hosted — requires ClickHouse + Kafka, massive ops overhead for a usage dashboard
+- Grafana — separate infra to run and maintain; overkill for 4-5 metrics
+
+---
+
+### 5. VPS Production Deployment
+
+**What:** Deploy to Hetzner or DigitalOcean VPS with Docker Compose, custom domain, HTTPS.
+
+**Add: `jonasal/nginx-certbot` Docker image (replaces bare `nginx` in docker-compose.yml)**
+
+| Technology | Version/Spec | Purpose | Why |
+|------------|-------------|---------|-----|
+| Hetzner CX32 | 4 vCPU, 8 GB RAM, 80 GB SSD, ~€6.80/mo | VPS host | Best EUR/resource ratio for EU deployment; GDPR-friendly; 20 TB bandwidth included; CX32 gives headroom for all Docker services (FastAPI + Redis + nginx + BullMQ workers) without OOM risk. CX22 (4 GB) is too tight for concurrent image generation queue bursts. |
+| `jonasal/nginx-certbot` | latest (v3.x) | nginx + auto-renewing Let's Encrypt SSL as a single Docker image | Eliminates the brittle Certbot-sidecar + shared-volume pattern. Handles initial certificate issuance, 12h renewal loop, and nginx reload on renewal — all internally. Drop-in replacement for the bare `nginx` image. |
+
+**docker-compose.yml change (minimal):**
+
+```yaml
+# Replace:
+#   image: nginx:latest
+# With:
+nginx:
+  image: jonasal/nginx-certbot:latest
+  environment:
+    - CERTBOT_EMAIL=ops@yourdomain.com
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./nginx/conf.d:/etc/nginx/user_conf.d:ro
+    - nginx_secrets:/etc/letsencrypt
+  restart: unless-stopped
+
+volumes:
+  nginx_secrets:
+```
+
+**nginx config change:** The `jonasal/nginx-certbot` image expects server config files in
+`/etc/nginx/user_conf.d/` (not `/etc/nginx/conf.d/`). Rename the mount point in the volume
+and update the nginx config to listen on 443 with `ssl_certificate` paths pointing to
+`/etc/letsencrypt/live/yourdomain.com/fullchain.pem`.
+
+**VPS setup checklist (ops, not code):**
+1. Create CX32 on Hetzner, choose Ubuntu 24.04
+2. `apt install docker.io docker-compose-plugin`
+3. Point domain A record to VPS IP (must propagate before first deploy — Certbot needs HTTP-01)
+4. Open firewall: ports 22 (SSH), 80 (HTTP/Certbot), 443 (HTTPS). Block 6379 (Redis — internal only).
+5. `git clone` repo, create `.env` with all production secrets
+6. `docker compose up -d` — jonasal/nginx-certbot issues certificate on first boot
+
+**No new Python or npm packages required.**
+
+**What NOT to use:**
+- Hetzner CX22 (4 GB RAM) — too tight; risks OOM during image generation queue bursts
+- Traefik as reverse proxy — adds complexity; existing nginx config is battle-tested
+- Separate Certbot sidecar container — requires nginx-reload hooks and shared volumes;
+  jonasal/nginx-certbot handles this internally
+- DigitalOcean for EU users — more expensive per spec (~$24/mo for 4 GB vs €6.80 Hetzner CX32)
+
+---
+
+### 6. Landing Page
+
+**What:** Public-facing marketing page at `/` — hero, features, pricing, Sign Up CTA.
+
+**Add: Nothing new — use existing React/Vite/Tailwind stack**
+
+The landing page is a new React route using components already available.
+
+| Technology | Version | Why Sufficient |
+|------------|---------|----------------|
+| React Router `<Route path="/">` | already v7.13.1 | Add a public route; redirect authenticated users to `/chat` |
+| Tailwind v4 | already v4.2.1 | Existing design system; all landing page UI buildable with utility classes |
+| React 19 | already v19.2.0 | Component-based landing page sections |
+
+**Pattern:**
+
+```tsx
+// App.tsx addition
+<Route path="/" element={<LandingPage />} />
+
+// LandingPage.tsx: if user is logged in, redirect to /chat
+function LandingPage() {
+  const token = useAuthStore(s => s.token)
+  if (token) return <Navigate to="/chat" replace />
+  return <main>...</main>
+}
+```
+
+**Framer Motion: only add if Figma spec requires it.** Tailwind's `transition`, `duration-*`,
+`animate-*` utilities cover standard landing page animations (fade-in, slide-in). Framer Motion
+adds ~100kb gzipped — only justified if the Figma design requires complex scroll-triggered
+or gesture-based animations that Tailwind cannot express. Decide at build time, not now.
+
+**What NOT to add preemptively:**
+- Framer Motion — add only if Figma design requires it
+- Next.js — would require a full SPA-to-SSR migration; not worth it for v1.1; SEO is
+  secondary for a gated adult product requiring age verification
+- Separate static site (Astro, Eleventy) — unnecessary split; one repo, one deploy
+
+---
+
+## Installation Commands
+
+```bash
+# Backend: add to requirements.txt
+# resend>=2.23.0
+
+pip install "resend>=2.23.0"
+
+# Frontend: admin analytics charts (only new npm package)
+npm install recharts@^3.7.0
+```
+
+**All other v1.1 features (Google OAuth, password reset, landing page, VPS deployment) require
+zero new packages.** They are solved by existing libraries + Supabase configuration changes.
+
+---
+
+## Alternatives Considered
+
+| Feature | Recommended | Alternative | Why Not |
+|---------|-------------|-------------|---------|
+| Transactional email | Resend | SendGrid | Heavier SDK, more dashboard config, no meaningful deliverability advantage at this volume |
+| Transactional email | Resend | fastapi-mail + SMTP | Adds SMTP server setup/config; API service is simpler and more reliable |
+| Transactional email | Resend | Supabase built-in email | Supabase email has rate limits (3/hr on free plan); Resend bypasses this for transactional volume |
+| Analytics | Custom events table | PostHog cloud | External vendor dependency; PostHog free tier is 1M events/mo but adds external data dependency |
+| Analytics | Custom events table | PostHog self-hosted | Requires ClickHouse + Kafka — disproportionate ops for a usage dashboard |
+| Analytics charts | Recharts | Chart.js (react-chartjs-2) | Chart.js is canvas-based; Recharts SVG integrates better with React 19 declarative patterns |
+| Analytics charts | Recharts | Tremor (built on Recharts) | Tremor adds opinionated component wrappers; direct Recharts is simpler for a bespoke dashboard |
+| VPS | Hetzner CX32 | DigitalOcean 4 GB ($24/mo) | Hetzner is ~3x cheaper per spec in EUR |
+| SSL | jonasal/nginx-certbot | Certbot sidecar + hooks | Sidecar requires nginx reload hooks and shared volume management; jonasal handles internally |
+| Landing page animations | Tailwind utilities | Framer Motion | ~100kb bundle cost; justify only if Figma design requires scroll-triggered animations |
+
+---
+
+## What NOT to Add
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `@supabase/supabase-js` (frontend) | Creates dual auth paths — frontend bypasses FastAPI proxy, breaks existing JWT flow | Keep existing proxy: frontend → FastAPI → Supabase Python SDK |
+| `fastapi-mail` | SMTP config complexity for something Resend handles via HTTP API | `resend` Python SDK |
+| `react-admin` framework | Designed for CRUD entity management, not read-only analytics; heavy dependency | Custom React page + Recharts |
+| PostHog / Mixpanel / Amplitude | External analytics vendor for what is a simple 4-metric usage dashboard | `analytics_events` table in existing Supabase PostgreSQL |
+| Traefik | Extra learning curve over existing nginx that is already battle-tested | Keep nginx, swap bare image for `jonasal/nginx-certbot` |
+| Next.js | Full SPA migration for no meaningful SEO gain on a gated adult product | Existing Vite + React Router SPA |
+| Framer Motion | 100kb+ for animations Tailwind utilities cover | Tailwind `transition`, `animate-*` (add Framer only if Figma requires it) |
+| `python-social-auth` | Django-centric; overkill when Supabase handles provider integration | Supabase Python SDK `sign_in_with_oauth` |
+| `google-auth-oauthlib` for sign-in | Already used for Calendar OAuth; conflating Calendar token storage with sign-in JWT is a bug waiting to happen | Supabase Python SDK `sign_in_with_oauth` (separate route from Calendar flow) |
+
+---
+
+## Version Compatibility
+
+| Package | Version | Compatible With | Notes |
+|---------|---------|-----------------|-------|
+| `resend` | `^2.23.0` | Python >=3.7, FastAPI >=0.115 | Sync API; wrap in `asyncio.to_thread` or use BackgroundTasks for non-blocking calls |
+| `recharts` | `^3.7.0` | React `^18.0.0 \|\| ^19.0.0` | React 19 peer dep confirmed; project uses React 19.2.0 — compatible |
+| `jonasal/nginx-certbot` | latest (v3.x) | Docker Compose v2, nginx 1.25+ | Volume mount path is `/etc/nginx/user_conf.d/` (not `/etc/nginx/conf.d/`) |
+| Supabase Python SDK | `2.25.1` (already installed) | Python 3.12 | `sign_in_with_oauth` and `reset_password_for_email` available — no upgrade needed |
+| Stripe (already installed) | pinned | Python 3.12 | Customer portal session creation uses existing `stripe` lib — no new package |
+
+---
+
+## New Environment Variables Required
+
+| Variable | Feature | Where Set |
+|----------|---------|-----------|
+| `RESEND_API_KEY` | Transactional email | `.env` + VPS secrets |
+| `RESEND_FROM_ADDRESS` | Transactional email | `.env` + VPS secrets (e.g., `Ava <hello@yourdomain.com>`) |
+| `GOOGLE_OAUTH_CLIENT_ID` | Google Sign-In (Supabase Dashboard) | Supabase Dashboard only — not in FastAPI env |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Google Sign-In (Supabase Dashboard) | Supabase Dashboard only — not in FastAPI env |
+| `CERTBOT_EMAIL` | SSL certificate renewal notifications | `docker-compose.yml` env block |
+
+---
+
+## Sources
+
+- [Resend PyPI — v2.23.0, released 2026-02-23](https://pypi.org/project/resend/) — HIGH confidence
+- [Resend FastAPI integration](https://resend.com/docs/send-with-fastapi) — BackgroundTasks pattern MEDIUM confidence
+- [Supabase Google OAuth docs](https://supabase.com/docs/guides/auth/social-login/auth-google) — setup steps HIGH confidence
+- [Supabase Python: signInWithOAuth](https://supabase.com/docs/reference/python/auth-signinwithoauth) — method available HIGH confidence
+- [Supabase Python: resetPasswordForEmail](https://supabase.com/docs/reference/python/auth-resetpasswordforemail) — email sent by Supabase HIGH confidence
+- [Supabase RBAC: app_metadata](https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac) — admin role via app_metadata HIGH confidence
+- [Recharts npm — v3.7.0, React 18/19 peer dep](https://recharts.org) — version MEDIUM confidence (multiple WebSearch sources agree)
+- [jonasal/nginx-certbot GitHub](https://github.com/JonasAlfredsson/docker-nginx-certbot) — auto-renewing SSL MEDIUM confidence
+- [Hetzner CX32 specs](https://www.hetzner.com/cloud) — €6.80/mo, 4 vCPU, 8 GB RAM MEDIUM confidence (pricing subject to April 2026 adjustment)
+- [Stripe Customer Portal](https://docs.stripe.com/customer-management/integrate-customer-portal) — no new packages, existing `stripe` lib sufficient HIGH confidence
+
+---
+*Stack research for: Ava v1.1 Launch Ready — new capability additions only*
+*Researched: 2026-03-02*

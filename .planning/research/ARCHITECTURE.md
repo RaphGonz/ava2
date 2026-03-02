@@ -1,1120 +1,1017 @@
 # Architecture Research
 
-**Domain:** Dual-mode AI companion chatbot delivered via messaging platforms
-**Researched:** 2026-02-23
+**Domain:** Dual-Mode AI Companion — v1.1 Launch-Ready Feature Integration
+**Researched:** 2026-03-02
 **Confidence:** HIGH
 
-## Standard Architecture
+---
 
-### System Overview
+## Scope
 
-Modern AI chatbot systems in 2026 have shifted from rule-based intent mapping to **tool-calling orchestration architectures**. The dominant pattern is a layered, modular system where components communicate via well-defined interfaces, enabling independent scaling and evolution of individual subsystems.
+This document covers v1.1 architecture exclusively: how nine new features integrate with the
+existing FastAPI + Supabase + React codebase. The v1.0 base architecture is treated as fixed
+context, not re-researched. All component decisions assume the existing deployment model
+(Docker Compose, nginx, Supabase Cloud, Stripe webhooks) is the stable platform to extend.
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     MESSAGING ADAPTER LAYER                          │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
-│  │WhatsApp  │  │Telegram  │  │Discord   │  │  Email   │            │
-│  │ Adapter  │  │ Adapter  │  │ Adapter  │  │ Adapter  │            │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘            │
-│       │             │              │             │                  │
-│       └─────────────┴──────────────┴─────────────┘                  │
-│                            ↓                                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                       ORCHESTRATION LAYER                            │
-│  ┌─────────────────────────────────────────────────────────┐        │
-│  │          Conversation Orchestrator                       │        │
-│  │  - System instructions & mode management                 │        │
-│  │  - Turn routing & tool coordination                      │        │
-│  │  - Safety policies & content moderation                  │        │
-│  └──────────────┬──────────────────────────────────┬────────┘        │
-│                 ↓                                   ↓                │
-│    ┌───────────────────┐                ┌──────────────────┐        │
-│    │   Agent Router    │                │  Context Manager │        │
-│    │ (mode detection)  │                │  (RAG, chunking) │        │
-│    └─────────┬─────────┘                └────────┬─────────┘        │
-├──────────────┼──────────────────────────────────┼──────────────────┤
-│              ↓                                   ↓                  │
-│         SKILL/TOOL LAYER                  MEMORY LAYER              │
-│  ┌─────────────────────┐           ┌──────────────────────┐        │
-│  │   Tool Registry     │           │  Short-term Memory   │        │
-│  │  ┌──────────────┐   │           │  (conversation buf)  │        │
-│  │  │ Calendar     │   │           └──────────────────────┘        │
-│  │  │ Skill        │   │           ┌──────────────────────┐        │
-│  │  ├──────────────┤   │           │  Long-term Memory    │        │
-│  │  │ Reminder     │   │           │  (vector DB + RAG)   │        │
-│  │  │ Skill        │   │           └──────────────────────┘        │
-│  │  ├──────────────┤   │           ┌──────────────────────┐        │
-│  │  │ Research     │   │           │  Working Memory      │        │
-│  │  │ Skill        │   │           │  (Redis cache)       │        │
-│  │  ├──────────────┤   │           └──────────────────────┘        │
-│  │  │ Image Gen    │   │                                            │
-│  │  │ Skill        │   │                                            │
-│  │  └──────────────┘   │                                            │
-│  └─────────────────────┘                                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                        PROVIDER LAYER                                │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
-│  │  LLM     │  │  Image   │  │ External │  │  User    │            │
-│  │ Provider │  │ Provider │  │   APIs   │  │   DB     │            │
-│  │ Abstraction││Abstraction││(Calendar)│  │ (Postgres)│            │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │
-└─────────────────────────────────────────────────────────────────────┘
-```
+---
 
-### Component Responsibilities
-
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|------------------------|
-| **Messaging Adapter** | Normalizes platform-specific events (WhatsApp, Telegram, etc.) into unified message schema. Handles webhook management, retry logic, idempotency. | Express.js webhook endpoints, platform SDK wrappers, event normalization middleware |
-| **Conversation Orchestrator** | Core engine that manages conversation turns, routes requests based on mode, enforces safety policies, coordinates tool calls. | State machine or flow-based orchestration (LangGraph-style), maintains conversation context |
-| **Agent Router** | Detects user intent to switch modes (secretary ↔ intimate), routes messages to appropriate conversation flows, handles fuzzy intent matching. | NLU-based classification or LLM-powered intent detection with function calling |
-| **Tool Registry** | Catalog of available skills exposed as callable functions. Dynamically discovers and loads skills at runtime. Uses MCP (Model Context Protocol) pattern. | JSON schema registry, plugin manifest loader, dynamic function registration |
-| **Context Manager** | Handles RAG retrieval, conversation summarization, chunking for long documents. Manages what enters the LLM context window. | Vector similarity search, summarization pipeline, context window optimizer |
-| **Memory System** | Multi-tiered memory: short-term (conversation buffer), long-term (user preferences/history in vector DB), working (inter-agent cache). | Redis for working memory, Pinecone/Weaviate/Qdrant for vector store, conversation history in Postgres |
-| **Skill Modules** | Encapsulated capabilities (calendar, reminders, research, image generation). Each is independently deployable with defined input/output contracts. | Microservice or plugin with standard interface: `execute(params) → result` |
-| **LLM Provider Abstraction** | Unified interface across multiple LLM providers (OpenAI, Anthropic, open-source). Handles routing, failover, cost optimization. | LiteLLM, Portkey AI, or custom abstraction layer with retry/circuit breaker logic |
-| **Image Provider Abstraction** | Unified interface for image generation backends (Stable Diffusion, DALL-E, Midjourney API). Manages prompt templates, escalation logic, content safety. | Abstract factory pattern with provider-specific implementations |
-| **User DB** | Stores user accounts, avatar configurations, persona selections, billing state. Multi-tenant data isolation. | PostgreSQL with row-level security or MongoDB with tenant scoping |
-| **Audit Log** | Records all agent decisions, tool invocations, mode switches, content generation for compliance, debugging, improvement. | Append-only event log (DynamoDB, EventStore), structured JSON logging |
-
-## Recommended Project Structure
+## Existing Architecture (Fixed Context)
 
 ```
-src/
-├── adapters/                # Messaging platform adapters
-│   ├── base/
-│   │   └── MessageAdapter.ts      # Abstract base class
-│   ├── whatsapp/
-│   │   ├── WhatsAppAdapter.ts     # WhatsApp Business API integration
-│   │   ├── webhookHandler.ts      # Webhook endpoint logic
-│   │   └── normalizer.ts          # Event normalization to common schema
-│   ├── telegram/                  # Future: Telegram adapter
-│   └── registry.ts                # Adapter factory/registry
-│
-├── orchestration/           # Core conversation engine
-│   ├── ConversationOrchestrator.ts  # Main orchestration logic
-│   ├── AgentRouter.ts               # Mode detection & routing
-│   ├── modes/
-│   │   ├── SecretaryMode.ts         # Secretary conversation flow
-│   │   └── IntimateMode.ts          # Intimate conversation flow
-│   └── SafetyPolicy.ts              # Content moderation & safety checks
-│
-├── skills/                  # Pluggable skill modules
-│   ├── base/
-│   │   └── Skill.ts                 # Abstract skill interface
-│   ├── calendar/
-│   │   ├── CalendarSkill.ts         # Google Calendar integration
-│   │   └── schema.json              # Function declaration schema
-│   ├── reminders/
-│   │   ├── ReminderSkill.ts
-│   │   └── schema.json
-│   ├── research/
-│   │   ├── ResearchSkill.ts         # Web search/knowledge lookup
-│   │   └── schema.json
-│   ├── imageGeneration/
-│   │   ├── ImageGenerationSkill.ts  # Avatar photo generation
-│   │   ├── escalationLogic.ts       # Content intensity progression
-│   │   └── schema.json
-│   └── SkillRegistry.ts             # Dynamic skill loader
-│
-├── providers/               # Provider abstraction layers
-│   ├── llm/
-│   │   ├── LLMProvider.ts           # Abstract LLM interface
-│   │   ├── OpenAIProvider.ts
-│   │   ├── AnthropicProvider.ts
-│   │   ├── router.ts                # Intelligent routing logic
-│   │   └── fallback.ts              # Failover handling
-│   ├── image/
-│   │   ├── ImageProvider.ts         # Abstract image gen interface
-│   │   ├── StableDiffusionProvider.ts
-│   │   ├── DALLEProvider.ts
-│   │   └── promptBuilder.ts         # Prompt template engine
-│   └── external/
-│       └── GoogleCalendarAPI.ts     # External API clients
-│
-├── memory/                  # Multi-tiered memory system
-│   ├── ShortTermMemory.ts           # Conversation buffer (in-memory/Redis)
-│   ├── LongTermMemory.ts            # User history (vector DB)
-│   ├── WorkingMemory.ts             # Inter-agent state (Redis)
-│   └── ContextManager.ts            # RAG retrieval & context optimization
-│
-├── data/                    # Data access layer
-│   ├── models/
-│   │   ├── User.ts                  # User entity
-│   │   ├── Avatar.ts                # Avatar configuration
-│   │   ├── Conversation.ts          # Conversation history
-│   │   └── AuditLog.ts              # Event log
-│   ├── repositories/
-│   │   ├── UserRepository.ts
-│   │   ├── AvatarRepository.ts
-│   │   └── ConversationRepository.ts
-│   └── database.ts                  # Database connection & migration
-│
-├── events/                  # Event-driven communication
-│   ├── EventBus.ts                  # Internal event bus
-│   ├── handlers/
-│   │   ├── MessageReceivedHandler.ts
-│   │   ├── ModeChangedHandler.ts
-│   │   └── SkillCompletedHandler.ts
-│   └── queue.ts                     # Message queue integration (BullMQ/SQS)
-│
-├── api/                     # HTTP API layer
-│   ├── routes/
-│   │   ├── webhooks.ts              # Platform webhooks
-│   │   ├── users.ts                 # User management
-│   │   └── health.ts                # Health checks
-│   ├── middleware/
-│   │   ├── authentication.ts
-│   │   ├── rateLimiting.ts
-│   │   └── errorHandler.ts
-│   └── server.ts                    # Express app setup
-│
-├── utils/                   # Shared utilities
-│   ├── logger.ts                    # Structured logging
-│   ├── validation.ts                # Input validation
-│   ├── retry.ts                     # Retry logic with backoff
-│   └── idempotency.ts               # Duplicate prevention
-│
-└── main.ts                  # Application entry point
+┌─────────────────────────────────────────────────────────────────┐
+│                         VPS — Docker Compose                     │
+│                                                                   │
+│  ┌────────────┐   ┌─────────────────────────────────────────┐   │
+│  │   nginx    │   │              backend (FastAPI)           │   │
+│  │  :80/:443  │──>│  /auth  /avatars  /messages  /chat      │   │
+│  │  SPA serve │   │  /billing  /webhook  /photos  /health   │   │
+│  │  API proxy │   └──────────────────┬──────────────────────┘   │
+│  └────────────┘                      │                           │
+│                             ┌────────┴────────┐                  │
+│                             │  redis + worker  │                  │
+│                             │  (BullMQ jobs)   │                  │
+│                             └─────────────────┘                  │
+└──────────────────────────────────────┬──────────────────────────┘
+                                       │
+              ┌────────────────────────┼─────────────────────┐
+              │                        │                      │
+   ┌──────────┴──────┐    ┌────────────┴───────┐   ┌────────┴──────┐
+   │ Supabase Cloud  │    │    Stripe          │   │  ComfyUI /    │
+   │ (PostgreSQL +   │    │  (subscriptions,   │   │  OpenAI /     │
+   │  Auth + RLS +   │    │   webhooks)        │   │  external APIs│
+   │  Storage)       │    └────────────────────┘   └───────────────┘
+   └─────────────────┘
 ```
 
-### Structure Rationale
+### Established Patterns to Preserve
 
-- **adapters/**: Messaging platforms are isolated adapters implementing a common interface. Adding Telegram means creating `adapters/telegram/` without touching core logic.
-- **orchestration/**: The brain of the system. Single responsibility: manage conversation flow, route to appropriate handlers, enforce policies.
-- **skills/**: Each skill is a self-contained module with its own schema. The registry dynamically loads skills, enabling runtime extensibility.
-- **providers/**: Abstract all external dependencies (LLMs, image APIs, external services). Swap providers by changing configuration, not code.
-- **memory/**: Separates short-term (ephemeral), long-term (persistent), and working (cache) memory concerns.
-- **data/**: Clean data access layer with repository pattern for testability and database portability.
-- **events/**: Enables asynchronous, decoupled processing. Webhook receives → acknowledge immediately → queue for processing.
-- **api/**: Thin HTTP layer. Webhooks translate platform events to internal events and hand off to orchestrator.
+| Pattern | What It Is | Why It Must Be Kept |
+|---------|-----------|---------------------|
+| Two Supabase clients | `supabase_client` (anon+RLS) + `supabase_admin` (service role) | Prevents JWT bleed in concurrent async requests; RLS isolation guarantee |
+| `get_current_user` dependency | Validates Supabase JWT on every protected endpoint | Single auth validation point; all new protected routes must use this |
+| `require_active_subscription` dependency | Chains from `get_current_user`; raises 402 if no active sub | Billing gate pattern; reuse on any new gated feature |
+| Pydantic settings via `config.py` | All config comes from env; validated at startup | New services must add their keys here, never hard-code |
+| BullMQ + Redis worker | Long-running async jobs (image generation) | Any new long-running task belongs here, not in a request handler |
+| Sentry initialized in `main.py` | Exception tracking already active | No new monitoring infra needed; just ensure new routes are covered |
+
+---
+
+## v1.1 System Overview (After All Features Shipped)
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           VPS — Docker Compose (v1.1)                     │
+│                                                                            │
+│  ┌─────────────┐   ┌──────────────────────────────────────────────────┐  │
+│  │ Caddy       │   │                  backend (FastAPI)                │  │
+│  │ :80/:443    │──>│                                                   │  │
+│  │ Auto-HTTPS  │   │  EXISTING:  /auth  /avatars  /messages  /chat    │  │
+│  │ SPA serve   │   │             /billing  /webhook  /photos  /health  │  │
+│  │ API proxy   │   │                                                   │  │
+│  └─────────────┘   │  NEW v1.1:  /billing/portal  (portal redirect)  │  │
+│                    │             /billing/cancel   (cancel flow)       │  │
+│                    │             /admin/*           (analytics)        │  │
+│                    │             /auth/reset-password (pw reset stub)  │  │
+│                    └──────────────────────────────────────────────────┘  │
+│                                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │                     Frontend (React SPA — Vite)                     │  │
+│  │                                                                     │  │
+│  │  EXISTING:  /login  /signup  /chat  /settings  /photo  /subscribe  │  │
+│  │  /avatar-setup                                                      │  │
+│  │                                                                     │  │
+│  │  NEW v1.1:  /           (landing page)                              │  │
+│  │             /billing    (subscription management)                   │  │
+│  │             /cancel     (churn flow — multi-step)                   │  │
+│  │             /forgot-password                                        │  │
+│  │             /reset-password  (deep-link target from email)          │  │
+│  │             /admin           (analytics dashboard, role-gated)      │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                            │
+│  ┌────────────────────┐   ┌───────────────────────────────────────────┐  │
+│  │  redis + worker    │   │  NEW: email service (Resend SDK)          │  │
+│  │  (BullMQ jobs)     │   │  Called from: billing webhook handler     │  │
+│  └────────────────────┘   │  and auth signup hook                     │  │
+│                            └───────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────────────────────────────┘
+              │
+              ├── Supabase Cloud (PostgreSQL + Auth + RLS + Storage)
+              ├── Stripe (subscriptions, Customer Portal, webhooks)
+              ├── Resend (transactional email delivery)
+              └── Google OAuth (via Supabase Auth provider config)
+```
+
+---
+
+## Feature-by-Feature Integration Analysis
+
+### 1. Transactional Emails
+
+**Where email sending lives:** `backend/app/services/email/` — a new service module.
+
+**Recommended library:** Resend Python SDK (`pip install resend`).
+Resend is the current recommendation for new Python/FastAPI projects: clean API, generous free
+tier (3,000 emails/month), excellent deliverability, and a first-class Supabase partnership.
+Postmark is a viable alternative with higher cost; SendGrid is the legacy choice with more
+configuration complexity.
+
+**Trigger points and what changes:**
+
+| Trigger | Where in Code | What Calls Email |
+|---------|--------------|------------------|
+| User signs up | `billing.py` webhook OR Supabase Auth Hook | `welcome_email(user_email)` |
+| Payment succeeds | `billing.py` — `invoice.payment_succeeded` webhook event | `receipt_email(user_email, amount, invoice_url)` |
+| Subscription cancelled | `billing.py` — `customer.subscription.deleted` event | `cancellation_email(user_email, period_end)` |
+
+**The signup trigger has two options:**
+
+Option A (simpler): Supabase custom Auth Hook — Supabase calls a webhook when a user is
+created. The hook URL points to a new `POST /auth/hooks/signup` endpoint in the backend that
+sends the welcome email via Resend. This keeps email logic server-side without touching the
+`/auth/signup` router.
+
+Option B (simpler still for now): Add `send_welcome_email(user.email)` as a `BackgroundTask`
+directly in the existing `POST /auth/signup` handler. No Supabase hook setup needed. Acceptable
+for v1.1 scale.
+
+**Recommendation:** Option B for v1.1. Add `BackgroundTasks` to the signup endpoint and
+call the email service there. Supabase Auth Hooks are the right long-term solution but add
+external webhook complexity that is unnecessary at launch scale.
+
+**New files:**
+```
+backend/app/services/email/
+    __init__.py
+    resend_client.py      # Resend SDK wrapper, reads RESEND_API_KEY from settings
+    templates.py          # Email body builders (welcome, receipt, cancellation)
+```
+
+**Config change:** Add `resend_api_key: str = ""` to `Settings` in `config.py`.
+
+**Data flow:**
+```
+POST /auth/signup → create user → BackgroundTask → resend_client.send(welcome)
+Stripe webhook → invoice.payment_succeeded → subscription.py → email_service.receipt()
+Stripe webhook → subscription.deleted → subscription.py → email_service.cancellation()
+```
+
+---
+
+### 2. Google OAuth (Sign In / Sign Up)
+
+**Key insight:** Google OAuth for login is entirely a Supabase Auth feature, not a custom
+OAuth implementation. The existing `google_oauth.py` router handles Google Calendar OAuth
+(a different flow: user-specific API access for secretary mode). The new Google Sign-In is
+a separate concern at the Supabase Auth layer.
+
+**What changes:**
+
+| Layer | Change |
+|-------|--------|
+| Supabase Dashboard | Enable Google provider, paste Client ID + Secret |
+| Google Cloud Console | Create new OAuth 2.0 Web Client; add `https://[project].supabase.co/auth/v1/callback` as authorized redirect URI |
+| Frontend | Add "Continue with Google" button to `LoginPage.tsx` and `SignupPage.tsx` |
+| Backend | No changes — Supabase JWT works the same regardless of auth method |
+
+**Frontend implementation pattern:**
+
+The frontend must use `@supabase/supabase-js` client directly (not via the backend) for this
+flow. This is the only place where the frontend calls Supabase directly rather than routing
+through the FastAPI backend. The Supabase JS client handles PKCE automatically.
+
+```typescript
+// frontend/src/api/auth.ts — add:
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
+
+export async function signInWithGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${window.location.origin}/auth/callback` }
+  })
+  if (error) throw error
+}
+```
+
+**New frontend route required:** `/auth/callback` — a minimal page that calls
+`supabase.auth.getSession()` after the OAuth redirect, extracts the JWT, stores it in
+Zustand auth store, and redirects to `/chat`. The `@supabase/supabase-js` client handles the
+PKCE code exchange automatically; the callback page just needs to read the established session.
+
+**Zustand store change:** After OAuth callback, the token format is identical to
+email/password login — both return a Supabase JWT. The `useAuthStore` `setAuth(token, userId)`
+call is identical; no store changes needed.
+
+**Account linking edge case:** If a user registered with email+password and then tries Google
+OAuth with the same email, Supabase v2 with `mailer_autoconfirm` disabled will return an error
+("User already registered"). The frontend must catch this and show: "An account with this
+email already exists. Sign in with your password instead." This is handled in the
+`/auth/callback` error path.
+
+**New env vars required:**
+```
+VITE_SUPABASE_URL=https://[project].supabase.co
+VITE_SUPABASE_ANON_KEY=[anon key]
+```
+
+---
+
+### 3. Password Reset
+
+**What Supabase provides:** Full token generation, email sending (via configured SMTP), and
+token validation. The backend does not need a new endpoint for password reset.
+
+**Flow:**
+
+```
+Frontend /forgot-password
+    → supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://domain/reset-password' })
+    → Supabase sends email with link → token embedded in URL as hash fragment
+    → User clicks → browser lands on /reset-password?type=recovery&...
+    → /reset-password page calls supabase.auth.updateUser({ password: newPassword })
+    → Supabase validates token, updates password, invalidates all sessions
+    → Frontend clears auth store, redirects to /login with success message
+```
+
+**Configuration requirement:** The `redirectTo` URL (`https://[domain]/reset-password`) must
+be added to Supabase Dashboard → Authentication → URL Configuration → Redirect URLs. Without
+this, Supabase rejects the redirectTo parameter.
+
+**Supabase SMTP for password reset emails:** Supabase sends password reset emails using its
+built-in SMTP (configurable in the dashboard). For v1.1, configure Resend as the SMTP provider
+in Supabase Dashboard → Authentication → SMTP Settings. This makes password reset emails use
+the same email infrastructure as transactional emails (consistent from-address and deliverability).
+
+**New frontend pages:**
+- `ForgotPasswordPage.tsx` — email input form; calls Supabase SDK directly
+- `ResetPasswordPage.tsx` — new password form; calls `supabase.auth.updateUser` after OAuth
+  callback establishes the recovery session
+
+**Backend changes:** None. The Supabase Auth service handles the full flow.
+
+**Nginx/Caddy change:** `/reset-password` must route to the SPA `index.html`. This is already
+handled by the existing `try_files $uri $uri/ /index.html` fallback in nginx, so no routing
+change is needed.
+
+---
+
+### 4. Admin Dashboard (`/admin`)
+
+**Architecture decision: custom React page, not a third-party admin framework.**
+
+Reason: the data lives across two systems (Supabase PostgreSQL + Stripe API). Third-party
+admin tools (fastapi-admin, Streamlit, Metabase) would require either replicating data or
+building adapters. A custom React page with a FastAPI `/admin` router is simpler and fits
+the existing architecture.
+
+**Route protection — admin role gate:**
+
+The `admin` check uses a Supabase custom claim. Admin users get `app_metadata.role = "admin"`
+set via `supabase_admin` (service role). The backend reads this claim from the JWT:
+
+```python
+# backend/app/dependencies.py — add:
+async def require_admin(user=Depends(get_current_user)):
+    role = (user.app_metadata or {}).get("role")
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+```
+
+Setting admin role (one-time CLI operation, not a UI feature for v1.1):
+```python
+supabase_admin.auth.admin.update_user_by_id(
+    user_id, {"app_metadata": {"role": "admin"}}
+)
+```
+
+**New backend router:** `backend/app/routers/admin.py`
+
+```
+GET /admin/stats/overview   → active users, messages, photos, subscriptions (last 7/30 days)
+GET /admin/stats/revenue    → MRR, churn count, new subs (from Stripe API)
+GET /admin/users            → paginated user list (id, email, sub status, created_at)
+```
+
+All admin endpoints use `Depends(require_admin)`.
+
+**Data storage for usage events:** Use PostgreSQL for event storage. A simple `usage_events`
+table in Supabase:
+
+```sql
+CREATE TABLE usage_events (
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     uuid REFERENCES auth.users(id),
+    event_type  text NOT NULL,  -- 'message_sent', 'photo_generated', 'mode_switch', 'subscription_created'
+    metadata    jsonb,           -- event-specific data (e.g., mode, photo quality)
+    created_at  timestamptz DEFAULT now()
+);
+
+-- Index for time-range queries (most admin queries filter by created_at)
+CREATE INDEX idx_usage_events_created_at ON usage_events(created_at DESC);
+CREATE INDEX idx_usage_events_user_id ON usage_events(user_id);
+CREATE INDEX idx_usage_events_type ON usage_events(event_type);
+```
+
+**Event emission points:**
+
+| Event | Where Emitted |
+|-------|--------------|
+| `message_sent` | `web_chat.py` — after successful LLM response |
+| `photo_generated` | Worker job — after ComfyUI completes |
+| `mode_switch` | `web_chat.py` — when mode detection changes mode |
+| `subscription_created` | `billing.py` — in `activate_subscription()` |
+| `subscription_cancelled` | `billing.py` — in `deactivate_subscription()` with `canceled` status |
+
+**Emission pattern:** Fire-and-forget insert using `supabase_admin` (bypasses RLS — admin
+writes should not be blocked by user RLS policies). Use `asyncio.create_task()` or
+`BackgroundTasks` to avoid blocking request handlers.
+
+**Admin dashboard frontend page:** `frontend/src/pages/AdminPage.tsx`
+
+- Route: `/admin` — guarded by checking `app_metadata.role` from JWT decode
+- Data: fetched from `/admin/stats/*` endpoints
+- Display: simple stat cards (no complex charting library needed for v1.1 — plain numbers
+  with period-over-period delta are sufficient)
+- No admin-specific frontend library required
+
+**Frontend route guard:**
+```typescript
+function AdminRoute({ children }) {
+  const token = useAuthStore(s => s.token)
+  // decode JWT to read app_metadata.role
+  const payload = token ? JSON.parse(atob(token.split('.')[1])) : null
+  if (payload?.app_metadata?.role !== 'admin') return <Navigate to="/chat" />
+  return <>{children}</>
+}
+```
+
+---
+
+### 5. Usage Event Tracking
+
+Covered in section 4 above (the `usage_events` table and emission pattern). Additional notes:
+
+**What NOT to track at v1.1:**
+- Page views (no analytics SDK needed — server-side events are sufficient)
+- Session duration (not meaningful for a conversational product)
+- Button clicks (overkill for launch; add Posthog if product-market fit is confirmed)
+
+**Admin query patterns for the stats endpoint:**
+
+```sql
+-- Active users (7-day)
+SELECT COUNT(DISTINCT user_id) FROM usage_events
+WHERE created_at > now() - interval '7 days';
+
+-- Messages sent (30-day total + per-user average)
+SELECT COUNT(*), COUNT(*)::float / NULLIF(COUNT(DISTINCT user_id), 0)
+FROM usage_events
+WHERE event_type = 'message_sent'
+  AND created_at > now() - interval '30 days';
+
+-- Photos generated (30-day)
+SELECT COUNT(*) FROM usage_events
+WHERE event_type = 'photo_generated'
+  AND created_at > now() - interval '30 days';
+```
+
+MRR and subscription counts come from Stripe API (not the local DB), because Stripe is the
+source of truth for billing state.
+
+---
+
+### 6. Landing Page
+
+**Architecture decision: same React SPA, new `"/"` route, not a separate site.**
+
+Rationale:
+- The existing nginx/SPA setup already handles all routes via `try_files` fallback
+- No new deployment unit needed
+- Sharing Vite build means one deploy step
+- The landing page has zero backend dependencies — all static React + Tailwind
+
+**SEO consideration:** React SPAs have poor native SEO because crawlers see an empty `<div>`.
+For a landing page at `"/"`, use `react-helmet-async` to inject proper `<title>`, meta
+description, and Open Graph tags. Google's crawler now executes JavaScript (Googlebot renders
+SPAs), so this is sufficient for v1.1 — a full SSR migration (Next.js) is not needed.
+
+```typescript
+// frontend/src/pages/LandingPage.tsx
+import { Helmet } from 'react-helmet-async'
+
+export default function LandingPage() {
+  return (
+    <>
+      <Helmet>
+        <title>Ava — Your AI Companion</title>
+        <meta name="description" content="A dual-mode AI companion..." />
+        <meta property="og:title" content="Ava — Your AI Companion" />
+      </Helmet>
+      {/* ... hero, features, pricing sections */}
+    </>
+  )
+}
+```
+
+**New dependency:** `npm install react-helmet-async` + wrap `App` in `<HelmetProvider>`.
+
+**Route change in `App.tsx`:** Add `<Route path="/" element={<LandingPage />} />` before the
+catch-all `<Route path="*" element={<Navigate to="/chat" />} />`. The catch-all must move to
+redirect authenticated users to `/chat` only if they hit unknown routes — the landing page at
+`"/"` should be accessible to unauthenticated visitors.
+
+**Auth logic change:** The existing catch-all `<Navigate to="/chat" replace />` must not apply
+to `"/"`. The landing page is public. Only authenticated routes need protection.
+
+**Nginx change:** No nginx change needed — `try_files $uri $uri/ /index.html` already handles
+all SPA routes including `"/"`.
+
+---
+
+### 7. VPS Deployment
+
+**Recommendation: Replace nginx with Caddy for SSL termination.**
+
+Rationale: The current nginx configuration handles only HTTP (no SSL). Achieving HTTPS with
+nginx requires Certbot integration, cron jobs for renewal, volume mounts for certificates,
+and manual nginx reload after renewal. Caddy provides automatic HTTPS with zero-touch Let's
+Encrypt certificate issuance and renewal — a single `Caddyfile` replaces all of this.
+
+**Caddy Caddyfile (replaces nginx.conf):**
+
+```
+yourdomain.com {
+    # Serve React SPA static files
+    root * /srv/frontend
+
+    # API proxy — route backend paths to FastAPI
+    @api path /auth/* /chat/* /billing/* /avatars/* /preferences/* /photos/* /webhook/* /messages/* /dev/* /health/* /admin/*
+    reverse_proxy @api backend:8000
+
+    # SPA fallback — all other routes get index.html
+    try_files {path} /index.html
+    file_server
+
+    # Compress responses
+    encode gzip
+}
+```
+
+**docker-compose.yml change:** Replace `nginx` service with `caddy`:
+
+```yaml
+caddy:
+  image: caddy:2-alpine
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    - ./frontend/dist:/srv/frontend:ro
+    - caddy_data:/data           # persists TLS certificates
+    - caddy_config:/config
+  depends_on:
+    - backend
+  restart: unless-stopped
+```
+
+**Environment variable management on VPS:**
+
+Store secrets in `backend/.env` (gitignored). On the VPS, copy `.env` manually or use a
+secrets manager (Hetzner/DigitalOcean do not have a built-in secrets manager; `scp` the `.env`
+file on first deploy, or use `docker secret` for Docker Swarm — overkill for single-node).
+
+The `.env` pattern is correct for single-VPS deployments. What matters is:
+- The `.env` file is never committed to git (already in `.gitignore`)
+- Production `.env` contains real API keys, dev `.env` contains stubs
+- Caddy manages TLS automatically; no SSL key material needed in `.env`
+
+**Deployment checklist additions for v1.1:**
+```
+- RESEND_API_KEY=[key]              # transactional email
+- VITE_SUPABASE_URL=[url]          # frontend .env (build-time)
+- VITE_SUPABASE_ANON_KEY=[key]     # frontend .env (build-time)
+- CADDY domain registration        # DNS A record → VPS IP
+```
+
+**Nginx vs Caddy decision confirmation:** Nginx is kept if the team wants zero change to the
+reverse proxy layer and is willing to set up Certbot manually. Caddy is recommended because
+the operational simplicity benefit is significant for a one-person/small-team product. The
+configuration change is a 15-minute migration.
+
+---
+
+### 8. Subscription Management Page
+
+**Architecture: hybrid — custom in-app page + Stripe Customer Portal redirect.**
+
+The "Billing" page in the React app shows the user's current plan state and provides two
+action paths:
+1. Cancel → custom in-app churn flow (section 9 below)
+2. Update payment method / view invoices → redirect to Stripe Customer Portal
+
+**New backend endpoint:** `POST /billing/portal`
+
+```python
+@router.post("/portal")
+async def create_portal_session(user=Depends(get_current_user)):
+    """Create a Stripe Customer Portal session and return the redirect URL."""
+    customer_id = get_stripe_customer_id(str(user.id))  # reads from subscriptions table
+    session = stripe.billing_portal.Session.create(
+        customer=customer_id,
+        return_url=f"{settings.frontend_url}/billing"
+    )
+    return {"portal_url": session.url}
+```
+
+**New frontend page:** `frontend/src/pages/BillingPage.tsx`
+
+Data needed (from `GET /billing/subscription` — new endpoint that returns Stripe sub data):
+```typescript
+{
+  plan_name: string         // e.g., "Ava Pro"
+  status: string            // "active" | "canceled" | "past_due"
+  current_period_end: string  // ISO date → "Next billing date: March 15, 2026"
+  cancel_at_period_end: bool  // true if user already cancelled but access remains
+}
+```
+
+**New backend endpoint:** `GET /billing/subscription`
+
+```python
+@router.get("/subscription")
+async def get_subscription(user=Depends(get_current_user)):
+    """Return current subscription details for the billing page."""
+    # reads subscriptions table + fetches from Stripe for current_period_end
+    ...
+```
+
+**Data flow:**
+
+```
+User visits /billing
+    → GET /billing/subscription → shows plan, next billing date, status
+    → "Manage Payment / View Invoices" click → POST /billing/portal → redirect to Stripe Portal
+    → "Cancel Subscription" click → navigate to /cancel (churn flow)
+```
+
+**Stripe webhook additions needed:**
+
+The existing billing webhook in `billing.py` handles `checkout.session.completed`,
+`invoice.payment_failed`, and `customer.subscription.deleted`. For v1.1, add:
+- `invoice.payment_succeeded` → trigger receipt email + update `current_period_end` in DB
+- `customer.subscription.updated` → update `cancel_at_period_end` flag in DB (for cases where
+  user cancels via Stripe Portal rather than in-app flow)
+
+---
+
+### 9. Cancellation Churn Flow + Exit Survey
+
+**Where churn data lives:** A new `churn_surveys` table in Supabase.
+
+```sql
+CREATE TABLE churn_surveys (
+    id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id        uuid REFERENCES auth.users(id),
+    subscription_id text,             -- Stripe subscription ID for reference
+    reason         text NOT NULL,      -- multiple-choice selection
+    detail         text,               -- optional open-text follow-up
+    retention_offer_shown text,        -- which offer was shown (if any)
+    retention_offer_accepted bool DEFAULT false,
+    created_at     timestamptz DEFAULT now()
+);
+```
+
+**New backend endpoints (add to `billing.py` or new `churn.py` router):**
+
+```
+POST /billing/survey          → save churn survey response
+POST /billing/cancel          → call Stripe cancel_at_period_end, trigger cancellation email
+```
+
+**Churn flow frontend route:** `frontend/src/pages/CancelPage.tsx`
+
+Multi-step page (all client-side state, no route changes per step):
+
+```
+Step 1: Exit survey — "Why are you cancelling?"
+        POST /billing/survey (saves reason before cancel; data captured even if user abandons)
+
+Step 2: Retention offer — shown based on reason code
+        "Too expensive" → show discount offer
+        "Not using it" → show pause option
+        "Other" → skip straight to Step 3
+
+Step 3: Final confirmation
+        "Confirm Cancellation" → POST /billing/cancel → Stripe cancel_at_period_end=true
+        → navigate to /billing with success banner "Subscription cancelled. Access until [date]."
+        → webhook fires → cancellation email sent
+```
+
+**Stripe cancel call pattern:**
+
+```python
+# POST /billing/cancel
+stripe.Subscription.modify(
+    subscription_id,
+    cancel_at_period_end=True   # user retains access until period_end; does not immediately cancel
+)
+```
+
+`cancel_at_period_end=True` is the correct approach — user keeps access until the billing
+period ends. When the period ends, Stripe fires `customer.subscription.deleted`, which triggers
+the existing `deactivate_subscription()` call and the cancellation confirmation email.
+
+**Immediate cancel vs. period-end cancel:** Period-end cancel is required by consumer
+protection expectations and reduces support requests ("you charged me after I cancelled").
+Do not use `stripe.Subscription.cancel()` (immediate) unless the user explicitly requests a
+refund.
+
+---
+
+## Component Boundaries — New vs Modified
+
+### New Components (create from scratch)
+
+| Component | Type | Location |
+|-----------|------|----------|
+| Email service | Backend service | `backend/app/services/email/` |
+| Admin router | Backend router | `backend/app/routers/admin.py` |
+| `require_admin` dependency | Backend dependency | `backend/app/dependencies.py` (add to existing) |
+| Churn survey router | Backend router | `backend/app/routers/billing.py` (add endpoints) or new `churn.py` |
+| `usage_events` table | Database | Supabase migration |
+| `churn_surveys` table | Database | Supabase migration |
+| LandingPage | Frontend page | `frontend/src/pages/LandingPage.tsx` |
+| BillingPage | Frontend page | `frontend/src/pages/BillingPage.tsx` |
+| CancelPage | Frontend page | `frontend/src/pages/CancelPage.tsx` |
+| ForgotPasswordPage | Frontend page | `frontend/src/pages/ForgotPasswordPage.tsx` |
+| ResetPasswordPage | Frontend page | `frontend/src/pages/ResetPasswordPage.tsx` |
+| AuthCallbackPage | Frontend page | `frontend/src/pages/AuthCallbackPage.tsx` (OAuth callback) |
+| AdminPage | Frontend page | `frontend/src/pages/AdminPage.tsx` |
+| Supabase JS client (frontend) | Frontend lib | `frontend/src/lib/supabase.ts` (new singleton) |
+| Caddyfile | Infrastructure | `Caddyfile` (replaces nginx.conf) |
+
+### Modified Components (change existing)
+
+| Component | What Changes |
+|-----------|-------------|
+| `backend/app/routers/billing.py` | Add `/portal`, `/subscription`, `/survey`, `/cancel` endpoints; add `invoice.payment_succeeded` and `customer.subscription.updated` webhook handlers |
+| `backend/app/routers/auth.py` | Add `BackgroundTask` for welcome email on `POST /auth/signup` |
+| `backend/app/config.py` | Add `resend_api_key`, `vite_supabase_url`, `vite_supabase_anon_key` (backend only needs `resend_api_key`; Vite env vars are frontend build-time) |
+| `backend/app/services/billing/subscription.py` | Add `get_stripe_customer_id()`, `update_period_end()`, `set_cancel_at_period_end()` helpers |
+| `backend/app/main.py` | Include `admin` router; no other changes |
+| `frontend/src/App.tsx` | Add routes: `/`, `/billing`, `/cancel`, `/forgot-password`, `/reset-password`, `/auth/callback`, `/admin`; move catch-all logic to not redirect `"/"` |
+| `frontend/src/store/useAuthStore.ts` | No changes to store shape; the token/userId fields work for OAuth sessions identically |
+| `frontend/src/api/auth.ts` | Add `signInWithGoogle()`, `resetPasswordForEmail()`, `updatePassword()` using Supabase JS client |
+| `docker-compose.yml` | Replace `nginx` service with `caddy`; add `caddy_data` and `caddy_config` volumes |
+| `nginx.conf` | Remove (or keep for local dev without SSL); replaced by `Caddyfile` |
+
+---
+
+## Data Flow Changes
+
+### New: Welcome Email on Signup
+
+```
+POST /auth/signup
+    → supabase_client.auth.sign_up()
+    → user created in Supabase Auth
+    → BackgroundTask: email_service.send_welcome(user.email)
+    → Resend API → email delivered
+    → return TokenResponse (unchanged)
+```
+
+### New: Receipt Email on Payment
+
+```
+Stripe webhook → POST /billing/webhook → invoice.payment_succeeded event
+    → get user_id from subscriptions table WHERE stripe_customer_id = customer
+    → get user email from supabase_admin.auth.admin.get_user_by_id(user_id)
+    → update current_period_end in subscriptions table
+    → email_service.send_receipt(email, amount, invoice_url)
+```
+
+### New: Google OAuth Login
+
+```
+User clicks "Continue with Google" on /login or /signup
+    → supabase.auth.signInWithOAuth({ provider: 'google' })  [frontend, Supabase JS]
+    → redirect to Google consent screen
+    → Google redirects to Supabase callback URL (https://[project].supabase.co/auth/v1/callback)
+    → Supabase exchanges code, creates session, redirects to /auth/callback in the React app
+    → /auth/callback page: supabase.auth.getSession() → extract token + user_id
+    → useAuthStore.setAuth(token, userId)  [identical to email/password login]
+    → navigate('/chat')
+```
+
+### New: Password Reset
+
+```
+User visits /forgot-password, enters email
+    → supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://domain/reset-password' })
+    → Supabase sends email via configured SMTP (Resend as SMTP)
+    → User clicks link → browser loads /reset-password with token in URL hash
+    → supabase.auth.updateUser({ password: newPassword })  [Supabase JS validates token]
+    → clearAuth() in Zustand store → navigate('/login') with success message
+```
+
+### New: Admin Stats Query
+
+```
+GET /admin/stats/overview (requires admin JWT)
+    → require_admin dependency validates app_metadata.role = "admin"
+    → supabase_admin queries usage_events table (aggregations)
+    → stripe.Subscription.list() for active count + MRR calculation
+    → return combined stats JSON
+    → AdminPage.tsx renders stat cards
+```
+
+---
+
+## Recommended Project Structure After v1.1
+
+```
+backend/app/
+├── routers/
+│   ├── auth.py           [MODIFIED: add welcome email BackgroundTask]
+│   ├── billing.py        [MODIFIED: add portal, subscription, survey, cancel endpoints]
+│   ├── admin.py          [NEW: /admin/* endpoints]
+│   └── ... (unchanged: avatars, messages, preferences, webhook, etc.)
+│
+├── services/
+│   ├── billing/          [MODIFIED: add helpers to subscription.py]
+│   ├── email/            [NEW]
+│   │   ├── __init__.py
+│   │   ├── resend_client.py
+│   │   └── templates.py
+│   └── ... (unchanged: chat, image, llm, etc.)
+│
+├── dependencies.py       [MODIFIED: add require_admin]
+└── config.py             [MODIFIED: add resend_api_key]
+
+frontend/src/
+├── pages/
+│   ├── LandingPage.tsx   [NEW]
+│   ├── BillingPage.tsx   [NEW]
+│   ├── CancelPage.tsx    [NEW]
+│   ├── ForgotPasswordPage.tsx [NEW]
+│   ├── ResetPasswordPage.tsx  [NEW]
+│   ├── AuthCallbackPage.tsx   [NEW: OAuth redirect handler]
+│   ├── AdminPage.tsx     [NEW]
+│   └── ... (unchanged: ChatPage, SettingsPage, LoginPage, etc.)
+│
+├── api/
+│   ├── auth.ts           [MODIFIED: add Google OAuth + password reset calls]
+│   ├── billing.ts        [MODIFIED: add portal, subscription, survey, cancel API calls]
+│   └── admin.ts          [NEW: admin stats API calls]
+│
+├── lib/
+│   └── supabase.ts       [NEW: Supabase JS client singleton for OAuth + password reset]
+│
+└── App.tsx               [MODIFIED: add new routes, update catch-all logic]
+
+infrastructure/
+├── Caddyfile             [NEW: replaces nginx.conf for production]
+├── nginx.conf            [KEPT for local dev reference; not used in prod]
+└── docker-compose.yml    [MODIFIED: nginx → caddy service]
+```
+
+---
 
 ## Architectural Patterns
 
-### Pattern 1: Adapter Pattern for Messaging Platforms
+### Pattern 1: BackgroundTask for Side Effects
 
-**What:** Channel adapter standardizes inputs from different messaging platforms (WhatsApp, Telegram, Discord) into a unified internal message schema.
+**What:** Attach email sends, event logging, and non-critical async operations as FastAPI
+`BackgroundTasks`. The request returns immediately; the side effect runs after.
 
-**When to use:** Any system needing multi-platform support where each platform has different APIs, event formats, and delivery semantics.
+**When to use:** Any operation triggered by a request that does not affect the response
+content: welcome emails, usage event inserts, webhook notifications.
 
-**Trade-offs:**
-- **Pro:** Core logic is platform-agnostic. Adding platforms is additive, not invasive.
-- **Pro:** Testing is easier—mock the adapter interface, not each platform SDK.
-- **Con:** Some platform-specific features may not map cleanly to common schema (requires extension points).
-- **Con:** Slight performance overhead from normalization layer.
+**Trade-off:** If the server restarts between request handling and background task execution,
+the task is lost. For v1.1 scale this is acceptable. For production-critical tasks (e.g.,
+Stripe payment confirmation), use the BullMQ queue instead.
 
-**Example:**
-```typescript
-// Base adapter interface
-interface IMessageAdapter {
-  normalize(platformEvent: any): UnifiedMessage;
-  send(conversationId: string, message: OutgoingMessage): Promise<void>;
-  acknowledge(eventId: string): Promise<void>;
-}
+```python
+from fastapi import BackgroundTasks
 
-// WhatsApp-specific implementation
-class WhatsAppAdapter implements IMessageAdapter {
-  normalize(whatsappWebhook: WhatsAppEvent): UnifiedMessage {
-    return {
-      conversationId: whatsappWebhook.entry[0].id,
-      userId: whatsappWebhook.entry[0].changes[0].value.contacts[0].wa_id,
-      text: whatsappWebhook.entry[0].changes[0].value.messages[0].text.body,
-      timestamp: new Date(whatsappWebhook.entry[0].changes[0].value.messages[0].timestamp),
-      platform: 'whatsapp',
-      metadata: { /* platform-specific */ }
-    };
-  }
-
-  async send(conversationId: string, message: OutgoingMessage): Promise<void> {
-    await this.whatsappClient.sendMessage({
-      messaging_product: "whatsapp",
-      to: conversationId,
-      text: { body: message.text }
-    });
-  }
-
-  async acknowledge(eventId: string): Promise<void> {
-    // WhatsApp requires immediate 200 OK to prevent retries
-    // (handled at webhook endpoint level)
-  }
-}
-
-// Telegram adapter would implement the same interface
-class TelegramAdapter implements IMessageAdapter {
-  // Different implementation, same interface
-}
-
-// Adapter registry for dynamic resolution
-class AdapterRegistry {
-  private adapters = new Map<string, IMessageAdapter>();
-
-  register(platform: string, adapter: IMessageAdapter) {
-    this.adapters.set(platform, adapter);
-  }
-
-  get(platform: string): IMessageAdapter {
-    const adapter = this.adapters.get(platform);
-    if (!adapter) throw new Error(`No adapter for platform: ${platform}`);
-    return adapter;
-  }
-}
+@router.post("/signup")
+async def signup(body: SignupRequest, background_tasks: BackgroundTasks):
+    response = supabase_client.auth.sign_up(...)
+    background_tasks.add_task(email_service.send_welcome, response.user.email)
+    return TokenResponse(...)
 ```
 
-### Pattern 2: Tool Registry with Dynamic Skill Loading
+### Pattern 2: supabase_admin for Server-Side Writes
 
-**What:** Skills are discovered and loaded at runtime based on user intent. Uses MCP (Model Context Protocol) pattern where skills expose JSON schemas that LLMs can invoke.
+**What:** All server-initiated writes (email lookups, event inserts, admin queries) use the
+`supabase_admin` (service role) client. User-initiated reads use `supabase_client` with RLS.
 
-**When to use:** Systems requiring extensibility without redeployment. Chatbots with growing capability sets, plugin ecosystems.
+**When to use:** Any operation that must bypass RLS (webhook handlers, admin endpoints, usage
+event inserts). Never use `supabase_admin` in user-facing read endpoints.
 
-**Trade-offs:**
-- **Pro:** Zero-downtime feature additions. Drop a new skill module in, it's automatically available.
-- **Pro:** LLM learns to use new tools without retraining—just provide the schema.
-- **Con:** Dynamic loading increases complexity (schema validation, error handling, security sandboxing).
-- **Con:** Harder to trace execution paths statically.
+**Why critical for v1.1:** The `usage_events` inserts happen in server-side request handlers,
+not user-initiated requests. Using `supabase_client` for these would fail RLS if the user's
+JWT is not available (e.g., in webhook handlers). Use `supabase_admin`.
 
-**Example:**
-```typescript
-// Skill interface with declarative schema
-interface ISkill {
-  name: string;
-  description: string;
-  schema: JSONSchema; // OpenAI function calling schema
-  execute(params: Record<string, any>): Promise<SkillResult>;
-}
+### Pattern 3: Stripe as Source of Truth for Billing State
 
-// Example: Calendar skill
-class CalendarSkill implements ISkill {
-  name = "add_calendar_event";
-  description = "Adds an event to the user's Google Calendar";
-  schema = {
-    type: "object",
-    properties: {
-      title: { type: "string", description: "Event title" },
-      start: { type: "string", format: "date-time" },
-      end: { type: "string", format: "date-time" },
-      description: { type: "string" }
-    },
-    required: ["title", "start", "end"]
-  };
+**What:** The local `subscriptions` table is a cache of Stripe state. The `status`,
+`current_period_end`, and `cancel_at_period_end` fields are authoritative only in Stripe.
+Local table is updated via webhooks.
 
-  async execute(params: { title: string; start: string; end: string; description?: string }) {
-    const event = await this.googleCalendar.events.insert({
-      calendarId: 'primary',
-      requestBody: {
-        summary: params.title,
-        start: { dateTime: params.start },
-        end: { dateTime: params.end },
-        description: params.description
-      }
-    });
+**When to use:** Always query Stripe directly for time-sensitive billing data (e.g., billing
+page display). Use local table only for fast checks like `require_active_subscription`.
 
-    return {
-      success: true,
-      data: { eventId: event.data.id, link: event.data.htmlLink }
-    };
-  }
-}
+**Trade-off:** Webhook delays can cause the local table to be stale by seconds to minutes.
+For `require_active_subscription`, this is fine (access control does not need real-time).
+For the billing page display, prefer a Stripe API call for accuracy.
 
-// Skill registry with auto-discovery
-class SkillRegistry {
-  private skills = new Map<string, ISkill>();
-
-  register(skill: ISkill) {
-    this.skills.set(skill.name, skill);
-  }
-
-  // Returns schemas for LLM function calling
-  getFunctionDeclarations(): OpenAIFunctionDeclaration[] {
-    return Array.from(this.skills.values()).map(skill => ({
-      name: skill.name,
-      description: skill.description,
-      parameters: skill.schema
-    }));
-  }
-
-  async execute(skillName: string, params: any): Promise<SkillResult> {
-    const skill = this.skills.get(skillName);
-    if (!skill) throw new Error(`Unknown skill: ${skillName}`);
-    return await skill.execute(params);
-  }
-}
-
-// Orchestrator invokes skills via LLM tool calls
-class ConversationOrchestrator {
-  async processTurn(userMessage: string) {
-    const functions = this.skillRegistry.getFunctionDeclarations();
-
-    const response = await this.llm.chat({
-      messages: [{ role: "user", content: userMessage }],
-      functions, // LLM can call any registered skill
-      function_call: "auto"
-    });
-
-    // If LLM decided to call a function
-    if (response.function_call) {
-      const result = await this.skillRegistry.execute(
-        response.function_call.name,
-        JSON.parse(response.function_call.arguments)
-      );
-
-      // Feed result back to LLM for final response
-      return await this.llm.chat({
-        messages: [
-          { role: "user", content: userMessage },
-          { role: "assistant", content: null, function_call: response.function_call },
-          { role: "function", name: response.function_call.name, content: JSON.stringify(result) }
-        ]
-      });
-    }
-
-    return response;
-  }
-}
-```
-
-### Pattern 3: Multi-Provider Abstraction with Intelligent Routing
-
-**What:** Unified interface across multiple LLM and image generation providers. Routes requests based on cost, latency, and capability requirements. Automatic failover on provider errors.
-
-**When to use:** Production systems requiring high availability, cost optimization, and vendor independence.
-
-**Trade-offs:**
-- **Pro:** No vendor lock-in. Swap providers via config change.
-- **Pro:** Cost optimization—route simple tasks to cheaper models, complex reasoning to premium models.
-- **Pro:** Resilience—automatic failover maintains uptime when providers have outages.
-- **Con:** Abstraction layer hides provider-specific features (must use lowest common denominator or extension mechanism).
-- **Con:** Added complexity in routing logic and configuration management.
-
-**Example:**
-```typescript
-// Abstract LLM provider interface
-interface ILLMProvider {
-  name: string;
-  chat(request: ChatRequest): Promise<ChatResponse>;
-  supportsStreaming: boolean;
-  costPerToken: number;
-}
-
-// Provider implementations
-class OpenAIProvider implements ILLMProvider {
-  name = "openai";
-  supportsStreaming = true;
-  costPerToken = 0.00002; // GPT-4o pricing
-
-  async chat(request: ChatRequest): Promise<ChatResponse> {
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: request.messages,
-      functions: request.functions
-    });
-    return this.normalize(response);
-  }
-
-  private normalize(raw: OpenAI.ChatCompletion): ChatResponse {
-    // Transform to unified schema
-  }
-}
-
-class AnthropicProvider implements ILLMProvider {
-  name = "anthropic";
-  supportsStreaming = true;
-  costPerToken = 0.000015; // Claude 3.5 Sonnet pricing
-
-  async chat(request: ChatRequest): Promise<ChatResponse> {
-    const response = await this.anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      messages: request.messages,
-      tools: request.functions // Different terminology, same concept
-    });
-    return this.normalize(response);
-  }
-
-  private normalize(raw: Anthropic.Message): ChatResponse {
-    // Transform to unified schema
-  }
-}
-
-// Intelligent router
-class LLMRouter {
-  private providers: ILLMProvider[];
-  private primaryProvider: string;
-  private fallbackProviders: string[];
-
-  async chat(request: ChatRequest, options?: { preferCheap?: boolean }): Promise<ChatResponse> {
-    // Route simple requests to cheaper models
-    if (options?.preferCheap && this.isSimpleRequest(request)) {
-      return this.routeToCheapest(request);
-    }
-
-    // Try primary provider with exponential backoff
-    try {
-      const provider = this.getProvider(this.primaryProvider);
-      return await this.withRetry(() => provider.chat(request));
-    } catch (error) {
-      // Failover to backup providers
-      return this.failover(request, error);
-    }
-  }
-
-  private async failover(request: ChatRequest, originalError: Error): Promise<ChatResponse> {
-    for (const fallbackName of this.fallbackProviders) {
-      try {
-        const provider = this.getProvider(fallbackName);
-        logger.warn(`Failing over to ${fallbackName} after error: ${originalError.message}`);
-        return await provider.chat(request);
-      } catch (e) {
-        // Continue to next fallback
-      }
-    }
-    throw new Error("All LLM providers failed");
-  }
-
-  private isSimpleRequest(request: ChatRequest): boolean {
-    // Heuristic: short messages, no function calls, no complex context
-    return request.messages.length < 5 && !request.functions;
-  }
-
-  private routeToCheapest(request: ChatRequest): Promise<ChatResponse> {
-    const cheapest = this.providers.reduce((min, p) =>
-      p.costPerToken < min.costPerToken ? p : min
-    );
-    return cheapest.chat(request);
-  }
-}
-```
-
-### Pattern 4: Event-Driven Webhook Architecture
-
-**What:** Webhook endpoints acknowledge immediately (200 OK), then queue events for asynchronous processing. Prevents platform retries and enables horizontal scaling.
-
-**When to use:** High-throughput messaging integrations where immediate response is required but processing is complex/slow.
-
-**Trade-offs:**
-- **Pro:** Horizontal scalability—multiple workers process queue independently.
-- **Pro:** Resilience—temporary downstream failures don't lose data (messages stay in queue).
-- **Pro:** Platform compliance—immediate acknowledgment prevents retry storms.
-- **Con:** Eventually consistent—slight delay between webhook receipt and processing completion.
-- **Con:** Requires message queue infrastructure (Redis, RabbitMQ, SQS).
-
-**Example:**
-```typescript
-// Webhook endpoint (thin, fast, acknowledgment-focused)
-app.post('/webhooks/whatsapp', async (req, res) => {
-  const event = req.body;
-
-  // Verify webhook signature (platform-specific)
-  if (!verifyWhatsAppSignature(req.headers, req.body)) {
-    return res.status(401).send('Unauthorized');
-  }
-
-  // Idempotency check—prevent duplicate processing
-  const eventId = event.entry[0].id;
-  if (await redis.exists(`processed:${eventId}`)) {
-    logger.info(`Duplicate event ${eventId}, skipping`);
-    return res.sendStatus(200); // Already processed
-  }
-
-  // Queue for processing (non-blocking)
-  await messageQueue.add('whatsapp-message', {
-    eventId,
-    event,
-    receivedAt: Date.now()
-  });
-
-  // Immediate acknowledgment to WhatsApp
-  res.sendStatus(200);
-});
-
-// Asynchronous worker (complex processing)
-messageQueue.process('whatsapp-message', async (job) => {
-  const { eventId, event } = job.data;
-
-  try {
-    // Normalize platform event
-    const adapter = adapterRegistry.get('whatsapp');
-    const message = adapter.normalize(event);
-
-    // Process through orchestrator
-    const response = await orchestrator.processTurn(message);
-
-    // Send response back to user
-    await adapter.send(message.conversationId, response);
-
-    // Mark as processed (idempotency)
-    await redis.setex(`processed:${eventId}`, 86400, '1'); // 24hr TTL
-
-  } catch (error) {
-    logger.error(`Failed to process event ${eventId}:`, error);
-    throw error; // Will retry based on queue configuration
-  }
-});
-```
-
-### Pattern 5: Multi-Tiered Memory Architecture
-
-**What:** Separate short-term (conversation buffer), long-term (user history/preferences), and working (inter-agent cache) memory layers. Context manager selectively loads relevant information into LLM context window.
-
-**When to use:** Conversational systems requiring history awareness without exhausting token limits. Systems with personalization needs.
-
-**Trade-offs:**
-- **Pro:** Scalable context—store unlimited history, load only what's relevant.
-- **Pro:** Cost efficiency—don't pay for tokens on irrelevant old messages.
-- **Pro:** Personalization—recall user preferences from months ago.
-- **Con:** Complexity in retrieval strategy (what's "relevant"?).
-- **Con:** Eventually consistent—long-term memory writes may lag.
-
-**Example:**
-```typescript
-// Context manager orchestrates memory layers
-class ContextManager {
-  constructor(
-    private shortTerm: ShortTermMemory,  // In-memory/Redis, last ~10 turns
-    private longTerm: LongTermMemory,    // Vector DB, entire history
-    private working: WorkingMemory       // Redis, inter-skill cache
-  ) {}
-
-  async buildContext(userId: string, currentMessage: string): Promise<Message[]> {
-    const context: Message[] = [];
-
-    // Always include recent conversation (short-term)
-    const recentTurns = await this.shortTerm.getRecent(userId, 10);
-    context.push(...recentTurns);
-
-    // Retrieve relevant long-term memories via RAG
-    const relevantHistory = await this.longTerm.retrieve(userId, currentMessage, {
-      limit: 5,
-      similarityThreshold: 0.7
-    });
-
-    if (relevantHistory.length > 0) {
-      // Insert as system message for context
-      context.unshift({
-        role: "system",
-        content: `Relevant past interactions:\n${relevantHistory.map(m => m.content).join('\n')}`
-      });
-    }
-
-    // Include user preferences from working memory (fast cache)
-    const userPrefs = await this.working.get(`user:${userId}:preferences`);
-    if (userPrefs) {
-      context.unshift({
-        role: "system",
-        content: `User preferences: ${JSON.stringify(userPrefs)}`
-      });
-    }
-
-    return context;
-  }
-
-  async storeInteraction(userId: string, messages: Message[]) {
-    // Immediate: Add to short-term buffer
-    await this.shortTerm.append(userId, messages);
-
-    // Async: Embed and store in long-term vector DB
-    await this.longTerm.store(userId, messages);
-
-    // Extract and cache updated preferences
-    const extractedPrefs = this.extractPreferences(messages);
-    if (extractedPrefs) {
-      await this.working.set(`user:${userId}:preferences`, extractedPrefs);
-    }
-  }
-}
-
-// Long-term memory with vector similarity
-class LongTermMemory {
-  async retrieve(userId: string, query: string, options: RetrievalOptions): Promise<Message[]> {
-    // Embed query
-    const queryEmbedding = await this.embeddings.embed(query);
-
-    // Vector similarity search
-    const results = await this.vectorDB.query({
-      vector: queryEmbedding,
-      filter: { userId },
-      topK: options.limit,
-      scoreThreshold: options.similarityThreshold
-    });
-
-    return results.map(r => r.metadata.message);
-  }
-
-  async store(userId: string, messages: Message[]) {
-    for (const message of messages) {
-      const embedding = await this.embeddings.embed(message.content);
-      await this.vectorDB.upsert({
-        id: `${userId}:${message.timestamp}`,
-        vector: embedding,
-        metadata: { userId, message, timestamp: message.timestamp }
-      });
-    }
-  }
-}
-```
-
-## Data Flow
-
-### Request Flow (Webhook → Response)
-
-```
-[WhatsApp Message]
-    ↓
-[Webhook Endpoint] → Verify signature, check idempotency
-    ↓
-[Message Queue] → Acknowledge immediately (200 OK)
-    ↓
-[Async Worker] → Dequeue for processing
-    ↓
-[Message Adapter] → Normalize to UnifiedMessage
-    ↓
-[Conversation Orchestrator] → Load context, determine mode
-    ↓
-[Agent Router] → Detect intent (secretary vs. intimate)
-    ↓
-┌───────────────────────────┐
-│   Secretary Mode          │   Intimate Mode
-│   ↓                       │   ↓
-│ [Skill Selection]         │ [Personality Selection]
-│   ↓                       │   ↓
-│ [Tool Invocation]         │ [Conversation Gen]
-│ - Calendar skill          │ - LLM chat (persona-based)
-│ - Reminder skill          │ - Image generation (if triggered)
-│ - Research skill          │   ↓
-│   ↓                       │ [Content Escalation Check]
-│ [Function Result]         │   ↓
-│   ↓                       │ [Image Provider] (if needed)
-└───────────────┬───────────┴───┬──────────
-                ↓               ↓
-        [LLM Provider] → Generate final response
-                ↓
-        [Memory System] → Store interaction
-                ↓
-        [Message Adapter] → Format for platform
-                ↓
-        [WhatsApp API] → Send response
-```
-
-### State Management Flow
-
-```
-[Conversation Start]
-    ↓
-[Short-term Memory] ← Load last 10 turns from Redis
-    ↓
-[Context Manager] ← Retrieve relevant long-term memories (RAG)
-    ↓
-[User Preferences] ← Load from working memory cache
-    ↓
-[LLM Context Window] ← Assemble: system prompt + preferences + history + current
-    ↓
-[LLM Response]
-    ↓
-[Memory Storage]
-    ├→ [Short-term] ← Append immediately (Redis)
-    ├→ [Long-term] ← Embed & store asynchronously (Vector DB)
-    └→ [Working] ← Update preferences cache (Redis)
-```
-
-### Skill Invocation Flow
-
-```
-[User Message: "Schedule meeting tomorrow 2pm"]
-    ↓
-[Orchestrator] → Pass to LLM with function declarations
-    ↓
-[LLM] → Decides to call `add_calendar_event` function
-    ↓ (function_call response)
-[Orchestrator] → Looks up skill in registry
-    ↓
-[Skill Registry] → Returns CalendarSkill instance
-    ↓
-[CalendarSkill.execute()] → Calls Google Calendar API
-    ↓
-[Google Calendar API] → Returns event ID & link
-    ↓
-[Orchestrator] → Passes result back to LLM as function result
-    ↓
-[LLM] → Generates user-friendly response: "Done! Meeting scheduled..."
-    ↓
-[Message Adapter] → Sends response to user
-```
-
-### Key Data Flows
-
-1. **Webhook Ingestion (Event-Driven):** Webhook receives event → immediate ack → queue → async worker → processing. This decouples receipt from processing, enabling horizontal scaling and fault tolerance.
-
-2. **Mode Switching:** User message → Agent Router (NLU or LLM-based) → detects switch intent ("I'm alone" → intimate mode) → updates conversation state → routes to appropriate mode handler.
-
-3. **Tool Calling (MCP Pattern):** LLM receives function schemas → decides which to invoke → orchestrator executes skill → result returns to LLM → final response generated.
-
-4. **Image Generation Escalation:** Intimate mode conversation → Context Manager analyzes conversation intensity → determines photo escalation level (mild/moderate/explicit) → passes to Image Provider with appropriate prompt → Avatar-consistent image generated → sent to user.
-
-5. **Multi-Provider Failover:** Request → LLM Router → attempts primary provider → on failure, exponential backoff → failover to backup provider → eventual success or exhaustion → audit log records all attempts.
+---
 
 ## Scaling Considerations
 
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| **0-1k users** | Monolith is fine. Single Node.js process, Redis for memory, PostgreSQL for users. WhatsApp webhook → in-process orchestrator → response. Focus on feature development, not premature optimization. |
-| **1k-10k users** | Add message queue (BullMQ with Redis) to decouple webhook acknowledgment from processing. Horizontal scaling: multiple worker processes behind load balancer. Consider managed vector DB (Pinecone, Qdrant Cloud). Monitor LLM costs—start routing simple queries to cheaper models. |
-| **10k-100k users** | Microservices for independent scaling: separate orchestrator, skill workers, image generation workers. Use SQS/RabbitMQ for inter-service messaging. Implement caching layers (Redis for hot data, CDN for generated images). Database sharding or read replicas for user data. Observability critical: distributed tracing (OpenTelemetry), centralized logging, LLM usage dashboards. |
-| **100k+ users** | Full microservices architecture with service mesh. Separate LLM gateway (Portkey, LiteLLM) for cost optimization and rate limiting. Multi-region deployment for latency. Event sourcing for conversation history (rebuild state from event log). Consider managed platforms (AWS Bedrock, Azure OpenAI) for enterprise SLAs. Auto-scaling worker pools based on queue depth. |
+| 0–1k users | Current Docker Compose single-VPS setup is correct. No changes needed. |
+| 1k–10k users | Add read replica for Supabase (Supabase Pro supports this). Add connection pooling (PgBouncer). Consider moving usage_events to a separate analytics DB to prevent query contention. |
+| 10k+ users | Separate the admin/analytics queries to a dedicated replica. Consider moving email sends to BullMQ queue to prevent transient Resend failures from affecting signups. |
 
-### Scaling Priorities
+**First bottleneck at current scale:** Supabase connection limits (default 60 connections on
+free/Pro tier). The BullMQ worker + backend share connections. Monitor connection count in
+Supabase dashboard.
 
-1. **First bottleneck (10k users):** **LLM token costs.** As users grow, naive "send everything to GPT-4" becomes prohibitively expensive. **Fix:** Implement intelligent routing—simple queries to cheaper models (GPT-3.5, Claude Haiku), complex reasoning to premium models. Use prompt caching where providers support it (Anthropic, OpenAI). Summarize conversation history to reduce context window size.
-
-2. **Second bottleneck (50k users):** **Webhook processing latency.** Single-threaded webhook handler can't keep up with message volume, leading to timeouts and retries. **Fix:** Event-driven architecture with message queue. Webhook acknowledges immediately, workers process asynchronously. Horizontal scaling of worker pool based on queue depth.
-
-3. **Third bottleneck (100k users):** **Database write contention.** Heavy conversation logging creates write hotspots in PostgreSQL. **Fix:** Event sourcing pattern—append-only event log (DynamoDB, EventStore) for conversation history. Rebuild state from events on demand. Separate read models (CQRS) for analytics and reporting.
-
-4. **Fourth bottleneck (500k users):** **Vector DB query latency.** Long-term memory retrieval becomes slow as embeddings accumulate. **Fix:** User-based sharding in vector DB. Implement hybrid search (vector + metadata filters). Pre-fetch likely needed memories asynchronously. Consider local approximate nearest neighbor (HNSW) for hot users.
+---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Tight Coupling to LLM Provider
+### Anti-Pattern 1: Calling Supabase Admin Client from Frontend
 
-**What people do:** Directly call OpenAI SDK throughout codebase. `await openai.chat.completions.create(...)` in orchestrator, skills, and handlers.
+**What people do:** Import `supabase_admin` equivalent (service role key) in the frontend for
+admin operations.
 
-**Why it's wrong:**
-- Vendor lock-in—switching providers requires rewriting scattered calls.
-- No failover—single provider outage breaks entire system.
-- Cost optimization impossible—can't route different requests to different models.
-- Testing is hard—must mock OpenAI SDK everywhere.
+**Why it's wrong:** Service role key is secret — embedding it in frontend JavaScript exposes
+it to all users. Any user can then bypass RLS and access all data.
 
-**Do this instead:** Create an abstraction layer (`ILLMProvider` interface) with provider-specific implementations. Route all LLM calls through a single `LLMRouter` that handles provider selection, failover, and cost optimization. Dependency inject the provider interface for testability.
+**Do this instead:** All admin operations go through authenticated FastAPI endpoints with the
+`require_admin` dependency. The frontend sends a JWT; the backend validates it and uses the
+service role client internally.
 
-```typescript
-// WRONG: Direct coupling
-class Orchestrator {
-  async process(message: string) {
-    const response = await openai.chat.completions.create({ /* ... */ });
-    // Now you're stuck with OpenAI
-  }
-}
+### Anti-Pattern 2: Using `stripe.Subscription.cancel()` for User Cancellations
 
-// RIGHT: Abstraction
-class Orchestrator {
-  constructor(private llm: ILLMProvider) {}
+**What people do:** Immediately cancel the Stripe subscription when a user clicks "Cancel".
 
-  async process(message: string) {
-    const response = await this.llm.chat({ /* ... */ });
-    // Can swap provider via DI
-  }
-}
+**Why it's wrong:** User loses access immediately. Generates chargebacks and support requests.
+Violates consumer expectations in most markets.
+
+**Do this instead:** Use `stripe.Subscription.modify(id, cancel_at_period_end=True)`. User
+retains access until the billing period ends. Access revokes automatically when Stripe fires
+the `customer.subscription.deleted` webhook.
+
+### Anti-Pattern 3: Sending Email Synchronously in Request Handlers
+
+**What people do:** Call `resend.Emails.send(...)` directly in the request handler body, making
+the response wait for email delivery.
+
+**Why it's wrong:** Resend API latency (50-200ms) adds to every signup request. If Resend is
+down, signups fail. Email delivery is never critical path for the user-facing response.
+
+**Do this instead:** Use `BackgroundTasks` (for v1.1) or BullMQ queue (for production
+resilience). The response returns immediately; email sends in the background.
+
+### Anti-Pattern 4: Rebuilding What Supabase Auth Already Provides
+
+**What people do:** Implement custom OAuth state management, PKCE code exchange, or token
+refresh logic instead of using `@supabase/supabase-js`.
+
+**Why it's wrong:** Supabase JS client handles PKCE, token refresh, session persistence, and
+error cases. Custom implementations introduce security vulnerabilities and maintenance burden.
+
+**Do this instead:** Use `supabase.auth.signInWithOAuth()` for Google OAuth, and
+`supabase.auth.resetPasswordForEmail()` / `supabase.auth.updateUser()` for password reset.
+The only custom logic needed is the callback page that reads the established session.
+
+### Anti-Pattern 5: Storing Stripe Webhook Events Without Idempotency
+
+**What people do:** Process Stripe webhook events without checking if they've been processed
+before, causing duplicate emails or duplicate subscription activations.
+
+**Why it's wrong:** Stripe retries webhook delivery on failure. The same event can arrive
+2-5 times. Sending 3 welcome emails to a new user damages trust.
+
+**Do this instead:** The existing `subscriptions.upsert(on_conflict="user_id")` pattern in
+`activate_subscription()` is already idempotent. For emails, add a simple guard:
+```python
+# Before sending receipt email, check if this invoice_id was already processed
+# Store processed_invoice_ids in a DB table or use Stripe's built-in idempotency key
 ```
 
-### Anti-Pattern 2: Synchronous Webhook Processing
-
-**What people do:** Webhook endpoint receives event → processes conversation → calls LLM → generates image → stores in DB → sends response → returns 200. All synchronous.
-
-**Why it's wrong:**
-- Violates platform timeout requirements (WhatsApp requires <20s, but LLM calls can take 30s+).
-- Platform retries on timeout, causing duplicate processing.
-- Cannot horizontally scale—webhook handler blocks on slow operations.
-- Single slow request (e.g., image generation) blocks all other users.
-
-**Do this instead:** Acknowledge immediately (200 OK), queue for async processing. Webhook handler's only job: validate, deduplicate, enqueue. Workers process the queue independently.
-
-```typescript
-// WRONG: Synchronous
-app.post('/webhook', async (req, res) => {
-  const message = normalize(req.body);
-  const response = await orchestrator.process(message); // BLOCKS!
-  await send(response);
-  res.sendStatus(200); // Too late, platform already timed out
-});
-
-// RIGHT: Async
-app.post('/webhook', async (req, res) => {
-  await queue.add('message', req.body);
-  res.sendStatus(200); // Immediate
-});
-
-queue.process('message', async (job) => {
-  const message = normalize(job.data);
-  const response = await orchestrator.process(message);
-  await send(response);
-});
-```
-
-### Anti-Pattern 3: God Object Orchestrator
-
-**What people do:** Single `ConversationOrchestrator` class that handles mode detection, skill selection, LLM calls, memory management, safety checks, billing, and response formatting. 2000+ line class.
-
-**Why it's wrong:**
-- Violates Single Responsibility Principle—impossible to reason about.
-- Testing nightmare—must mock every dependency.
-- Cannot independently scale components (e.g., memory retrieval is slow but mode detection is fast).
-- Changes to one concern (e.g., billing logic) risk breaking others.
-
-**Do this instead:** Decompose into focused components. Orchestrator coordinates, but delegates to specialists: `AgentRouter` for mode detection, `ContextManager` for memory, `SkillRegistry` for tool invocation, `SafetyPolicy` for content checks. Each component has a clear interface and responsibility.
-
-```typescript
-// WRONG: God object
-class ConversationOrchestrator {
-  async process(message: string) {
-    // Mode detection
-    if (message.includes("alone")) this.mode = "intimate";
-    // Memory management
-    const history = await this.getHistory();
-    // Skill selection
-    const skill = this.selectSkill(message);
-    // LLM call
-    const response = await this.llm.chat(...);
-    // Safety check
-    if (this.containsUnsafeContent(response)) { /* ... */ }
-    // Billing
-    await this.recordUsage();
-    // ... 100 more responsibilities
-  }
-}
-
-// RIGHT: Composed
-class ConversationOrchestrator {
-  constructor(
-    private router: AgentRouter,
-    private contextMgr: ContextManager,
-    private skillRegistry: SkillRegistry,
-    private safety: SafetyPolicy,
-    private llm: ILLMProvider
-  ) {}
-
-  async process(message: string) {
-    const mode = await this.router.detectMode(message);
-    const context = await this.contextMgr.buildContext(message);
-    const response = await this.llm.chat(context);
-
-    if (response.function_call) {
-      const result = await this.skillRegistry.execute(response.function_call);
-      return this.llm.chat([...context, result]);
-    }
-
-    await this.safety.check(response);
-    return response;
-  }
-}
-```
-
-### Anti-Pattern 4: Missing Idempotency
-
-**What people do:** Process every webhook event as-is, without checking if it was already handled. Platforms retry on network errors or timeouts, causing duplicate messages.
-
-**Why it's wrong:**
-- User receives duplicate responses ("Meeting scheduled" sent twice).
-- Double-charges for LLM API calls and external actions (calendar event created twice).
-- State corruption if operations aren't naturally idempotent.
-
-**Do this instead:** Use event IDs to track processed events. Before processing, check if event was already handled. Store processed IDs in Redis with TTL (24-48 hours is typical).
-
-```typescript
-// WRONG: No idempotency
-app.post('/webhook', async (req, res) => {
-  await queue.add('message', req.body);
-  res.sendStatus(200);
-});
-
-// RIGHT: Idempotency check
-app.post('/webhook', async (req, res) => {
-  const eventId = extractEventId(req.body);
-
-  if (await redis.exists(`processed:${eventId}`)) {
-    logger.info(`Duplicate event ${eventId}, skipping`);
-    return res.sendStatus(200);
-  }
-
-  await queue.add('message', { eventId, ...req.body });
-  res.sendStatus(200);
-});
-
-// In worker
-queue.process('message', async (job) => {
-  const { eventId } = job.data;
-
-  // ... process ...
-
-  // Mark as processed
-  await redis.setex(`processed:${eventId}`, 86400, '1'); // 24hr TTL
-});
-```
-
-### Anti-Pattern 5: Hardcoded Skill Logic
-
-**What people do:** Mode handlers contain `if (message.includes("calendar"))` checks to manually route to calendar functionality. Adding new skills means modifying orchestrator code.
-
-**Why it's wrong:**
-- Not extensible—every new capability requires code changes.
-- Cannot leverage LLM's understanding—forced to maintain manual keyword matching.
-- Brittle—"add meeting" works but "schedule appointment" doesn't unless explicitly coded.
-
-**Do this instead:** Use tool calling (function calling) pattern. Expose skills as JSON schemas to LLM. Let LLM decide which skill to invoke based on semantic understanding, not keyword matching.
-
-```typescript
-// WRONG: Hardcoded
-class SecretaryMode {
-  async handle(message: string) {
-    if (message.includes("calendar") || message.includes("meeting")) {
-      return this.calendarSkill.execute(message);
-    } else if (message.includes("remind")) {
-      return this.reminderSkill.execute(message);
-    }
-    // ... endless if/else
-  }
-}
-
-// RIGHT: Tool calling
-class SecretaryMode {
-  async handle(message: string) {
-    const functions = this.skillRegistry.getFunctionDeclarations();
-
-    const response = await this.llm.chat({
-      messages: [{ role: "user", content: message }],
-      functions // LLM decides which skill to call
-    });
-
-    if (response.function_call) {
-      return this.skillRegistry.execute(
-        response.function_call.name,
-        JSON.parse(response.function_call.arguments)
-      );
-    }
-  }
-}
-```
+---
 
 ## Integration Points
 
-### External Services
+### External Services (v1.1 additions)
 
 | Service | Integration Pattern | Notes |
 |---------|---------------------|-------|
-| **WhatsApp Business API** | Webhook + REST API. Receive events via webhook (POST endpoint), send messages via Cloud API REST calls. | Must verify webhook signatures. Immediate ack required (<20s). Supports media, templates, interactive buttons. Requires Meta Business verification. |
-| **Google Calendar API** | OAuth 2.0 + REST API. Users authorize via OAuth flow, server calls API with refresh tokens. | Requires OAuth consent screen setup. Handle token refresh. Consider service account for backend-initiated events (limits apply). |
-| **OpenAI API** | REST API with API key. POST to `/v1/chat/completions` for chat, `/v1/images/generations` for DALL-E. | Rate limits by tier. Use streaming for responsive UX. Monitor token usage for cost control. Function calling for tool integration. |
-| **Anthropic API** | REST API with API key. POST to `/v1/messages` for chat. | Different message format than OpenAI (system separate from messages). Tool use (not "function calling"). Prompt caching for cost savings. |
-| **Stable Diffusion (via Replicate/RunPod)** | REST API or Python SDK. Submit generation job, poll for completion or use webhook callback. | Async by nature—expect 5-30s latency. NSFW filter configurable. Custom model loading for consistent character (LoRA/DreamBooth). |
-| **Vector Database (Pinecone/Qdrant/Weaviate)** | REST API or native SDK. Upsert embeddings, query by vector similarity. | Choose based on scale: Pinecone (managed, expensive), Qdrant (self-hosted or cloud, fast), Weaviate (open-source, GraphQL). Filter by metadata (userId) for multi-tenancy. |
-| **Redis** | In-process client (ioredis/node-redis). Use for short-term memory, working memory cache, idempotency tracking, message queue (BullMQ). | Choose Redis Stack for vector search if you want single DB. Set appropriate TTLs to prevent memory bloat. Consider persistence (AOF/RDB) for durability. |
-| **PostgreSQL** | ORM (Prisma, TypeORM) or query builder (Knex). Store users, avatars, conversation metadata, billing records. | Use row-level security for multi-tenancy. Index userId fields. Consider partitioning by date for conversation history. Connection pooling essential (pg-pool). |
+| **Resend** | Python SDK (`import resend`); API key in settings | Used for welcome, receipt, cancellation emails. 3k emails/month free tier. |
+| **Supabase Auth (Google provider)** | Configure in Supabase dashboard; `@supabase/supabase-js` on frontend | No backend endpoint changes for OAuth sign-in; backend sees identical JWTs |
+| **Supabase Auth (SMTP/Resend)** | Configure Resend SMTP credentials in Supabase dashboard | Supabase sends password reset emails via Resend as SMTP relay |
+| **Stripe Customer Portal** | Backend creates portal session; frontend redirects to returned URL | Customer portal URL is ephemeral (single-use, expires in hours) |
+| **Caddy** | Replace nginx container in docker-compose.yml | Automatic HTTPS; no Certbot, no cron jobs |
 
 ### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| **Webhook Handler ↔ Orchestrator** | Message queue (BullMQ/SQS) | Async, decoupled. Webhook enqueues, orchestrator dequeues. Enables horizontal scaling of workers. Queue provides retry on failure. |
-| **Orchestrator ↔ Skills** | Direct function call (in-process) or RPC (if microservices) | For monolith: Direct calls via Skill Registry. For microservices: gRPC or HTTP API. Skills must be stateless for horizontal scaling. |
-| **Orchestrator ↔ LLM Provider** | HTTP REST (via abstraction layer) | Always abstract—never call provider SDK directly. Router handles provider selection. Implement circuit breaker for resilience. |
-| **Orchestrator ↔ Memory System** | Direct calls (in-process) | Context Manager orchestrates short/long/working memory. Async writes to long-term (vector DB) to not block response. |
-| **Image Skill ↔ Image Provider** | HTTP REST (async) | Image generation is slow (5-30s). Use job queue pattern: submit job, poll or webhook callback. Cache generated images in CDN/S3. |
-| **Message Adapter ↔ Platform APIs** | Platform-specific SDK or HTTP | Adapter normalizes inbound (platform → unified schema) and denormalizes outbound (unified → platform format). Handles retries with exponential backoff. |
-| **All Components ↔ Audit Log** | Event bus or direct write | Use structured logging (Winston, Pino) with JSON output. Centralized logging (CloudWatch, Datadog) for observability. Async writes to not block critical path. |
+| `billing.py` ↔ `email service` | Direct Python function call (via BackgroundTask) | Not async by default — call synchronously in background task or wrap with asyncio |
+| `auth.py` ↔ `email service` | BackgroundTask on signup | Must not block the signup response |
+| Admin router ↔ Stripe | Direct `stripe.*` API calls | No local caching for v1.1; Stripe responses are fast enough |
+| Admin router ↔ `usage_events` | `supabase_admin` aggregate queries | supabase_admin bypasses RLS correctly for cross-user aggregations |
+| Frontend ↔ Supabase Auth | `@supabase/supabase-js` client directly | Only exception to "all API calls go through FastAPI backend" rule |
 
-## Build Order Recommendations
+---
 
-Based on component dependencies, suggested implementation order:
+## Build Order Recommendation
 
-### Phase 1: Foundation (Week 1-2)
-1. **Database setup** (PostgreSQL + Redis) — Core data layer must exist first.
-2. **User management** — User CRUD, authentication (simple API key or JWT for MVP).
-3. **Message adapter base** — Abstract interface + single implementation (WhatsApp).
-4. **Basic orchestrator** — Minimal: receive message → echo back (validates webhook flow).
-
-**Why this order:** Establishes data persistence and basic message flow. Validates WhatsApp webhook integration early (can be tricky with signatures/verification).
-
-### Phase 2: Core Intelligence (Week 3-4)
-5. **LLM provider abstraction** — Start with single provider (OpenAI or Anthropic), but use interface.
-6. **Simple conversation** — Basic chat without tools (validates LLM integration).
-7. **Memory system (short-term only)** — Conversation buffer in Redis.
-8. **Mode detection** — Agent Router with fuzzy intent matching for secretary ↔ intimate switching.
-
-**Why this order:** Gets conversational AI working end-to-end. Mode switching validates core product differentiator early.
-
-### Phase 3: Skills (Week 5-6)
-9. **Skill Registry** — Dynamic skill loading with MCP pattern.
-10. **First skill: Reminders** — Simpler than calendar (no OAuth), validates tool calling.
-11. **Second skill: Calendar** — OAuth flow + Google Calendar API integration.
-12. **Third skill: Research** — Web search or knowledge base lookup.
-
-**Why this order:** Reminders are self-contained (no external auth), so they validate skill pattern without OAuth complexity. Calendar adds OAuth which is reusable for other Google services. Research skill demonstrates extensibility.
-
-### Phase 4: Intimate Mode (Week 7-8)
-13. **Personality system** — Preset personas as system prompt templates.
-14. **Image provider abstraction** — Interface for image generation backends.
-15. **Image generation skill** — Implement with Stable Diffusion or DALL-E.
-16. **Content escalation logic** — Conversation analysis → determine photo intensity level.
-17. **Avatar consistency** — Prompt templating with user's avatar config (gender, age, appearance).
-
-**Why this order:** Personality comes first (simplest—just prompt engineering). Image generation is complex (async, slow, caching needed), so it's last in intimate mode. Escalation logic depends on conversation history (memory system), so it comes after image provider works.
-
-### Phase 5: Production Hardening (Week 9-10)
-18. **Message queue integration** — BullMQ for async webhook processing.
-19. **Idempotency** — Prevent duplicate processing.
-20. **Long-term memory** — Vector DB for conversation history RAG.
-21. **Multi-provider failover** — LLM Router with fallback logic.
-22. **Observability** — Structured logging, metrics, tracing.
-23. **Billing tracking** — Record LLM/image API usage per user.
-
-**Why this order:** Production concerns come after features work. Message queue enables scaling. Idempotency prevents bugs in production. Long-term memory is optimization (short-term works for MVP). Failover reduces single-point-of-failure risk. Observability is essential before launch. Billing last (must work but not blocking for beta).
-
-### Dependencies Diagram
+The dependency graph drives ordering. Features are grouped into phases based on what each
+requires to be in place before it can be built.
 
 ```
-Database ────────┬──→ User Management
-                 │
-                 ├──→ Message Adapter ──→ Orchestrator (echo) ──→ LLM Provider
-                 │                              │
-                 │                              ↓
-                 │                         Short-term Memory
-                 │                              │
-                 │                              ↓
-                 │                         Mode Detection ──→ Skill Registry
-                 │                              │                   │
-                 │                              │                   ↓
-                 │                              │              Skills (Reminders, Calendar, Research)
-                 │                              │
-                 │                              ↓
-                 │                         Personality System
-                 │                              │
-                 │                              ↓
-                 │                         Image Provider ──→ Image Skill
-                 │                              │
-                 │                              ↓
-                 │                         Content Escalation
-                 │
-                 └──→ Message Queue ──→ Idempotency ──→ Long-term Memory ──→ Observability
+Phase 1: Infrastructure & Delivery Foundation
+    ├── VPS deployment (Caddy, SSL, domain)
+    └── Email service (Resend SDK + welcome trigger)
+        NOTE: Email must be working before billing events can send receipts
+
+Phase 2: Auth Polish (parallel with Phase 1 frontend work)
+    ├── Google OAuth (Supabase provider config + frontend button + /auth/callback page)
+    └── Password Reset (ForgotPasswordPage + ResetPasswordPage + Supabase SMTP config)
+        NOTE: Both features touch auth UI; ship together to minimize churn on login/signup pages
+
+Phase 3: Landing Page
+    └── LandingPage.tsx at "/" route + react-helmet-async SEO
+        NOTE: No backend dependencies; can be built in parallel with Phase 2
+        NOTE: Requires Figma design handoff before starting
+
+Phase 4: Billing & Subscription Management
+    ├── Subscription management page (GET /billing/subscription, BillingPage.tsx)
+    ├── Stripe Customer Portal redirect (POST /billing/portal)
+    ├── Cancellation churn flow (CancelPage.tsx, POST /billing/survey, POST /billing/cancel)
+    ├── Receipt email (invoice.payment_succeeded webhook handler)
+    └── Cancellation email (already has the webhook; add email trigger)
+        NOTE: churn_surveys table migration must run before CancelPage can save data
+        NOTE: Receipt email requires email service from Phase 1
+
+Phase 5: Admin Dashboard
+    ├── usage_events table migration
+    ├── Event emission points (web_chat.py, billing.py, worker)
+    ├── Admin router (/admin/stats/*)
+    └── AdminPage.tsx + admin route guard
+        NOTE: Admin is standalone; can slip to after launch if needed
+        NOTE: No user-facing dependencies; ships whenever ready
 ```
 
-**Critical path:** Database → Message Adapter → Orchestrator → LLM Provider → Mode Detection → Skills. Everything else can be added incrementally.
+**Critical path:** Phase 1 (email infra) → Phase 4 (billing emails). Phases 2 and 3 can run
+in parallel with Phase 1. Phase 5 can run in parallel with any phase.
 
-**Parallelizable:** Once orchestrator works, skills can be developed independently (calendar team, reminders team, image team). Message queue and observability can be added in parallel to feature development.
+**If time is constrained:** Phase 5 (Admin Dashboard) can ship post-launch without blocking
+the product going live. All other phases are required for launch.
+
+---
 
 ## Sources
 
-### HIGH Confidence (Official Documentation & Recent Articles)
+### Supabase Auth Integration
+- [Login with Google — Supabase Docs](https://supabase.com/docs/guides/auth/social-login/auth-google) — HIGH confidence
+- [Password Reset — Supabase Docs](https://supabase.com/docs/guides/auth/auth-password-reset) — HIGH confidence
+- [JavaScript: Send a password reset request — Supabase Reference](https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail) — HIGH confidence
+- [Use Supabase Auth with React — Supabase Docs](https://supabase.com/docs/guides/auth/quickstarts/react) — HIGH confidence
 
-- [Designing a Chatbot System in 2026](https://bhavaniravi.com/blog/GenAI/designing-chatbot-system-in-2026/) - Production architecture patterns, MCP integration, multi-layered memory
-- [How to Build a Chatbot: Components & Architecture 2026](https://research.aimultiple.com/chatbot-architecture/) - Component breakdown, NLP/NLU/NLG pipeline, modern patterns
-- [Building a Scalable Webhook Architecture for Custom WhatsApp Solutions](https://www.chatarchitect.com/news/building-a-scalable-webhook-architecture-for-custom-whatsapp-solutions) - Event-driven patterns, message queues, idempotency
-- [LLM Orchestration in 2026: Top 22 frameworks and gateways](https://research.aimultiple.com/llm-orchestration/) - Multi-provider abstraction, routing strategies, failover
-- [Dynamic Skillset Reference Architecture | ChatBotKit](https://chatbotkit.com/examples/dynamic-skillset-reference-architecture) - Runtime skill discovery and loading patterns
+### Stripe Integration
+- [Integrate the customer portal with the API — Stripe Docs](https://docs.stripe.com/customer-management/integrate-customer-portal) — HIGH confidence
+- [Cancel subscriptions — Stripe Docs](https://docs.stripe.com/billing/subscriptions/cancel) — HIGH confidence
+- [Add a cancellation page to the customer portal — Stripe Docs](https://docs.stripe.com/customer-management/cancellation-page) — HIGH confidence
 
-### MEDIUM Confidence (Industry Sources, Multiple Corroborating Articles)
+### Email Infrastructure
+- [Send emails with FastAPI — Resend Docs](https://resend.com/docs/send-with-fastapi) — HIGH confidence
+- [Send emails with Supabase — Resend](https://resend.com/supabase) — MEDIUM confidence
 
-- [The Best Chatbot Builders in 2026](https://www.flowhunt.io/blog/best-chatbot-builders-2026/) - Modern platform capabilities, plugin architectures
-- [Why modular architecture is best for AI chatbot development](https://telnyx.com/resources/architecture-chatbot-development) - Modularity benefits, component isolation
-- [Multi-Agent Multi-LLM Systems Guide 2026](https://dasroot.net/posts/2026/02/multi-agent-multi-llm-systems-future-ai-architecture-guide-2026/) - Agent coordination patterns
-- [Context Window Management for AI Agents](https://www.getmaxim.ai/articles/context-window-management-strategies-for-long-context-ai-agents-and-chatbots/) - Memory architecture strategies
-- [Microservices Architecture for AI Applications](https://medium.com/@meeran03/microservices-architecture-for-ai-applications-scalable-patterns-and-2025-trends-5ac273eac232) - Microservices patterns for AI
-- [Event-Driven Architecture Patterns](https://solace.com/event-driven-architecture-patterns/) - Message queue patterns, pub/sub vs. queues
-- [Ultimate TypeScript Project Structure 2026](https://medium.com/@mernstackdevbykevin/an-ultimate-typescript-project-structure-2026-edition-4a2d02faf2e0) - Feature-first architecture, modern Node.js structure
+### Frontend SEO for SPAs
+- [SEO Optimization for React + Vite Apps — DEV Community](https://dev.to/ali_dz/optimizing-seo-in-a-react-vite-project-the-ultimate-guide-3mbh) — MEDIUM confidence
+- [react-helmet-async GitHub](https://github.com/staylor/react-helmet-async) — HIGH confidence
 
-### Framework-Specific Documentation
-
-- [Orchestral AI Framework](https://arxiv.org/abs/2601.02577) - Unified LLM provider interface research
-- [WhatsApp Cloud API Integration 2026](https://medium.com/@aktyagihp/whatsapp-cloud-api-integration-in-2026-0493dd05d644) - WhatsApp-specific patterns
-- [AI SDK UI: Chatbot Message Persistence](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence) - State management patterns
+### Caddy vs Nginx
+- [Why Caddy Is My Favorite Reverse Proxy in 2025 — DEV Community](https://dev.to/hugovalters/why-caddy-is-my-favorite-reverse-proxy-in-2025-42ed) — MEDIUM confidence
+- [Caddy Reverse Proxy in 2025 — Virtualization Howto](https://www.virtualizationhowto.com/2025/09/caddy-reverse-proxy-in-2025-the-simplest-docker-setup-for-your-home-lab/) — MEDIUM confidence
+- [Caddy Official Documentation](https://caddyserver.com/docs/) — HIGH confidence
 
 ---
-*Architecture research for: Dual-mode AI companion chatbot (Ava)*
-*Researched: 2026-02-23*
-*Confidence: HIGH for core patterns, MEDIUM for specific framework choices*
+
+*Architecture research for: Ava v1.1 Launch-Ready Feature Integration*
+*Researched: 2026-03-02*
+*Confidence: HIGH — all integration patterns verified against official Supabase, Stripe, and Resend documentation*
