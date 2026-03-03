@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1–7 + 07.1 (shipped 2026-03-02)
-- 📋 **v1.1 Launch Ready** — Phases 8–12 (started 2026-03-02)
+- 📋 **v1.1 Launch Ready** — Phases 8–13 (started 2026-03-02)
 
 ## Phases
 
@@ -24,13 +24,14 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 </details>
 
 <details open>
-<summary>📋 v1.1 Launch Ready (Phases 8–12) — IN PROGRESS</summary>
+<summary>📋 v1.1 Launch Ready (Phases 8–13) — IN PROGRESS</summary>
 
 - [ ] **Phase 8: Infrastructure & Deployment** — Production VPS live on HTTPS with all API credentials wired
 - [ ] **Phase 9: Auth Polish & Email** — Google Sign-In works, password reset lands in inbox, welcome email received on signup
 - [ ] **Phase 10: Landing Page** — Public acquisition page live at "/", CTA reaches signup, Stripe-safe copy
 - [ ] **Phase 11: Subscription Management & Churn** — User can view plan, open Stripe portal, cancel in ≤3 clicks with optional survey
 - [ ] **Phase 12: Admin Dashboard** — /admin shows key metrics, usage_events table accumulates events, regular users get 403
+- [ ] **Phase 13: End-to-End Smoke Test & Milestone Validation** — Every core user journey verified in production before milestone is declared shipped
 
 </details>
 
@@ -46,7 +47,13 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
   3. A port scan shows only ports 80 and 443 reachable from the public internet; all other ports are blocked by the firewall
   4. All API health checks pass: WhatsApp webhook ping, ComfyUI image generation, Stripe checkout, OpenAI chat, Tavily search, and Supabase connection each return a success response
   5. Email DNS records (SPF, DKIM, DMARC) are configured on the sending domain and mail-tester.com scores 9/10 or higher — confirming emails will land in inbox, not spam
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Rewrite docker-compose.yml (nginx→Caddy), create Caddyfile + deploy.sh, add Resend config fields to config.py, create usage_events migration
+- [ ] 08-02-PLAN.md — Configure Resend sending domain DNS records (SPF/DKIM/DMARC) and update Supabase Site URL
+- [ ] 08-03-PLAN.md — Provision VPS, clone repo, create production .env, run deploy.sh, configure UFW firewall, verify HTTPS
+- [ ] 08-04-PLAN.md — Verify all API credentials functional + mail-tester.com score >= 9/10
 
 ### Phase 9: Auth Polish & Email
 **Goal**: Users can sign in with Google, recover a forgotten password by email, and receive a welcome email after signing up
@@ -105,8 +112,22 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 | 6. Web App & Multi-Platform | v1.0 | 6/6 | Complete | 2026-02-24 |
 | 7. Avatar System & Production | v1.0 | 10/10 | Complete | 2026-03-02 |
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
-| 8. Infrastructure & Deployment | v1.1 | 0/? | Not started | - |
+| 8. Infrastructure & Deployment | v1.1 | 0/4 | Not started | - |
 | 9. Auth Polish & Email | v1.1 | 0/? | Not started | - |
 | 10. Landing Page | v1.1 | 0/? | Not started | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |
 | 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
+| 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
+
+### Phase 13: End-to-End Smoke Test & Milestone Validation
+**Goal**: Every core user journey completes successfully in production — from signup through chat, mode switching, image generation, and subscription — before the milestone is declared shipped
+**Depends on**: Phase 12 (all prior phases must be live and wired; smoke test runs against real production environment)
+**Requirements**: All v1.1 requirements
+**Success Criteria** (what must be TRUE):
+  1. A new user can sign up, complete avatar setup, and see a reference image appear (non-null `reference_image_url` in Supabase) within 5 minutes — confirming ComfyUI pipeline works end-to-end
+  2. A subscribed user can send a message in secretary mode and receive a coherent reply — confirming OpenAI + chat pipeline works
+  3. The user can switch to intimate mode (via `/intimate` command) and back (`/secretary`) — confirming mode detection and session isolation work
+  4. In intimate mode, asking for a photo results in a placeholder reply followed by an actual image appearing in the chat within 5 minutes — confirming the BullMQ job queue, ComfyUI image-to-image, watermarking, and frontend delivery all work
+  5. An unsubscribed user hitting POST /chat receives a 402 — confirming the Stripe paywall is active in production (not bypassed by missing key)
+  6. All secretary skills fire correctly: at minimum, one calendar event creation and one web search complete without error
+**Plans**: TBD
