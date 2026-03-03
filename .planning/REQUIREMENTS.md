@@ -10,9 +10,9 @@ Requirements for the Launch Ready milestone. Each maps to roadmap phases (starti
 ### Infrastructure & Deployment
 
 - [ ] **INFRA-01**: App is deployed to a production VPS (Hetzner/DigitalOcean) and running
-- [ ] **INFRA-02**: All traffic is served over HTTPS with automatic certificate renewal (Caddy)
+- [x] **INFRA-02**: All traffic is served over HTTPS with automatic certificate renewal (Caddy)
 - [ ] **INFRA-03**: Firewall configured — only ports 80 and 443 exposed publicly
-- [ ] **INFRA-04**: All production API credentials wired and verified (WhatsApp, ComfyUI Cloud, Stripe, OpenAI, Tavily, Supabase)
+- [x] **INFRA-04**: All production API credentials wired and verified (WhatsApp, ComfyUI Cloud, Stripe, OpenAI, Tavily, Supabase)
 
 ### Email
 
@@ -85,9 +85,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | INFRA-01 | Phase 8 | Pending |
-| INFRA-02 | Phase 8 | Pending |
+| INFRA-02 | Phase 8 | Complete |
 | INFRA-03 | Phase 8 | Pending |
-| INFRA-04 | Phase 8 | Pending |
+| INFRA-04 | Phase 8 | Complete |
 | EMAI-01 | Phase 8 | Pending |
 | EMAI-02 | Phase 9 | Pending |
 | EMAI-03 | Phase 9 | Pending |

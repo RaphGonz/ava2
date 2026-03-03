@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Launch Ready
-status: roadmap_complete
-last_updated: "2026-03-02"
+status: in_progress
+last_updated: "2026-03-03"
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
-  completed_plans: 0
+  completed_plans: 1
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 8 — Infrastructure & Deployment (not started)
-Plan: —
-Status: Roadmap complete, awaiting plan-phase
-Last activity: 2026-03-02 — v1.1 roadmap created (Phases 8–12)
+Phase: Phase 8 — Infrastructure & Deployment (in progress)
+Plan: 08-01 complete, next: 08-02
+Status: Plan 08-01 complete — Caddy infra code prep done
+Last activity: 2026-03-03 — 08-01 complete (Caddy, Caddyfile, deploy.sh, Resend config, usage_events migration)
 
-Progress: [                   ] v1.1 Phase 8–12: 0/5 phases started
+Progress: [=>                 ] v1.1 Phase 8–13: 1/24 plans done
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Progress: [                   ] v1.1 Phase 8–12: 0/5 phases started
 | Phase 07-avatar-system-production P08 | 8 | 1 tasks | 2 files |
 | Phase 07-avatar-system-production P09 | 12 | 2 tasks | 3 files |
 | Phase 07-avatar-system-production P10 | 15 | 4 tasks | 3 files |
+| Phase 08-infrastructure-deployment P01 | 9 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -205,6 +206,11 @@ Recent decisions affecting current work:
 - [v1.1 roadmap]: Admin dashboard protected by require_admin dependency reading app_metadata.role == "admin" from JWT — ProtectedRoute (login check) is not sufficient
 - [v1.1 roadmap]: usage_events table emission points wired in Phase 8–11 as those code paths are touched — data accumulates before admin dashboard is built in Phase 12
 - [v1.1 roadmap]: SAFE-03 (TAKE IT DOWN Act, May 19 2026 deadline) is tracked separately — not a feature phase; requires documented process and contact mechanism, not a code change
+- [Phase 08-infrastructure-deployment]: Caddy named volumes (caddy_data, caddy_config) must never be deleted — they hold TLS certificates
+- [Phase 08-infrastructure-deployment]: Caddyfile uses @api named matcher for all backend path prefixes; all other paths fall through to SPA file_server with try_files /index.html
+- [Phase 08-infrastructure-deployment]: deploy.sh validates Caddyfile via Docker before restarting containers — catches config errors before downtime
+- [Phase 08-infrastructure-deployment]: resend_api_key and resend_from_address default to empty string — consistent with all credential fields in Settings; missing key returns graceful error at call time
+- [Phase 08-infrastructure-deployment]: usage_events RLS enabled with no user SELECT policy — admin reads via service role key only; regular users cannot query events
 
 ### Pending Todos
 
@@ -220,6 +226,7 @@ Recent decisions affecting current work:
 
 - Phase 07.1 inserted after Phase 07: Switch image generation to ComfyUI Cloud (URGENT)
 - v1.1 roadmap created 2026-03-02: Phases 8–12 defined for Launch Ready milestone
+- Phase 13 added 2026-03-03: End-to-End Smoke Test & Milestone Validation — full user journey verified in production before milestone declared shipped (chat, mode switching, image generation, Stripe paywall, secretary skills)
 
 ### Blockers/Concerns
 
@@ -229,11 +236,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: v1.1 roadmap created — Phases 8–12 defined with success criteria and full requirement coverage (21/21 requirements mapped). Ready to begin planning Phase 8.
+Last session: 2026-03-03
+Stopped at: Completed 08-infrastructure-deployment-01-PLAN.md — Caddy infra code prep complete (docker-compose.yml, Caddyfile, deploy.sh, config.py, 005_usage_events.sql).
 
 ### Resume steps:
-1. Run `/gsd:plan-phase 8` to generate the execution plan for Phase 8: Infrastructure & Deployment
-2. Phase 8 covers: INFRA-01 (VPS), INFRA-02 (HTTPS/Caddy), INFRA-03 (firewall), INFRA-04 (API credentials), EMAI-01 (email DNS)
-3. Key constraint: Email DNS (SPF/DKIM/DMARC) must propagate 24-48 hours — configure early in Phase 8 to unblock Phase 9 email features
-Resume file: .planning/ROADMAP.md
+1. Run `/gsd:execute-phase 08-02` to continue Phase 8: Google Sign-In + Supabase Email Verification
+2. Plan 08-02 covers: Google OAuth frontend integration, Supabase email collision migration
+3. Plan 08-03 covers: VPS provisioning (Hetzner), firewall, DNS, deploy.sh first run
+Resume file: .planning/phases/08-infrastructure-deployment/08-02-PLAN.md
