@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     # Monitoring
     sentry_dsn: str = ""               # Sentry project DSN (empty string = disabled)
 
+    # Email (Resend) — add RESEND_API_KEY and RESEND_FROM_ADDRESS to backend/.env
+    resend_api_key: str = ""           # Resend Dashboard -> API Keys
+    resend_from_address: str = ""      # e.g. "Ava <ava@yourdomain.com>"
+
     # Redis — for BullMQ job queue (worker service)
     redis_url: str = "redis://redis:6379"
 
