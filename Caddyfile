@@ -1,0 +1,18 @@
+# REPLACE: change yourdomain.com to your actual domain before deploying
+yourdomain.com {
+    encode gzip
+
+    @api path /auth/* /chat/* /billing/* /avatars/* /preferences/* /photos/* /webhook/* /messages/* /dev/* /health*
+    handle @api {
+        reverse_proxy backend:8000 {
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
+}

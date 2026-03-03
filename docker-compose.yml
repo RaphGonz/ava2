@@ -1,18 +1,20 @@
 version: "3.9"
 
 services:
-  nginx:
-    image: nginx:alpine
+  caddy:
+    image: caddy:2.11-alpine
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"   # HTTP/3 (QUIC)
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./certbot/conf:/etc/letsencrypt:ro   # optional: mount Let's Encrypt certs
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./frontend/dist:/srv:ro
+      - caddy_data:/data      # WARNING: Never delete — contains TLS certificates
+      - caddy_config:/config
     depends_on:
       - backend
-    restart: unless-stopped
 
   backend:
     build: ./backend
@@ -37,10 +39,11 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    # No exposed port — only backend and worker connect internally
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes  # AOF persistence for job durability
+    command: redis-server --appendonly yes
 
 volumes:
+  caddy_data:    # WARNING: Never use docker compose down -v — destroys TLS certs
+  caddy_config:
   redis_data:
