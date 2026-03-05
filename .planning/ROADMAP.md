@@ -26,7 +26,7 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 <details open>
 <summary>📋 v1.1 Launch Ready (Phases 8–13) — IN PROGRESS</summary>
 
-- [ ] **Phase 8: Infrastructure & Deployment** — Production VPS live on HTTPS with all API credentials wired
+- [x] **Phase 8: Infrastructure & Deployment** — Production VPS live on HTTPS with all API credentials wired (completed 2026-03-05)
 - [ ] **Phase 9: Auth Polish & Email** — Google Sign-In works, password reset lands in inbox, welcome email received on signup
 - [ ] **Phase 10: Landing Page** — Public acquisition page live at "/", CTA reaches signup, Stripe-safe copy
 - [ ] **Phase 11: Subscription Management & Churn** — User can view plan, open Stripe portal, cancel in ≤3 clicks with optional survey
@@ -52,8 +52,8 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 Plans:
 - [x] 08-01-PLAN.md — Rewrite docker-compose.yml (nginx→Caddy), create Caddyfile + deploy.sh, add Resend config fields to config.py, create usage_events migration
 - [x] 08-02-PLAN.md — Configure Resend sending domain DNS records (SPF/DKIM/DMARC) and update Supabase Site URL
-- [ ] 08-03-PLAN.md — Provision VPS, clone repo, create production .env, run deploy.sh, configure UFW firewall, verify HTTPS
-- [ ] 08-04-PLAN.md — Verify all API credentials functional + mail-tester.com score >= 9/10
+- [x] 08-03-PLAN.md — Provision VPS, clone repo, create production .env, run deploy.sh, configure UFW firewall, verify HTTPS
+- [x] 08-04-PLAN.md — Verify all API credentials functional + mail-tester.com score >= 9/10 (10/10 achieved)
 
 ### Phase 9: Auth Polish & Email
 **Goal**: Users can sign in with Google, recover a forgotten password by email, and receive a welcome email after signing up
@@ -112,7 +112,7 @@ Plans:
 | 6. Web App & Multi-Platform | v1.0 | 6/6 | Complete | 2026-02-24 |
 | 7. Avatar System & Production | v1.0 | 10/10 | Complete | 2026-03-02 |
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
-| 8. Infrastructure & Deployment | 3/4 | In Progress|  | - |
+| 8. Infrastructure & Deployment | v1.1 | 4/4 | Complete | 2026-03-05 |
 | 9. Auth Polish & Email | v1.1 | 0/? | Not started | - |
 | 10. Landing Page | v1.1 | 0/? | Not started | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |

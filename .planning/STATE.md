@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 8 — Infrastructure & Deployment (in progress)
-Plan: 08-03 complete, next: 08-04
-Status: Plan 08-03 complete — Production VPS live at https://avasecret.org, all 4 Docker services running, UFW hardened, WhatsApp webhook verified
-Last activity: 2026-03-05 — 08-03 complete (Hetzner CX32 provisioned, Caddy TLS active, deploy.sh run, UFW enabled, WhatsApp webhook verified)
+Phase: Phase 8 — Infrastructure & Deployment (COMPLETE)
+Plan: 08-04 complete — Phase 8 complete
+Status: Plan 08-04 complete — All 6 API credentials verified in production, usage_events table live, mail-tester.com score 10/10; Phase 8 complete
+Last activity: 2026-03-05 — 08-04 complete (all API smoke tests passed: WhatsApp, OpenAI, Stripe live mode, ComfyUI, Tavily, Supabase; usage_events migration applied; email DNS 10/10)
 
-Progress: [===>               ] v1.1 Phase 8–13: 3/24 plans done
+Progress: [====>              ] v1.1 Phase 8–13: 4/24 plans done (Phase 8 complete)
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Progress: [===>               ] v1.1 Phase 8–13: 3/24 plans done
 | Phase 08-infrastructure-deployment P01 | 9 | 2 tasks | 5 files |
 | Phase 08-infrastructure-deployment P02 | 10 | 1 tasks | 0 files |
 | Phase 08-infrastructure-deployment P03 | human-action | 1 tasks | 0 files |
+| Phase 08-infrastructure-deployment P04 | human-verify | 2 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -219,6 +220,10 @@ Recent decisions affecting current work:
 - [Phase 08-infrastructure-deployment]: CX32 chosen over CX22 for production VPS — CX22 has OOM risk during ComfyUI image generation bursts; CX32 provides 4 vCPU and 8 GB RAM
 - [Phase 08-infrastructure-deployment]: FRONTEND_URL set to https://avasecret.org in backend/.env — leaving it as localhost:3000 would CORS-block all production API responses
 - [Phase 08-infrastructure-deployment]: UFW allows 443/udp in addition to 443/tcp — enables HTTP/3 (QUIC) support natively through Caddy
+- [Phase 08-infrastructure-deployment]: Stripe production price ID is price_1T7Y6yGzFiJv4RfGhYAwGZM7 (product: Avasecret, live mode) — canonical price ID for Phase 11 subscription management
+- [Phase 08-infrastructure-deployment]: ComfyUI Cloud API uses X-API-Key header (not Authorization: Bearer) — confirmed working in production with status: active response
+- [Phase 08-infrastructure-deployment]: mail-tester.com score 10/10 achieved — SPF/DKIM/DMARC all fully aligned; Phase 9 email features can be enabled immediately without DNS wait
+- [Phase 08-infrastructure-deployment]: usage_events table live in Supabase with RLS enabled (admin reads via service role only); usage_events emission points can be wired in Phases 9–11 as code paths are touched
 
 ### Pending Todos
 
@@ -243,9 +248,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 08-infrastructure-deployment-03-PLAN.md — Production VPS live at https://avasecret.org (Hetzner CX32, Caddy TLS, 4 Docker services running, UFW hardened, WhatsApp webhook verified).
+Stopped at: Completed 08-infrastructure-deployment-04-PLAN.md — Phase 8 Infrastructure & Deployment COMPLETE. All 6 API credentials verified in production (WhatsApp, OpenAI, Stripe live mode, ComfyUI, Tavily, Supabase). usage_events table live. Email DNS 10/10 on mail-tester.com.
 
 ### Resume steps:
-1. Run `/gsd:execute-phase 08-04` to continue Phase 8: Verify all API credentials functional end-to-end, mail-tester.com deliverability score >= 9/10
-2. Plan 08-04 covers: Live API credential smoke tests (WhatsApp, OpenAI, ComfyUI, Stripe, Resend), email deliverability verification
-Resume file: .planning/phases/08-infrastructure-deployment/08-04-PLAN.md
+1. Run `/gsd:execute-phase 09-01` to start Phase 9: Auth Polish & Email (Google Sign-In, password reset, welcome email)
+Resume file: .planning/phases/09-auth-polish-email/ (to be planned)
