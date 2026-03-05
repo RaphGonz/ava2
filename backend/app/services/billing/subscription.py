@@ -66,3 +66,36 @@ def get_subscription_status(user_id: str) -> str | None:
         .execute()
     )
     return result.data[0]["status"] if result.data else None
+
+
+async def get_user_email_by_subscription_id(subscription_id: str) -> str | None:
+    """
+    Look up the user's email address for a given Stripe subscription ID.
+
+    Used by the cancellation email flow because `customer.subscription.deleted`
+    Stripe events do not reliably include the customer email directly in the payload
+    (Pitfall 7 from RESEARCH.md).
+
+    Strategy:
+    1. Look up user_id from local subscriptions table by stripe_subscription_id
+    2. Fetch user record from Supabase auth via supabase_admin.auth.admin.get_user_by_id()
+    3. Return email or None (caller must handle None gracefully — email failure non-blocking)
+    """
+    try:
+        result = (
+            supabase_admin.from_("subscriptions")
+            .select("user_id")
+            .eq("stripe_subscription_id", subscription_id)
+            .limit(1)
+            .execute()
+        )
+        if not result.data:
+            logger.warning("No subscription row found for stripe_subscription_id=%s", subscription_id)
+            return None
+
+        user_id = result.data[0]["user_id"]
+        user_record = supabase_admin.auth.admin.get_user_by_id(user_id)
+        return user_record.user.email if user_record and user_record.user else None
+    except Exception as exc:
+        logger.error("Failed to look up email for subscription %s: %s", subscription_id, exc)
+        return None
