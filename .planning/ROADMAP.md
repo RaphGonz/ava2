@@ -112,7 +112,7 @@ Plans:
 | 6. Web App & Multi-Platform | v1.0 | 6/6 | Complete | 2026-02-24 |
 | 7. Avatar System & Production | v1.0 | 10/10 | Complete | 2026-03-02 |
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
-| 8. Infrastructure & Deployment | v1.1 | 2/4 | In Progress | - |
+| 8. Infrastructure & Deployment | 3/4 | In Progress|  | - |
 | 9. Auth Polish & Email | v1.1 | 0/? | Not started | - |
 | 10. Landing Page | v1.1 | 0/? | Not started | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |

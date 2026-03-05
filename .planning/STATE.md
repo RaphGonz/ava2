@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 ## Current Position
 
 Phase: Phase 8 — Infrastructure & Deployment (in progress)
-Plan: 08-02 complete, next: 08-03
-Status: Plan 08-02 complete — Email DNS records submitted, Supabase Site URL updated to production domain
-Last activity: 2026-03-05 — 08-02 complete (Resend DNS records SPF/DKIM/MX/DMARC submitted, RESEND_API_KEY obtained, Supabase Site URL updated)
+Plan: 08-03 complete, next: 08-04
+Status: Plan 08-03 complete — Production VPS live at https://avasecret.org, all 4 Docker services running, UFW hardened, WhatsApp webhook verified
+Last activity: 2026-03-05 — 08-03 complete (Hetzner CX32 provisioned, Caddy TLS active, deploy.sh run, UFW enabled, WhatsApp webhook verified)
 
-Progress: [==>                ] v1.1 Phase 8–13: 2/24 plans done
+Progress: [===>               ] v1.1 Phase 8–13: 3/24 plans done
 
 ## Performance Metrics
 
@@ -85,6 +85,7 @@ Progress: [==>                ] v1.1 Phase 8–13: 2/24 plans done
 | Phase 07-avatar-system-production P10 | 15 | 4 tasks | 3 files |
 | Phase 08-infrastructure-deployment P01 | 9 | 2 tasks | 5 files |
 | Phase 08-infrastructure-deployment P02 | 10 | 1 tasks | 0 files |
+| Phase 08-infrastructure-deployment P03 | human-action | 1 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -215,15 +216,16 @@ Recent decisions affecting current work:
 - [Phase 08-infrastructure-deployment]: Email DNS records (SPF/DKIM/MX/DMARC) submitted at Phase 8 start — 24-48h propagation window begins now so Phase 9 email features start sending immediately without waiting period
 - [Phase 08-infrastructure-deployment]: Resend "Pending" domain verification is expected immediately after record submission — Resend auto-verifies once DNS propagates globally; no manual retry needed
 - [Phase 08-infrastructure-deployment]: Supabase Site URL updated to production domain in Phase 8 (not Phase 9) — avoids a blocking mid-phase step when Google OAuth is wired in Phase 9
+- [Phase 08-infrastructure-deployment]: CX32 chosen over CX22 for production VPS — CX22 has OOM risk during ComfyUI image generation bursts; CX32 provides 4 vCPU and 8 GB RAM
+- [Phase 08-infrastructure-deployment]: FRONTEND_URL set to https://avasecret.org in backend/.env — leaving it as localhost:3000 would CORS-block all production API responses
+- [Phase 08-infrastructure-deployment]: UFW allows 443/udp in addition to 443/tcp — enables HTTP/3 (QUIC) support natively through Caddy
 
 ### Pending Todos
 
 - Register webhook URL in Meta Developer Console after starting ngrok
 - Submit WhatsApp Business Account verification (takes 2-15 business days)
 - Add WhatsApp credentials to backend/.env when they arrive
-- Provision production VPS (Hetzner CX32 recommended: 4 vCPU, 8 GB RAM — CX22 has OOM risk during image generation bursts)
 - Verify Stripe account business description does not reference adult/intimate content before landing page launches
-- Update Supabase Dashboard Site URL from localhost to production domain before Google OAuth goes live
 - Address SAFE-03 TAKE IT DOWN Act compliance (May 19, 2026 deadline) — documented process required, not a code change
 
 ### Roadmap Evolution
@@ -241,10 +243,9 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 08-infrastructure-deployment-02-PLAN.md — Email DNS configuration complete (Resend domain added, SPF/DKIM/MX/DMARC submitted, RESEND_API_KEY obtained, Supabase Site URL updated).
+Stopped at: Completed 08-infrastructure-deployment-03-PLAN.md — Production VPS live at https://avasecret.org (Hetzner CX32, Caddy TLS, 4 Docker services running, UFW hardened, WhatsApp webhook verified).
 
 ### Resume steps:
-1. Run `/gsd:execute-phase 08-03` to continue Phase 8: VPS provisioning, clone repo, production .env, deploy.sh first run, UFW firewall, HTTPS verification
-2. Plan 08-03 covers: Hetzner VPS provisioning, firewall config, DNS A record, deploy.sh execution, HTTPS verification
-3. Plan 08-04 covers: Verify all API credentials functional + mail-tester.com score >= 9/10
-Resume file: .planning/phases/08-infrastructure-deployment/08-03-PLAN.md
+1. Run `/gsd:execute-phase 08-04` to continue Phase 8: Verify all API credentials functional end-to-end, mail-tester.com deliverability score >= 9/10
+2. Plan 08-04 covers: Live API credential smoke tests (WhatsApp, OpenAI, ComfyUI, Stripe, Resend), email deliverability verification
+Resume file: .planning/phases/08-infrastructure-deployment/08-04-PLAN.md
