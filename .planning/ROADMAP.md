@@ -65,7 +65,13 @@ Plans:
   3. Requesting a password reset for a registered email delivers a working reset link to the inbox (not spam) within 2 minutes
   4. The password reset endpoint returns an identical response for both registered and unregistered emails (no email enumeration)
   5. A new user receives a welcome email within 60 seconds of completing signup; a subscriber receives a receipt email within 60 seconds of a successful Stripe payment; a cancelling user receives a confirmation email within 60 seconds of cancellation completing
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Email service module (resend_client.py) + backend auth endpoints (forgot-password, send-email-hook, send-welcome)
+- [ ] 09-02-PLAN.md — Wire receipt and cancellation emails into Stripe billing webhook handler
+- [ ] 09-03-PLAN.md — Frontend: Supabase JS client, GoogleSignInButton, updated Login/Signup pages, ForgotPasswordPage, ResetPasswordPage
+- [ ] 09-04-PLAN.md — Supabase Dashboard configuration + env vars + production deployment + end-to-end verification
 
 ### Phase 10: Landing Page
 **Goal**: Visitors arriving at the root URL see a designed acquisition page that communicates the product's value and routes them to sign up
@@ -113,7 +119,7 @@ Plans:
 | 7. Avatar System & Production | v1.0 | 10/10 | Complete | 2026-03-02 |
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
 | 8. Infrastructure & Deployment | v1.1 | 4/4 | Complete | 2026-03-05 |
-| 9. Auth Polish & Email | v1.1 | 0/? | Not started | - |
+| 9. Auth Polish & Email | v1.1 | 0/4 | Not started | - |
 | 10. Landing Page | v1.1 | 0/? | Not started | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |
 | 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
