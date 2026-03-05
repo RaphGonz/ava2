@@ -8,7 +8,7 @@ progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 24
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 ## Current Position
 
 Phase: Phase 9 — Auth Polish & Email (In Progress)
-Plan: 09-02 complete — Billing email wiring (EMAI-03, EMAI-04) shipped
-Status: Plan 09-02 complete — receipt email on checkout.session.completed, cancellation email on customer.subscription.deleted, get_user_email_by_subscription_id helper
-Last activity: 2026-03-05 — 09-02 complete (billing webhook email wiring, 2 files modified)
+Plan: 09-03 complete — Google Sign-In frontend (AUTH-01, AUTH-02) shipped
+Status: Plan 09-03 complete — supabaseClient.ts, GoogleSignInButton, AuthBridge in App.tsx, LoginPage/SignupPage updated, ForgotPasswordPage + ResetPasswordPage created
+Last activity: 2026-03-05 — 09-03 complete (Google OAuth frontend, 9 files modified)
 
-Progress: [======>            ] v1.1 Phase 8–13: 6/24 plans done (Phase 9 in progress, 2/4 plans done)
+Progress: [=======>           ] v1.1 Phase 8–13: 7/24 plans done (Phase 9 in progress, 3/4 plans done)
 
 ## Performance Metrics
 
@@ -89,6 +89,7 @@ Progress: [======>            ] v1.1 Phase 8–13: 6/24 plans done (Phase 9 in p
 | Phase 08-infrastructure-deployment P04 | human-verify | 2 tasks | 0 files |
 | Phase 09-auth-polish-email P01 | 16 | 2 tasks | 5 files |
 | Phase 09-auth-polish-email P02 | 8 | 2 tasks | 2 files |
+| Phase 09-auth-polish-email P03 | 15 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -232,6 +233,8 @@ Recent decisions affecting current work:
 - [Phase 09-auth-polish-email]: send-welcome uses welcome_sent flag in user_metadata via supabase_admin for idempotency (Google OAuth path)
 - [Phase 09-auth-polish-email]: get_user_email_by_subscription_id returns None on any failure — email non-blocking in cancellation flow
 - [Phase 09-auth-polish-email]: Billing webhook email calls wrapped in try/except — email failures never cause non-200 responses (Stripe would retry endlessly)
+- [Phase 09-auth-polish-email]: Google-only user detection uses identities array (not app_metadata.provider) — linked accounts have both google and email identities, Forgot password link shown correctly
+- [Phase 09-auth-polish-email]: AuthBridge new-signup detection: provider=google AND created_at within 60s fires POST /auth/send-welcome fire-and-forget (non-blocking)
 
 ### Pending Todos
 
@@ -256,8 +259,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 09-auth-polish-email-02-PLAN.md — billing webhook email wiring (EMAI-03, EMAI-04): receipt email on checkout.session.completed, cancellation email on customer.subscription.deleted.
+Stopped at: Completed 09-auth-polish-email-03-PLAN.md — Google OAuth frontend (supabaseClient, GoogleSignInButton, AuthBridge, LoginPage/SignupPage Google buttons, ForgotPasswordPage, ResetPasswordPage).
 
 ### Resume steps:
-1. Run `/gsd:execute-phase 09-03` to continue Phase 9
-Resume file: .planning/phases/09-auth-polish-email/09-03-PLAN.md
+1. Run `/gsd:execute-phase 09-04` to continue Phase 9
+Resume file: .planning/phases/09-auth-polish-email/09-04-PLAN.md

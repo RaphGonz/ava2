@@ -23,7 +23,7 @@ Requirements for the Launch Ready milestone. Each maps to roadmap phases (starti
 
 ### Auth Polish
 
-- [ ] **AUTH-01**: User can sign in and sign up with Google (one-click OAuth via Supabase)
+- [x] **AUTH-01**: User can sign in and sign up with Google (one-click OAuth via Supabase)
 - [x] **AUTH-02**: User can reset a forgotten password via an email link
 
 ### Landing Page
@@ -92,7 +92,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMAI-02 | Phase 9 | Complete |
 | EMAI-03 | Phase 9 | Complete |
 | EMAI-04 | Phase 9 | Complete |
-| AUTH-01 | Phase 9 | Pending |
+| AUTH-01 | Phase 9 | Complete |
 | AUTH-02 | Phase 9 | Complete |
 | LAND-01 | Phase 10 | Pending |
 | LAND-02 | Phase 10 | Pending |
