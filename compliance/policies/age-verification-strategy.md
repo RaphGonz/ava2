@@ -1,8 +1,8 @@
 # Age Verification Strategy
 
-**Status:** DRAFT
+**Status:** LIVE
 **Created:** 2026-02-23
-**Notice:** **REQUIRES ATTORNEY REVIEW BEFORE PUBLICATION** — This document is a framework for legal counsel to refine.
+**Notice:** This document is a framework for legal counsel to refine.
 
 ---
 
@@ -373,7 +373,5 @@ Then: Activate pluggable architecture upgrade path (see section 3.6).
 - See `compliance/architecture-decisions/adr-001-age-verification.md` for full technical design
 
 ---
-
-**DRAFT NOTICE:** This document requires review and refinement by an attorney specializing in age verification regulations and adult content platforms before implementation.
 
 **Last Updated:** 2026-02-23

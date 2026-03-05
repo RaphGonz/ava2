@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { useAuthStore } from './store/useAuthStore'
 import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
 import ChatPage from './pages/ChatPage'
 import SettingsPage from './pages/SettingsPage'
 import PhotoPage from './pages/PhotoPage'
@@ -51,6 +52,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route
             path="/avatar-setup"
             element={<ProtectedRoute><AvatarSetupPage /></ProtectedRoute>}

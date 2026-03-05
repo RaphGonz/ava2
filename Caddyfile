@@ -1,5 +1,5 @@
 # REPLACE: change yourdomain.com to your actual domain before deploying
-yourdomain.com {
+avasecret.org {
     encode gzip
 
     @api path /auth/* /chat/* /billing/* /avatars/* /preferences/* /photos/* /webhook/* /messages/* /dev/* /health*

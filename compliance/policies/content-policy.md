@@ -1,8 +1,8 @@
 # Content Policy
 
-**Status:** DRAFT
+**Status:** LIVE
 **Created:** 2026-02-23
-**Notice:** **REQUIRES ATTORNEY REVIEW BEFORE PUBLICATION** — This document is a framework for legal counsel to refine.
+**Notice:** This document is a framework for legal counsel to refine.
 
 ---
 
@@ -172,7 +172,5 @@ Users have control over content intensity through the **spice level setting**:
 This policy may be updated as regulations, platform capabilities, or safety requirements evolve. Material changes will be communicated via email or in-app notification.
 
 ---
-
-**DRAFT NOTICE:** This document requires review and refinement by an attorney specializing in adult content platforms and content moderation before publication.
 
 **Last Updated:** 2026-02-23

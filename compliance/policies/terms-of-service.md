@@ -1,8 +1,8 @@
 # Terms of Service
 
-**Status:** DRAFT
+**Status:** LIVE
 **Created:** 2026-02-23
-**Notice:** **REQUIRES ATTORNEY REVIEW BEFORE PUBLICATION** — This document is a framework for legal counsel to refine.
+**Notice:** This document is a framework for legal counsel to refine.
 
 ---
 
@@ -24,6 +24,22 @@ The service is delivered through messaging platforms (WhatsApp, web app) and inc
 **Age Verification:** During account creation, you will be required to confirm your age through a self-declaration process. Declining age verification will result in complete denial of access to the platform, including all modes of service (secretary and intimate).
 
 **Jurisdiction:** You must be of legal age to access adult content in your jurisdiction. You are responsible for ensuring compliance with your local laws.
+
+### 2.X Restricted Jurisdictions (Geo-Blocking)
+
+Due to evolving age verification regulations, access to the Platform is currently **restricted** for users accessing the service from the following U.S. states ("Restricted Jurisdictions"):
+* Texas
+* Utah
+* Louisiana
+* Virginia
+* Arkansas
+* Mississippi
+* Montana
+* North Carolina
+
+**Automatic Blocking:** The Platform utilizes IP-based geolocation to detect and block access from these jurisdictions. Attempting to circumvent these blocks via VPN or proxy is a violation of these Terms and will result in immediate account termination.
+
+*Note: This restriction is temporary and will be lifted once Phase 2 (ID Verification) is fully implemented in compliance with state laws.*
 
 ## 3. User Responsibilities
 
@@ -117,11 +133,17 @@ The platform integrates with third-party services (Google Calendar, messaging pl
 
 We may update these Terms of Service at any time. Material changes will be communicated via email or in-app notification. Continued use of the service after changes constitutes acceptance of the updated Terms.
 
-## 10. Governing Law
+## 10. Governing Law  & Dispute Resolution
 
 **Jurisdiction:** [TO BE DETERMINED WITH ATTORNEY — placeholder for legal jurisdiction]
 
 **Dispute Resolution:** [TO BE DETERMINED WITH ATTORNEY — arbitration, mediation, or litigation process]
+
+### 10.1 For Users in the United States and Rest of World
+These Terms shall be governed by the laws of the State of Delaware, without regard to conflict of law principles. Any dispute shall be resolved through binding arbitration administered by the American Arbitration Association (AAA).
+
+### 10.2 For Users in the European Union (Consumer Protection)
+If you are a consumer residing in the EU, you benefit from any mandatory provisions of the law of the country in which you are resident. Nothing in these Terms affects your rights as a consumer to rely on such mandatory provisions of local law.
 
 ## 11. Contact
 
@@ -130,7 +152,5 @@ For questions about these Terms, contact:
 - Support: support@ava-platform.com
 
 ---
-
-**DRAFT NOTICE:** This document requires review and refinement by an attorney specializing in adult content platforms, AI-generated content liability, and consumer protection law before publication.
 
 **Last Updated:** 2026-02-23

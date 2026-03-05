@@ -16,6 +16,7 @@ export default defineConfig({
       '/preferences': 'http://localhost:8000',
       '/avatars': 'http://localhost:8000',
       '/photos': 'http://localhost:8000',
+      '/billing': 'http://localhost:8000',
     },
   },
 })
