@@ -259,8 +259,9 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 09-auth-polish-email-03-PLAN.md — Google OAuth frontend (supabaseClient, GoogleSignInButton, AuthBridge, LoginPage/SignupPage Google buttons, ForgotPasswordPage, ResetPasswordPage).
+Stopped at: 09-04 Task 1 in progress — frontend/.env created with VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY; SUPABASE_HOOK_SECRET placeholder added to backend/.env. Awaiting human: Supabase Dashboard hook config, Google Cloud OAuth setup, VPS env update and redeploy.
 
 ### Resume steps:
-1. Run `/gsd:execute-phase 09-04` to continue Phase 9
+1. Complete human-action steps in checkpoint message below
+2. Run `/gsd:execute-phase 09-04` to continue after dashboard config and VPS redeploy
 Resume file: .planning/phases/09-auth-polish-email/09-04-PLAN.md
