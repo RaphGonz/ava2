@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Launch Ready
 status: in_progress
-last_updated: "2026-03-03"
+last_updated: "2026-03-05"
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 1
+  completed_phases: 1
+  total_plans: 24
+  completed_plans: 5
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 8 — Infrastructure & Deployment (COMPLETE)
-Plan: 08-04 complete — Phase 8 complete
-Status: Plan 08-04 complete — All 6 API credentials verified in production, usage_events table live, mail-tester.com score 10/10; Phase 8 complete
-Last activity: 2026-03-05 — 08-04 complete (all API smoke tests passed: WhatsApp, OpenAI, Stripe live mode, ComfyUI, Tavily, Supabase; usage_events migration applied; email DNS 10/10)
+Phase: Phase 9 — Auth Polish & Email (In Progress)
+Plan: 09-01 complete — Email service module and 3 auth endpoints shipped
+Status: Plan 09-01 complete — resend_client.py with 5 email helpers, forgot-password (no-enumeration), send-email-hook (HMAC), send-welcome (idempotent Google OAuth)
+Last activity: 2026-03-05 — 09-01 complete (email service module, supabase_hook_secret field, 3 new auth endpoints)
 
-Progress: [====>              ] v1.1 Phase 8–13: 4/24 plans done (Phase 8 complete)
+Progress: [=====>             ] v1.1 Phase 8–13: 5/24 plans done (Phase 9 in progress, 1/4 plans done)
 
 ## Performance Metrics
 
@@ -87,6 +87,7 @@ Progress: [====>              ] v1.1 Phase 8–13: 4/24 plans done (Phase 8 comp
 | Phase 08-infrastructure-deployment P02 | 10 | 1 tasks | 0 files |
 | Phase 08-infrastructure-deployment P03 | human-action | 1 tasks | 0 files |
 | Phase 08-infrastructure-deployment P04 | human-verify | 2 tasks | 0 files |
+| Phase 09-auth-polish-email P01 | 16 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -224,6 +225,10 @@ Recent decisions affecting current work:
 - [Phase 08-infrastructure-deployment]: ComfyUI Cloud API uses X-API-Key header (not Authorization: Bearer) — confirmed working in production with status: active response
 - [Phase 08-infrastructure-deployment]: mail-tester.com score 10/10 achieved — SPF/DKIM/DMARC all fully aligned; Phase 9 email features can be enabled immediately without DNS wait
 - [Phase 08-infrastructure-deployment]: usage_events table live in Supabase with RLS enabled (admin reads via service role only); usage_events emission points can be wired in Phases 9–11 as code paths are touched
+- [Phase 09-auth-polish-email]: Email send failure: one retry after 3s then log and return False — never blocks auth/payment
+- [Phase 09-auth-polish-email]: forgot-password always returns identical 200 message regardless of email existence (no enumeration)
+- [Phase 09-auth-polish-email]: standardwebhooks.Webhook() requires v1,whsec_ prefix stripped from supabase_hook_secret before init
+- [Phase 09-auth-polish-email]: send-welcome uses welcome_sent flag in user_metadata via supabase_admin for idempotency (Google OAuth path)
 
 ### Pending Todos
 
@@ -248,8 +253,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 08-infrastructure-deployment-04-PLAN.md — Phase 8 Infrastructure & Deployment COMPLETE. All 6 API credentials verified in production (WhatsApp, OpenAI, Stripe live mode, ComfyUI, Tavily, Supabase). usage_events table live. Email DNS 10/10 on mail-tester.com.
+Stopped at: Completed 09-auth-polish-email-01-PLAN.md — Email service (resend_client.py), supabase_hook_secret config field, 3 new auth endpoints: forgot-password, send-email-hook, send-welcome.
 
 ### Resume steps:
-1. Run `/gsd:execute-phase 09-01` to start Phase 9: Auth Polish & Email (Google Sign-In, password reset, welcome email)
-Resume file: .planning/phases/09-auth-polish-email/ (to be planned)
+1. Run `/gsd:execute-phase 09-02` to continue Phase 9: Google Sign-In frontend integration
+Resume file: .planning/phases/09-auth-polish-email/09-02-PLAN.md
