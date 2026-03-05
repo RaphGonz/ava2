@@ -50,8 +50,8 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 **Plans**: 4 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Rewrite docker-compose.yml (nginx→Caddy), create Caddyfile + deploy.sh, add Resend config fields to config.py, create usage_events migration
-- [ ] 08-02-PLAN.md — Configure Resend sending domain DNS records (SPF/DKIM/DMARC) and update Supabase Site URL
+- [x] 08-01-PLAN.md — Rewrite docker-compose.yml (nginx→Caddy), create Caddyfile + deploy.sh, add Resend config fields to config.py, create usage_events migration
+- [x] 08-02-PLAN.md — Configure Resend sending domain DNS records (SPF/DKIM/DMARC) and update Supabase Site URL
 - [ ] 08-03-PLAN.md — Provision VPS, clone repo, create production .env, run deploy.sh, configure UFW firewall, verify HTTPS
 - [ ] 08-04-PLAN.md — Verify all API credentials functional + mail-tester.com score >= 9/10
 
@@ -112,7 +112,7 @@ Plans:
 | 6. Web App & Multi-Platform | v1.0 | 6/6 | Complete | 2026-02-24 |
 | 7. Avatar System & Production | v1.0 | 10/10 | Complete | 2026-03-02 |
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
-| 8. Infrastructure & Deployment | 1/4 | In Progress|  | - |
+| 8. Infrastructure & Deployment | v1.1 | 2/4 | In Progress | - |
 | 9. Auth Polish & Email | v1.1 | 0/? | Not started | - |
 | 10. Landing Page | v1.1 | 0/? | Not started | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |
