@@ -18,8 +18,8 @@ Requirements for the Launch Ready milestone. Each maps to roadmap phases (starti
 
 - [x] **EMAI-01**: Email DNS records (SPF/DKIM/DMARC) configured on sending domain for inbox deliverability
 - [x] **EMAI-02**: User receives a welcome email after signing up
-- [ ] **EMAI-03**: User receives a receipt email after a successful subscription payment
-- [ ] **EMAI-04**: User receives a confirmation email after cancelling their subscription
+- [x] **EMAI-03**: User receives a receipt email after a successful subscription payment
+- [x] **EMAI-04**: User receives a confirmation email after cancelling their subscription
 
 ### Auth Polish
 
@@ -90,8 +90,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-04 | Phase 8 | Complete |
 | EMAI-01 | Phase 8 | Complete |
 | EMAI-02 | Phase 9 | Complete |
-| EMAI-03 | Phase 9 | Pending |
-| EMAI-04 | Phase 9 | Pending |
+| EMAI-03 | Phase 9 | Complete |
+| EMAI-04 | Phase 9 | Complete |
 | AUTH-01 | Phase 9 | Pending |
 | AUTH-02 | Phase 9 | Complete |
 | LAND-01 | Phase 10 | Pending |

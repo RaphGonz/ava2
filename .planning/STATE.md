@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 ## Current Position
 
 Phase: Phase 9 — Auth Polish & Email (In Progress)
-Plan: 09-01 complete — Email service module and 3 auth endpoints shipped
-Status: Plan 09-01 complete — resend_client.py with 5 email helpers, forgot-password (no-enumeration), send-email-hook (HMAC), send-welcome (idempotent Google OAuth)
-Last activity: 2026-03-05 — 09-01 complete (email service module, supabase_hook_secret field, 3 new auth endpoints)
+Plan: 09-02 complete — Billing email wiring (EMAI-03, EMAI-04) shipped
+Status: Plan 09-02 complete — receipt email on checkout.session.completed, cancellation email on customer.subscription.deleted, get_user_email_by_subscription_id helper
+Last activity: 2026-03-05 — 09-02 complete (billing webhook email wiring, 2 files modified)
 
-Progress: [=====>             ] v1.1 Phase 8–13: 5/24 plans done (Phase 9 in progress, 1/4 plans done)
+Progress: [======>            ] v1.1 Phase 8–13: 6/24 plans done (Phase 9 in progress, 2/4 plans done)
 
 ## Performance Metrics
 
@@ -88,6 +88,7 @@ Progress: [=====>             ] v1.1 Phase 8–13: 5/24 plans done (Phase 9 in p
 | Phase 08-infrastructure-deployment P03 | human-action | 1 tasks | 0 files |
 | Phase 08-infrastructure-deployment P04 | human-verify | 2 tasks | 0 files |
 | Phase 09-auth-polish-email P01 | 16 | 2 tasks | 5 files |
+| Phase 09-auth-polish-email P02 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -229,6 +230,8 @@ Recent decisions affecting current work:
 - [Phase 09-auth-polish-email]: forgot-password always returns identical 200 message regardless of email existence (no enumeration)
 - [Phase 09-auth-polish-email]: standardwebhooks.Webhook() requires v1,whsec_ prefix stripped from supabase_hook_secret before init
 - [Phase 09-auth-polish-email]: send-welcome uses welcome_sent flag in user_metadata via supabase_admin for idempotency (Google OAuth path)
+- [Phase 09-auth-polish-email]: get_user_email_by_subscription_id returns None on any failure — email non-blocking in cancellation flow
+- [Phase 09-auth-polish-email]: Billing webhook email calls wrapped in try/except — email failures never cause non-200 responses (Stripe would retry endlessly)
 
 ### Pending Todos
 
@@ -253,8 +256,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 09-auth-polish-email-01-PLAN.md — Email service (resend_client.py), supabase_hook_secret config field, 3 new auth endpoints: forgot-password, send-email-hook, send-welcome.
+Stopped at: Completed 09-auth-polish-email-02-PLAN.md — billing webhook email wiring (EMAI-03, EMAI-04): receipt email on checkout.session.completed, cancellation email on customer.subscription.deleted.
 
 ### Resume steps:
-1. Run `/gsd:execute-phase 09-02` to continue Phase 9: Google Sign-In frontend integration
-Resume file: .planning/phases/09-auth-polish-email/09-02-PLAN.md
+1. Run `/gsd:execute-phase 09-03` to continue Phase 9
+Resume file: .planning/phases/09-auth-polish-email/09-03-PLAN.md
