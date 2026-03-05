@@ -75,6 +75,60 @@ async def send_message(
     return {"reply": reply_text}
 
 
+_PHOTO_PATH_OPEN = "[PHOTO_PATH]"
+_PHOTO_PATH_CLOSE = "[/PHOTO_PATH]"
+_PHOTO_SIGNED_URL_TTL = 3600  # 1-hour signed URL generated fresh at each history fetch
+
+
+def _rewrite_photo_paths(messages: list[dict]) -> list[dict]:
+    """
+    Replace [PHOTO_PATH]{path}[/PHOTO_PATH] tokens in message content with
+    fresh 1-hour Supabase Storage signed URLs.
+
+    This is called at read time so photos remain accessible permanently.
+    The storage path persists in the DB forever; signed URLs are ephemeral
+    and regenerated on each GET /chat/history call.
+    """
+    rewritten = []
+    for msg in messages:
+        content: str = msg.get("content", "")
+        if _PHOTO_PATH_OPEN in content:
+            start = content.find(_PHOTO_PATH_OPEN) + len(_PHOTO_PATH_OPEN)
+            end = content.find(_PHOTO_PATH_CLOSE)
+            if end > start:
+                storage_path = content[start:end]
+                try:
+                    sign_response = (
+                        supabase_admin.storage
+                        .from_("photos")
+                        .create_signed_url(storage_path, _PHOTO_SIGNED_URL_TTL)
+                    )
+                    fresh_url = (
+                        sign_response.get("signedURL")
+                        or sign_response.get("signedUrl")
+                        or sign_response.get("signed_url")
+                    )
+                    if fresh_url:
+                        # Replace [PHOTO_PATH] token with [PHOTO] + signed URL for frontend
+                        new_content = (
+                            content[: content.find(_PHOTO_PATH_OPEN)]
+                            + f"[PHOTO]{fresh_url}[/PHOTO]"
+                            + content[end + len(_PHOTO_PATH_CLOSE):]
+                        )
+                        msg = {**msg, "content": new_content}
+                    else:
+                        logger.error(
+                            f"_rewrite_photo_paths: failed to sign path {storage_path!r} "
+                            f"— sign_response={sign_response}"
+                        )
+                except Exception as sign_err:
+                    logger.error(
+                        f"_rewrite_photo_paths: error signing path {storage_path!r}: {sign_err}"
+                    )
+        rewritten.append(msg)
+    return rewritten
+
+
 @router.get("/history")
 async def get_chat_history(
     limit: int = 50,
@@ -85,6 +139,10 @@ async def get_chat_history(
     Return recent web-channel messages for the authenticated user.
     Filters to channel='web' only — never returns WhatsApp messages (Pitfall 3).
     Returns newest-first, limit defaults to 50.
+
+    Any message content containing a [PHOTO_PATH] storage path token is rewritten
+    to a fresh 1-hour signed URL before returning, ensuring photos remain accessible
+    permanently regardless of when the message was originally created.
     """
     result = (
         db.from_("messages")
@@ -96,4 +154,6 @@ async def get_chat_history(
     )
     # Return in chronological order for display (reverse the newest-first fetch)
     messages = list(reversed(result.data or []))
+    # Rewrite any [PHOTO_PATH] tokens to fresh signed URLs
+    messages = _rewrite_photo_paths(messages)
     return messages

@@ -13,10 +13,11 @@ Full pipeline per job:
   3. Image bytes returned directly by ComfyUIProvider
   4. Apply Pillow watermark (compliance requirement)
   5. Upload watermarked JPEG to Supabase Storage: photos/{user_id}/{job_id}.jpg
-  6. Generate 24-hour Supabase signed URL
-  7. Audit log (compliance)
-  8. Deliver to user via channel-appropriate method
-  9. On all-retries-exhausted: notify user of failure
+  6. Audit log (compliance)
+  7. Deliver to user via channel-appropriate method:
+       Web: store [PHOTO_PATH] storage path in message; GET /chat/history re-signs at read time
+       WhatsApp: generate a fresh 1-hour signed URL at delivery time
+  8. On all-retries-exhausted: notify user of failure
 """
 import logging
 import httpx
@@ -28,7 +29,7 @@ from app.database import supabase_admin
 logger = logging.getLogger(__name__)
 
 PHOTO_BUCKET = "photos"
-SIGNED_URL_EXPIRY = 86400  # 24 hours
+WHATSAPP_SIGNED_URL_TTL = 3600  # 1 hour — WhatsApp links are one-shot, short TTL is fine
 
 _image_provider = ComfyUIProvider()
 
@@ -37,10 +38,16 @@ PHOTO_FAILURE_MSG = (
 )
 
 
-async def _deliver_web(user_id: str, avatar: dict, signed_url: str) -> None:
-    """Store photo as assistant message in messages table. Frontend polls /chat/history."""
-    # [PHOTO]url[/PHOTO] is a frontend render hint — ChatBubble renders it as <img>
-    content = f"[PHOTO]{signed_url}[/PHOTO]"
+async def _deliver_web(user_id: str, avatar: dict, storage_path: str) -> None:
+    """Store photo as assistant message in messages table. Frontend polls /chat/history.
+
+    Stores the raw Supabase Storage path using the [PHOTO_PATH] marker instead of a
+    pre-signed URL. GET /chat/history rewrites [PHOTO_PATH] tokens to fresh signed URLs
+    at read time so photos remain accessible permanently (no 24h expiry).
+    """
+    # [PHOTO_PATH]path[/PHOTO_PATH] is a storage path marker — chat history endpoint
+    # converts this to a fresh signed URL before sending to the frontend.
+    content = f"[PHOTO_PATH]{storage_path}[/PHOTO_PATH]"
     avatar_id = avatar.get("id") if avatar else None
     supabase_admin.from_("messages").insert({
         "user_id": user_id,
@@ -51,10 +58,27 @@ async def _deliver_web(user_id: str, avatar: dict, signed_url: str) -> None:
     }).execute()
 
 
-async def _deliver_whatsapp(user_id: str, signed_url: str) -> None:
-    """Send signed URL link via WhatsApp (PLAT-03 — no inline NSFW images on WhatsApp)."""
+async def _deliver_whatsapp(user_id: str, storage_path: str) -> None:
+    """Send a fresh signed URL link via WhatsApp (PLAT-03 — no inline NSFW images on WhatsApp).
+
+    Generates a fresh 1-hour signed URL at delivery time from the raw storage path.
+    WhatsApp links are one-shot (the user clicks immediately), so a short TTL is fine here.
+    The storage path lives permanently in Supabase Storage; new signed URLs can always be
+    generated on demand.
+    """
     from app.services.whatsapp import send_whatsapp_message
     from app.config import settings
+
+    # Generate a fresh short-lived signed URL for WhatsApp delivery
+    sign_response = (
+        supabase_admin.storage
+        .from_(PHOTO_BUCKET)
+        .create_signed_url(storage_path, WHATSAPP_SIGNED_URL_TTL)
+    )
+    signed_url = sign_response.get("signedURL") or sign_response.get("signed_url")
+    if not signed_url:
+        logger.error(f"_deliver_whatsapp: failed to sign path {storage_path!r} — sign_response={sign_response}")
+        return
 
     result = (
         supabase_admin
@@ -69,7 +93,7 @@ async def _deliver_whatsapp(user_id: str, signed_url: str) -> None:
         logger.warning(f"No WhatsApp phone for user {user_id} — cannot deliver photo")
         return
 
-    message = f"Here's your photo (link valid 24h): {signed_url}"
+    message = f"Here's your photo (link valid 1h): {signed_url}"
     await send_whatsapp_message(
         phone_number_id=settings.whatsapp_phone_number_id,
         to=phone,
@@ -135,18 +159,9 @@ async def process_photo_job(job, token: str | None = None) -> None:
         )
         logger.info(f"Uploaded to Supabase Storage: {storage_path}")
 
-        # Step 6: Generate Supabase signed URL (24h expiry)
-        sign_response = (
-            supabase_admin.storage
-            .from_(PHOTO_BUCKET)
-            .create_signed_url(storage_path, SIGNED_URL_EXPIRY)
-        )
-        signed_url = sign_response.get("signedURL") or sign_response.get("signed_url")
-        if not signed_url:
-            raise ValueError("Supabase Storage did not return a signed URL")
-        logger.info(f"Signed URL generated (24h expiry)")
-
         # Step 7: Audit log — compliance (image generation tracking per CONTEXT.md)
+        # Note: signed URL generation removed from this step. The storage path is permanent;
+        # signed URLs are generated on demand at read time (web) or delivery time (WhatsApp).
         try:
             supabase_admin.from_("audit_log").insert({
                 "user_id": user_id,
@@ -165,11 +180,13 @@ async def process_photo_job(job, token: str | None = None) -> None:
         except Exception as e:
             logger.warning(f"Audit log write failed (non-fatal): {e}")
 
-        # Step 8: Deliver to user via channel
+        # Step 8: Deliver to user via channel using the permanent storage path.
+        # _deliver_web stores the path in message content (re-signed at read time).
+        # _deliver_whatsapp generates a fresh signed URL at delivery time.
         if channel == "whatsapp":
-            await _deliver_whatsapp(user_id, signed_url)
+            await _deliver_whatsapp(user_id, storage_path)
         else:
-            await _deliver_web(user_id, avatar, signed_url)
+            await _deliver_web(user_id, avatar, storage_path)
 
         logger.info(f"Photo job {job_id} completed successfully")
 

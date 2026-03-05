@@ -92,32 +92,19 @@ async def _generate_reference_image_task(user_id: str) -> None:
         )
         logger.error(f"[BG_TASK][STEP-4] Upload complete for {storage_path}")
 
-        # Step 5: Create 24-hour signed URL
-        logger.error(f"[BG_TASK][STEP-5] Creating signed URL for {storage_path}")
-        sign_response = (
-            supabase_admin.storage
-            .from_("photos")
-            .create_signed_url(storage_path, 86400)
-        )
-        logger.error(f"[BG_TASK][STEP-5] sign_response keys: {list(sign_response.keys()) if sign_response else None}")
-        signed_url = sign_response.get("signedURL") or sign_response.get("signedUrl") or sign_response.get("signed_url")
-        if not signed_url:
-            logger.error(f"Background task: failed to create signed URL for user {user_id}, sign_response={sign_response}")
-            return
-        logger.error(f"[BG_TASK][STEP-5] Signed URL created (length={len(signed_url)})")
-
-        # Step 6: Write reference_image_url to the avatar row
-        # The frontend polls GET /avatars/me -- when this field is non-null, polling stops.
-        logger.error(f"[BG_TASK][STEP-6] Writing reference_image_url to DB for user {user_id}")
+        # Step 5: Write storage path (NOT a signed URL) to the avatar row.
+        # Storing the raw path ensures the reference image is accessible permanently.
+        # GET /avatars/me generates a fresh signed URL at read time from this path.
+        logger.error(f"[BG_TASK][STEP-5] Writing storage path to reference_image_url for user {user_id}")
         update_result = supabase_admin.from_("avatars").update(
-            {"reference_image_url": signed_url}
+            {"reference_image_url": storage_path}
         ).eq("user_id", user_id).execute()
 
         if not update_result.data:
             logger.error(f"Background task: failed to update reference_image_url for user {user_id}: update returned empty data")
             return
 
-        logger.error(f"[BG_TASK][STEP-6] DB update successful. reference image ready for user {user_id}")
+        logger.error(f"[BG_TASK][STEP-5] DB update successful. reference image path stored for user {user_id}")
 
     except asyncio.CancelledError:
         # CancelledError is BaseException, not Exception — must be caught explicitly.
@@ -176,11 +163,44 @@ async def get_my_avatar(
     user=Depends(get_current_user),
     db=Depends(get_authed_supabase),
 ):
-    """Get the authenticated user's avatar."""
+    """
+    Get the authenticated user's avatar.
+
+    If reference_image_url contains a raw Supabase Storage path (e.g. "{user_id}/reference.jpg")
+    rather than a full URL, a fresh 1-hour signed URL is generated before returning so the
+    frontend always receives a usable URL. This is the permanent-storage pattern: paths live
+    in the DB forever; signed URLs are generated on demand at read time.
+    """
+    from app.database import supabase_admin as _admin
+
     result = db.from_("avatars").select("*").eq("user_id", str(user.id)).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="No avatar found")
-    return result.data[0]
+
+    avatar = result.data[0]
+
+    # Re-sign if reference_image_url is a storage path (no scheme) rather than a full URL.
+    ref = avatar.get("reference_image_url")
+    if ref and not ref.startswith("http"):
+        try:
+            sign_response = (
+                _admin.storage
+                .from_("photos")
+                .create_signed_url(ref, 3600)  # 1-hour signed URL at read time
+            )
+            fresh_url = (
+                sign_response.get("signedURL")
+                or sign_response.get("signedUrl")
+                or sign_response.get("signed_url")
+            )
+            if fresh_url:
+                avatar["reference_image_url"] = fresh_url
+            else:
+                logger.error(f"get_my_avatar: failed to sign path {ref!r} — sign_response={sign_response}")
+        except Exception as sign_err:
+            logger.error(f"get_my_avatar: error signing reference_image_url path {ref!r}: {sign_err}")
+
+    return avatar
 
 
 @router.patch("/me/persona")
