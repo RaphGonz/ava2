@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     resend_api_key: str = ""           # Resend Dashboard -> API Keys
     resend_from_address: str = ""      # e.g. "Ava <ava@yourdomain.com>"
 
+    # Supabase auth hook — Supabase Dashboard -> Authentication -> Hooks -> Send Email -> Secret
+    supabase_hook_secret: str = ""  # Format: v1,whsec_<base64>; defaults to empty (disabled)
+
     # Redis — for BullMQ job queue (worker service)
     redis_url: str = "redis://redis:6379"
 
