@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { useAuthStore } from './store/useAuthStore'
 import LoginPage from './pages/LoginPage'
@@ -62,6 +62,7 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
  */
 function AuthBridge() {
   const setAuth = useAuthStore(s => s.setAuth)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -71,6 +72,13 @@ function AuthBridge() {
 
         // Populate the Zustand store — same interface as email/password auth (Pitfall 8 fix)
         setAuth(access_token, user_id)
+
+        // After OAuth redirect, the user ends up on /login (ProtectedRoute redirected them
+        // before the store was populated). Navigate to /chat to complete the sign-in.
+        const path = window.location.pathname
+        if (path === '/login' || path === '/') {
+          navigate('/chat', { replace: true })
+        }
 
         // Detect new Google signup and trigger welcome email (EMAI-02 Google path)
         const isGoogle = session.user.app_metadata?.provider === 'google'
@@ -90,7 +98,7 @@ function AuthBridge() {
     })
 
     return () => subscription.unsubscribe()
-  }, [setAuth])
+  }, [setAuth, navigate])
 
   return null
 }
