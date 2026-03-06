@@ -2,7 +2,21 @@
 avasecret.org {
     encode gzip
 
-    @api path /auth/signup /auth/signin /auth/signout /auth/forgot-password /auth/send-email-hook /auth/send-welcome /auth/google/* /chat /chat/* /billing/* /avatars /avatars/* /preferences/* /photos/* /webhook /webhook/* /messages /messages/* /dev/* /health*
+    # POST /chat is the only bare API route that collides with a SPA route (/chat is also
+    # a frontend page). Handle it with a method+path matcher before the general @api matcher
+    # so GET /chat (and GET /chat?subscribed=1 from Stripe redirect) falls through to the SPA.
+    @chat_post {
+        method POST
+        path /chat
+    }
+    handle @chat_post {
+        reverse_proxy backend:8000 {
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    @api path /auth/signup /auth/signin /auth/signout /auth/forgot-password /auth/send-email-hook /auth/send-welcome /auth/google/* /chat/* /billing/* /avatars /avatars/* /preferences/* /photos/* /webhook /webhook/* /messages /messages/* /dev/* /health*
     handle @api {
         reverse_proxy backend:8000 {
             header_up X-Forwarded-For {remote_host}
