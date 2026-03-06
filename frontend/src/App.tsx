@@ -12,6 +12,8 @@ import SubscribePage from './pages/SubscribePage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
+import LandingPage from './pages/LandingPage'
+import PrivacyPage from './pages/PrivacyPage'
 import { getMyAvatar } from './api/avatars'
 import { supabase } from './lib/supabaseClient'
 
@@ -110,6 +112,8 @@ export default function App() {
       <BrowserRouter>
         <AuthBridge />
         <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
