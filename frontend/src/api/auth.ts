@@ -32,5 +32,9 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signOut() {
-  // JWT is stateless — clear locally, no server call needed
+  // Must call supabase.auth.signOut() to clear the Supabase session from the browser.
+  // Without this, onAuthStateChange fires SIGNED_IN again after clearAuth() and
+  // AuthBridge navigates back to /chat — making sign-out impossible for Google OAuth users.
+  const { supabase } = await import('../lib/supabaseClient')
+  await supabase.auth.signOut()
 }

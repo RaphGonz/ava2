@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
+import { signOut } from '../api/auth'
 import { useChatHistory, useSendMessage, ApiError } from '../api/chat'
 import MessageList from '../components/MessageList'
 import ChatInput from '../components/ChatInput'
@@ -24,7 +25,8 @@ export default function ChatPage() {
     sendMutation.mutate(text)
   }
 
-  function handleSignOut() {
+  async function handleSignOut() {
+    await signOut()
     clearAuth()
     navigate('/login')
   }
