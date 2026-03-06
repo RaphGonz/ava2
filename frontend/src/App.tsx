@@ -11,6 +11,7 @@ import AvatarSetupPage from './pages/AvatarSetupPage'
 import SubscribePage from './pages/SubscribePage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import AuthCallbackPage from './pages/AuthCallbackPage'
 import { getMyAvatar } from './api/avatars'
 import { supabase } from './lib/supabaseClient'
 
@@ -111,6 +112,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route

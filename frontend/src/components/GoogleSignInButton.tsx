@@ -19,7 +19,7 @@ export function GoogleSignInButton({ onError, disabled }: Props) {
       provider: 'google',
       options: {
         // redirectTo must be whitelisted in Supabase Dashboard -> Auth -> URL Configuration
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
     if (error) {
