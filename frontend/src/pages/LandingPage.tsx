@@ -78,6 +78,9 @@ export default function LandingPage() {
           <Link to="/privacy" className="hover:text-gray-300 transition-colors">
             Privacy Policy
           </Link>
+          <Link to="/terms" className="hover:text-gray-300 transition-colors">
+            Terms of Use
+          </Link>
         </div>
       </footer>
     </div>

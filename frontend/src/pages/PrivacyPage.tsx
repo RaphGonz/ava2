@@ -95,8 +95,9 @@ export default function PrivacyPage() {
         </section>
       </main>
 
-      <footer className="px-6 py-6 border-t border-gray-800 text-xs text-gray-500 text-center">
-        © {new Date().getFullYear()} Avasecret
+      <footer className="px-6 py-6 border-t border-gray-800 flex items-center justify-between text-xs text-gray-500">
+        <span>© {new Date().getFullYear()} Avasecret</span>
+        <Link to="/terms" className="hover:text-gray-300 transition-colors">Terms of Use</Link>
       </footer>
     </div>
   )

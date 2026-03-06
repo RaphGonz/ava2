@@ -14,6 +14,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
 import LandingPage from './pages/LandingPage'
 import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
 import { getMyAvatar } from './api/avatars'
 import { supabase } from './lib/supabaseClient'
 
@@ -114,6 +115,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
