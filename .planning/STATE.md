@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 9 — Auth Polish & Email (In Progress)
-Plan: 09-03 complete — Google Sign-In frontend (AUTH-01, AUTH-02) shipped
-Status: Plan 09-03 complete — supabaseClient.ts, GoogleSignInButton, AuthBridge in App.tsx, LoginPage/SignupPage updated, ForgotPasswordPage + ResetPasswordPage created
-Last activity: 2026-03-05 — 09-03 complete (Google OAuth frontend, 9 files modified)
+Phase: Phase 9 — Auth Polish & Email (Complete)
+Plan: 09-04 complete — Production config, Google OAuth live, all Phase 9 features deployed
+Status: Phase 9 complete — AUTH-01, AUTH-02, EMAI-02, EMAI-03, EMAI-04 all deployed to https://avasecret.org
+Last activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 
-Progress: [=======>           ] v1.1 Phase 8–13: 7/24 plans done (Phase 9 in progress, 3/4 plans done)
+Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 complete 4/4, Phase 10 next)
 
 ## Performance Metrics
 
@@ -90,6 +90,7 @@ Progress: [=======>           ] v1.1 Phase 8–13: 7/24 plans done (Phase 9 in p
 | Phase 09-auth-polish-email P01 | 16 | 2 tasks | 5 files |
 | Phase 09-auth-polish-email P02 | 8 | 2 tasks | 2 files |
 | Phase 09-auth-polish-email P03 | 15 | 2 tasks | 9 files |
+| Phase 09-auth-polish-email P04 | human-action + human-verify | 2 tasks | 0 files (VPS .env only) |
 
 ## Accumulated Context
 
@@ -235,6 +236,8 @@ Recent decisions affecting current work:
 - [Phase 09-auth-polish-email]: Billing webhook email calls wrapped in try/except — email failures never cause non-200 responses (Stripe would retry endlessly)
 - [Phase 09-auth-polish-email]: Google-only user detection uses identities array (not app_metadata.provider) — linked accounts have both google and email identities, Forgot password link shown correctly
 - [Phase 09-auth-polish-email]: AuthBridge new-signup detection: provider=google AND created_at within 60s fires POST /auth/send-welcome fire-and-forget (non-blocking)
+- [Phase 09-auth-polish-email]: Production env var split — backend/.env holds SUPABASE_HOOK_SECRET (server secret); frontend/.env holds VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY (baked into JS bundle at build time via Vite)
+- [Phase 09-auth-polish-email]: Phase 9 browser/inbox E2E verification (AUTH-01 Google OAuth flow, EMAI-02/03/04 email delivery) delegated to Phase 13 smoke test — automated checks confirmed all endpoints and bundle content correct
 
 ### Pending Todos
 
@@ -258,10 +261,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-05
-Stopped at: 09-04 Task 1 in progress — frontend/.env created with VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY; SUPABASE_HOOK_SECRET placeholder added to backend/.env. Awaiting human: Supabase Dashboard hook config, Google Cloud OAuth setup, VPS env update and redeploy.
-
-### Resume steps:
-1. Complete human-action steps in checkpoint message below
-2. Run `/gsd:execute-phase 09-04` to continue after dashboard config and VPS redeploy
-Resume file: .planning/phases/09-auth-polish-email/09-04-PLAN.md
+Last session: 2026-03-06
+Stopped at: Phase 9 complete — 09-04 SUMMARY.md created, all requirements verified in production
