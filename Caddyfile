@@ -2,7 +2,7 @@
 avasecret.org {
     encode gzip
 
-    @api path /auth/signup /auth/signin /auth/signout /auth/forgot-password /auth/send-email-hook /auth/send-welcome /chat/* /billing/* /avatars /avatars/* /preferences/* /photos/* /webhook /webhook/* /messages/* /dev/* /health*
+    @api path /auth/signup /auth/signin /auth/signout /auth/forgot-password /auth/send-email-hook /auth/send-welcome /chat /chat/* /billing/* /avatars /avatars/* /preferences/* /photos/* /webhook /webhook/* /messages/* /dev/* /health*
     handle @api {
         reverse_proxy backend:8000 {
             header_up X-Forwarded-For {remote_host}
