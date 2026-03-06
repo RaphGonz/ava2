@@ -22,7 +22,7 @@ echo "Caddyfile is valid."
 echo "=== [3/4] Restarting services ==="
 cd "$SCRIPT_DIR"
 docker compose pull --quiet
-docker compose up -d --build
+docker compose up -d --build --force-recreate
 echo "Services restarted."
 
 echo "=== [4/4] Checking service health ==="
