@@ -19,6 +19,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
 import {
   createAvatar,
+  getMyAvatar,
   triggerReferenceImage,
   pollForReferenceImage,
   type AvatarData,
@@ -125,9 +126,11 @@ export default function AvatarSetupPage() {
       stopPollingRef.current()
       stopPollingRef.current = null
     }
-    // Invalidate avatar query so App.tsx gate sees the new avatar and routes to /chat
-    // (RESEARCH.md Pitfall 7: cache invalidation prevents redirect loop)
-    await queryClient.invalidateQueries({ queryKey: ['avatar'] })
+    // Eagerly fetch and cache the avatar before navigating so OnboardingGate sees it
+    // immediately on mount. invalidateQueries alone doesn't refetch when there is no
+    // active observer (OnboardingGate isn't mounted at /avatar-setup), leaving the cache
+    // as null and causing an instant redirect back to /avatar-setup.
+    await queryClient.fetchQuery({ queryKey: ['avatar'], queryFn: () => getMyAvatar(token) })
     navigate('/chat', { replace: true })
   }
 
