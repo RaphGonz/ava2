@@ -30,6 +30,18 @@ export default function LoginPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    // If there's already an active Supabase session, the user just completed OAuth
+    // (or is already logged in). Redirect immediately — don't render the login form.
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setAuth(data.session.access_token, data.session.user.id)
+        navigate('/chat', { replace: true })
+        return
+      }
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     // Detect if the currently-stored session (if any) belongs to a Google-only account.
     // A Google-only account has identities containing only provider='google' — no 'email' identity.
     // If both exist (linked account), the user does have a password, so show the link.
