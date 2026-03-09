@@ -1,14 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Launch Ready
-status: in_progress
-last_updated: "2026-03-05"
+milestone: v1.0
+milestone_name: milestone
+status: completed
+stopped_at: Completed 10-landing-page-01-PLAN.md
+last_updated: "2026-03-09T10:20:43.993Z"
+last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 24
-  completed_plans: 6
+  completed_phases: 2
+  total_plans: 12
+  completed_plans: 9
 ---
 
 # Project State
@@ -91,6 +93,7 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 09-auth-polish-email P02 | 8 | 2 tasks | 2 files |
 | Phase 09-auth-polish-email P03 | 15 | 2 tasks | 9 files |
 | Phase 09-auth-polish-email P04 | human-action + human-verify | 2 tasks | 0 files (VPS .env only) |
+| Phase 10-landing-page P01 | 14 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -238,6 +241,8 @@ Recent decisions affecting current work:
 - [Phase 09-auth-polish-email]: AuthBridge new-signup detection: provider=google AND created_at within 60s fires POST /auth/send-welcome fire-and-forget (non-blocking)
 - [Phase 09-auth-polish-email]: Production env var split — backend/.env holds SUPABASE_HOOK_SECRET (server secret); frontend/.env holds VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY (baked into JS bundle at build time via Vite)
 - [Phase 09-auth-polish-email]: Phase 9 browser/inbox E2E verification (AUTH-01 Google OAuth flow, EMAI-02/03/04 email delivery) delegated to Phase 13 smoke test — automated checks confirmed all endpoints and bundle content correct
+- [Phase 10-landing-page]: GlassCard uses motion/react (Framer Motion v12) NOT framer-motion — critical import path per Figma source
+- [Phase 10-landing-page]: LandingPage TDD tests intentionally in RED state at plan 01 — will turn GREEN after Plans 02-04 implement Figma design
 
 ### Pending Todos
 
@@ -261,5 +266,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-06
-Stopped at: Phase 9 complete — 09-04 SUMMARY.md created, all requirements verified in production
+Last session: 2026-03-09T10:20:43.987Z
+Stopped at: Completed 10-landing-page-01-PLAN.md

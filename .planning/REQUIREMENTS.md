@@ -28,9 +28,9 @@ Requirements for the Launch Ready milestone. Each maps to roadmap phases (starti
 
 ### Landing Page
 
-- [ ] **LAND-01**: Visitor lands on a designed page with hero section, features section, and pricing (Figma design provided at build time)
-- [ ] **LAND-02**: Visitor can click a CTA button and reach the sign-up flow directly
-- [ ] **LAND-03**: Landing page copy frames Ava as an AI companion/assistant (Stripe-compliant — no explicit NSFW framing on public surfaces)
+- [x] **LAND-01**: Visitor lands on a designed page with hero section, features section, and pricing (Figma design provided at build time)
+- [x] **LAND-02**: Visitor can click a CTA button and reach the sign-up flow directly
+- [x] **LAND-03**: Landing page copy frames Ava as an AI companion/assistant (Stripe-compliant — no explicit NSFW framing on public surfaces)
 
 ### Subscription Management
 
@@ -94,9 +94,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMAI-04 | Phase 9 | Complete |
 | AUTH-01 | Phase 9 | Complete |
 | AUTH-02 | Phase 9 | Complete |
-| LAND-01 | Phase 10 | Pending |
-| LAND-02 | Phase 10 | Pending |
-| LAND-03 | Phase 10 | Pending |
+| LAND-01 | Phase 10 | Complete |
+| LAND-02 | Phase 10 | Complete |
+| LAND-03 | Phase 10 | Complete |
 | SUBS-01 | Phase 11 | Pending |
 | SUBS-02 | Phase 11 | Pending |
 | SUBS-03 | Phase 11 | Pending |
