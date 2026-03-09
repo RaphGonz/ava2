@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 10-landing-page-03-PLAN.md
-last_updated: "2026-03-09T10:42:52.114Z"
+stopped_at: Completed 10-landing-page-02-PLAN.md
+last_updated: "2026-03-09T10:44:32.696Z"
 last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
   total_phases: 6
@@ -247,6 +247,9 @@ Recent decisions affecting current work:
 - [Phase 10-landing-page]: LandingPage TDD tests intentionally in RED state at plan 01 — will turn GREEN after Plans 02-04 implement Figma design
 - [Phase 10-landing-page]: GlassCard className override (bg-white/80 border-slate-200) required for visible cards on light bg-slate-50 sections — default bg-white/5 is invisible on light backgrounds
 - [Phase 10-landing-page]: Premium CTA uses motion.div wrapping Link (not motion.button) — preserves animation while making element a proper anchor for routing
+- [Phase 10-landing-page]: motion.div wrapping Link to='/signup' pattern for animated CTAs — never motion.button with href
+- [Phase 10-landing-page]: BAR_HEIGHTS constant replaces Math.random() in audio visualizer — React strict mode safe, no hydration mismatch
+- [Phase 10-landing-page]: Figma Hero TypingText helper removed in LandingHero port — unused in output, caused TS6133 build error
 
 ### Pending Todos
 
@@ -270,5 +273,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T10:40:28.792Z
-Stopped at: Completed 10-landing-page-03-PLAN.md
+Last session: 2026-03-09T10:44:32.690Z
+Stopped at: Completed 10-landing-page-02-PLAN.md
