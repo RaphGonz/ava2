@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-subscription-management-churn-01-PLAN.md
-last_updated: "2026-03-09T15:38:15.997Z"
+stopped_at: Completed 11-subscription-management-churn-02-PLAN.md
+last_updated: "2026-03-09T16:03:52.014Z"
 last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -98,6 +98,7 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 10-landing-page P02 | 11 | 2 tasks | 3 files |
 | Phase 10-landing-page P04 | 78 | 2 tasks | 5 files |
 | Phase 11 P01 | 15 | 2 tasks | 4 files |
+| Phase 11-subscription-management-churn P02 | 10 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -257,6 +258,10 @@ Recent decisions affecting current work:
 - [Phase 11-01]: cancel_subscription_at_period_end uses stripe.Subscription.modify() NOT delete() — user retains access until period_end
 - [Phase 11-01]: All 4 new billing endpoints use get_current_user only (not require_active_subscription) — users in grace period must access billing
 - [Phase 11-01]: Subscription state reads from local DB not live Stripe API — avoids rate limits; Stripe called only for portal-session and cancel
+- [Phase 11-02]: staleTime 60s on subscription query (refetchOnWindowFocus kept enabled) — triggers refetch when user tabs back from Stripe Portal after >60s
+- [Phase 11-02]: cancelStep state wired at BillingPage component level — Plan 03 implements step logic without restructuring
+- [Phase 11-02]: In-app Upgrade modal before any Stripe redirect — user sees plan options before checkout
+- [Phase 11-02]: /billing route: ProtectedRoute only, no OnboardingGate — billing accessible in all subscription states
 
 ### Pending Todos
 
@@ -281,5 +286,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T15:38:15.991Z
-Stopped at: Completed 11-subscription-management-churn-01-PLAN.md
+Last session: 2026-03-09T16:03:52.009Z
+Stopped at: Completed 11-subscription-management-churn-02-PLAN.md
