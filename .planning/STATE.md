@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 10-landing-page-01-PLAN.md
-last_updated: "2026-03-09T10:20:43.993Z"
+stopped_at: Completed 10-landing-page-03-PLAN.md
+last_updated: "2026-03-09T10:42:52.114Z"
 last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 11
 ---
 
 # Project State
@@ -94,6 +94,8 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 09-auth-polish-email P03 | 15 | 2 tasks | 9 files |
 | Phase 09-auth-polish-email P04 | human-action + human-verify | 2 tasks | 0 files (VPS .env only) |
 | Phase 10-landing-page P01 | 14 | 3 tasks | 6 files |
+| Phase 10-landing-page P03 | 10 | 2 tasks | 2 files |
+| Phase 10-landing-page P02 | 11 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -243,6 +245,8 @@ Recent decisions affecting current work:
 - [Phase 09-auth-polish-email]: Phase 9 browser/inbox E2E verification (AUTH-01 Google OAuth flow, EMAI-02/03/04 email delivery) delegated to Phase 13 smoke test — automated checks confirmed all endpoints and bundle content correct
 - [Phase 10-landing-page]: GlassCard uses motion/react (Framer Motion v12) NOT framer-motion — critical import path per Figma source
 - [Phase 10-landing-page]: LandingPage TDD tests intentionally in RED state at plan 01 — will turn GREEN after Plans 02-04 implement Figma design
+- [Phase 10-landing-page]: GlassCard className override (bg-white/80 border-slate-200) required for visible cards on light bg-slate-50 sections — default bg-white/5 is invisible on light backgrounds
+- [Phase 10-landing-page]: Premium CTA uses motion.div wrapping Link (not motion.button) — preserves animation while making element a proper anchor for routing
 
 ### Pending Todos
 
@@ -266,5 +270,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T10:20:43.987Z
-Stopped at: Completed 10-landing-page-01-PLAN.md
+Last session: 2026-03-09T10:40:28.792Z
+Stopped at: Completed 10-landing-page-03-PLAN.md
