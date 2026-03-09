@@ -1,6 +1,6 @@
 """
 Stripe Checkout session creation and webhook event verification.
-stripe_price_id is read from settings — never hardcoded (BILL-02).
+Price IDs are read from settings (env) — never hardcoded (BILL-02).
 """
 import stripe
 from app.config import settings
@@ -8,17 +8,36 @@ from app.config import settings
 # Module-level API key (global pattern is fine at this scale per RESEARCH.md)
 stripe.api_key = settings.stripe_secret_key
 
+PLAN_PRICE_IDS = {
+    "basic": "stripe_price_id_basic",
+    "premium": "stripe_price_id_premium",
+    "elite": "stripe_price_id_elite",
+}
 
-def create_checkout_session(user_id: str, email: str | None = None) -> str:
+
+def get_price_id(plan: str) -> str:
+    """Return the Stripe price ID for the given plan slug. Raises ValueError if not configured."""
+    attr = PLAN_PRICE_IDS.get(plan)
+    if not attr:
+        raise ValueError(f"Unknown plan: {plan}")
+    price_id = getattr(settings, attr, "")
+    if not price_id:
+        raise ValueError(f"Price ID not configured for plan: {plan}")
+    return price_id
+
+
+def create_checkout_session(user_id: str, plan: str = "premium", email: str | None = None) -> str:
     """
-    Create a Stripe Checkout Session for monthly subscription.
+    Create a Stripe Checkout Session for the given plan.
     Returns the checkout URL to redirect the user to.
 
-    Config-driven (BILL-02): stripe_price_id comes from settings/env.
+    Config-driven (BILL-02): price IDs come from settings/env, never hardcoded.
+    Defaults to "premium" — the base plan per product design.
     """
+    price_id = get_price_id(plan)
     params: dict = {
         "mode": "subscription",
-        "line_items": [{"price": settings.stripe_price_id, "quantity": 1}],
+        "line_items": [{"price": price_id, "quantity": 1}],
         "success_url": f"{settings.frontend_url}/chat?subscribed=1",
         "cancel_url": f"{settings.frontend_url}/subscribe?cancelled=1",
         "client_reference_id": user_id,

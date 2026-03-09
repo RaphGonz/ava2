@@ -131,18 +131,22 @@ async def cancel_subscription(body: CancelRequest, user=Depends(get_current_user
     }
 
 
+class CheckoutRequest(BaseModel):
+    plan: str = "premium"  # "basic" | "premium" | "elite" — defaults to base plan
+
+
 @router.post("/checkout")
-async def create_checkout(user=Depends(get_current_user)):
+async def create_checkout(body: CheckoutRequest = CheckoutRequest(), user=Depends(get_current_user)):
     """
     Create a Stripe Checkout Session and return the redirect URL.
     Frontend redirects user to checkout_url.
+    Accepts optional plan: "basic" | "premium" | "elite" (default: "premium").
     """
-    from app.config import settings
-    if not settings.stripe_price_id:
-        raise HTTPException(status_code=503, detail="Billing not configured")
     try:
-        url = create_checkout_session(user_id=str(user.id))
+        url = create_checkout_session(user_id=str(user.id), plan=body.plan)
         return {"checkout_url": url}
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Checkout session creation failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to create checkout session")

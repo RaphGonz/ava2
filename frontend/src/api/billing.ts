@@ -1,10 +1,14 @@
 /**
  * Billing API — creates Stripe Checkout session and returns redirect URL.
  */
-export async function createCheckoutSession(token: string): Promise<{ checkout_url: string }> {
+export async function createCheckoutSession(
+  token: string,
+  plan: 'basic' | 'premium' | 'elite' = 'premium'
+): Promise<{ checkout_url: string }> {
   const res = await fetch('/billing/checkout', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan }),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: 'Billing unavailable' }))

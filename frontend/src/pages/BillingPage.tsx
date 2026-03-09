@@ -102,10 +102,10 @@ export default function BillingPage() {
     }
   }
 
-  async function handleCheckout() {
+  async function handleCheckout(plan: 'basic' | 'premium' | 'elite') {
     setCheckoutLoading(true)
     try {
-      const { checkout_url } = await createCheckoutSession(token)
+      const { checkout_url } = await createCheckoutSession(token, plan)
       window.location.href = checkout_url
     } catch {
       setCheckoutLoading(false)
@@ -504,24 +504,56 @@ export default function BillingPage() {
 
             <h2 className="text-xl font-semibold mb-6">Upgrade your plan</h2>
 
-            {/* MVP: single plan option */}
-            <div className="bg-white/5 border border-violet-500/30 rounded-xl p-5 mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Ava Monthly</span>
-                <span className="text-violet-400 font-semibold">$9.99/month</span>
+            {/* Basic */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-medium">Basic</span>
+                <span className="text-blue-400 font-semibold">€4.99/month</span>
               </div>
-              <p className="text-sm text-gray-400">
-                Full access to your AI companion — chat, secretary skills, and photo generation.
-              </p>
+              <p className="text-xs text-gray-400 mb-3">Smart scheduling, calendar sync, email support.</p>
+              <button
+                onClick={() => handleCheckout('basic')}
+                disabled={checkoutLoading}
+                className="w-full py-2 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+              >
+                {checkoutLoading ? 'Redirecting…' : 'Select Basic'}
+              </button>
             </div>
 
-            <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed font-medium transition-colors"
-            >
-              {checkoutLoading ? 'Redirecting…' : 'Subscribe'}
-            </button>
+            {/* Premium */}
+            <div className="bg-white/5 border border-orange-500/40 rounded-xl p-4 mb-3 relative">
+              <span className="absolute top-0 right-0 bg-gradient-to-l from-orange-500 to-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
+                POPULAR
+              </span>
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-medium">Premium</span>
+                <span className="text-orange-400 font-semibold">€19.99/month</span>
+              </div>
+              <p className="text-xs text-gray-400 mb-3">Night mode, unlimited photos, custom personality, priority responses.</p>
+              <button
+                onClick={() => handleCheckout('premium')}
+                disabled={checkoutLoading}
+                className="w-full py-2 rounded-lg bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium transition-opacity"
+              >
+                {checkoutLoading ? 'Redirecting…' : 'Select Premium'}
+              </button>
+            </div>
+
+            {/* Elite */}
+            <div className="bg-white/5 border border-purple-500/30 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-medium">Elite</span>
+                <span className="text-purple-400 font-semibold">€49.99/month</span>
+              </div>
+              <p className="text-xs text-gray-400 mb-3">All features, video calls (beta), early API access, dedicated 24/7 support.</p>
+              <button
+                onClick={() => handleCheckout('elite')}
+                disabled={checkoutLoading}
+                className="w-full py-2 rounded-lg border border-purple-500/40 hover:bg-purple-500/10 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+              >
+                {checkoutLoading ? 'Redirecting…' : 'Select Elite'}
+              </button>
+            </div>
           </GlassCard>
         </div>
       )}

@@ -28,7 +28,9 @@ export function LandingPricing() {
           {/* Basic */}
           <GlassCard className="bg-slate-800/50 border-slate-700 hover:border-blue-500/30">
             <h3 className="text-2xl font-bold text-white mb-2">Basic</h3>
-            <div className="text-4xl font-bold text-blue-400 mb-6">Free</div>
+            <div className="text-4xl font-bold text-blue-400 mb-6">
+              €4.99<span className="text-xl text-slate-400 font-normal">/month</span>
+            </div>
             <p className="text-slate-400 mb-8 text-sm">Start with the essentials.</p>
             <ul className="space-y-4 mb-8">
               {features.basic.map((f, i) => (
@@ -57,7 +59,7 @@ export function LandingPricing() {
               Premium
             </h3>
             <div className="text-5xl font-bold text-white mb-6">
-              €19<span className="text-xl text-slate-400 font-normal">/month</span>
+              €19.99<span className="text-xl text-slate-400 font-normal">/month</span>
             </div>
             <p className="text-slate-300 mb-8 text-sm">The complete experience, day and night.</p>
             <ul className="space-y-4 mb-8">
@@ -81,7 +83,7 @@ export function LandingPricing() {
           <GlassCard className="bg-slate-800/50 border-slate-700 hover:border-purple-500/30">
             <h3 className="text-2xl font-bold text-white mb-2">Elite</h3>
             <div className="text-4xl font-bold text-purple-400 mb-6">
-              €49<span className="text-xl text-slate-400 font-normal">/month</span>
+              €49.99<span className="text-xl text-slate-400 font-normal">/month</span>
             </div>
             <p className="text-slate-400 mb-8 text-sm">The future of human interaction.</p>
             <ul className="space-y-4 mb-8">

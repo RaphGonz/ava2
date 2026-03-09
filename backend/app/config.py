@@ -40,7 +40,9 @@ class Settings(BaseSettings):
     # Billing (Stripe)
     stripe_secret_key: str = ""        # Stripe Dashboard → Developers → API keys (secret)
     stripe_webhook_secret: str = ""    # Stripe Dashboard → Webhooks → signing secret
-    stripe_price_id: str = ""          # Stripe Dashboard → Products → price ID (config-driven BILL-02)
+    stripe_price_id_basic: str = ""    # Stripe Dashboard → Products → Basic plan price ID (€4.99/month)
+    stripe_price_id_premium: str = "" # Stripe Dashboard → Products → Premium plan price ID (€19.99/month)
+    stripe_price_id_elite: str = ""   # Stripe Dashboard → Products → Elite plan price ID (€49.99/month)
 
     # Monitoring
     sentry_dsn: str = ""               # Sentry project DSN (empty string = disabled)
