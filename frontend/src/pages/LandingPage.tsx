@@ -1,88 +1,43 @@
-import { Link } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
+import { motion } from 'motion/react'
+import { useAuthStore } from '../store/useAuthStore'
+import { LandingHero } from '../components/landing/LandingHero'
+import { LandingDualPromise } from '../components/landing/LandingDualPromise'
+import { LandingTrust } from '../components/landing/LandingTrust'
+import { LandingPricing } from '../components/landing/LandingPricing'
+import { LandingFooter } from '../components/landing/LandingFooter'
 
 export default function LandingPage() {
+  const token = useAuthStore(s => s.token)
+
+  // Zustand persist is synchronous — no loading state needed (avoids flash per Pitfall 4)
+  if (token) return <Navigate to="/chat" replace />
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-        <span className="text-xl font-bold tracking-tight">Avasecret</span>
-        <div className="flex items-center gap-4">
-          <Link to="/login" className="text-sm text-gray-400 hover:text-white transition-colors">
-            Sign in
-          </Link>
-          <Link
-            to="/signup"
-            className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Get started
-          </Link>
+    <div className="w-full min-h-screen bg-black text-white overflow-x-hidden">
+      <nav className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-sm border-b border-white/5">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <span className="text-xl font-bold tracking-tight text-white">Avasecret</span>
+          <div className="flex items-center gap-4">
+            <Link to="/login" className="text-sm text-slate-400 hover:text-white transition-colors">
+              Sign in
+            </Link>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                to="/signup"
+                className="text-sm bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white px-4 py-2 rounded-lg transition-all font-medium"
+              >
+                Get started
+              </Link>
+            </motion.div>
+          </div>
         </div>
       </nav>
-
-      {/* Hero */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20">
-        <h1 className="text-5xl font-bold tracking-tight mb-6 max-w-2xl">
-          Your personal AI companion
-        </h1>
-        <p className="text-lg text-gray-400 max-w-xl mb-10">
-          Avasecret is an AI assistant that adapts to you — helping with tasks, answering
-          questions, and keeping you company, on web or WhatsApp.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            to="/signup"
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors"
-          >
-            Create your Ava
-          </Link>
-          <Link
-            to="/login"
-            className="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors"
-          >
-            Sign in
-          </Link>
-        </div>
-      </main>
-
-      {/* Features */}
-      <section className="px-6 py-16 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="text-3xl mb-3">🤝</div>
-            <h3 className="font-semibold mb-2">Always available</h3>
-            <p className="text-sm text-gray-400">
-              Chat on the web app or WhatsApp — your Ava is there whenever you need her.
-            </p>
-          </div>
-          <div>
-            <div className="text-3xl mb-3">⚡</div>
-            <h3 className="font-semibold mb-2">Smart assistant</h3>
-            <p className="text-sm text-gray-400">
-              Schedule meetings, search the web, and get things done — all through conversation.
-            </p>
-          </div>
-          <div>
-            <div className="text-3xl mb-3">✨</div>
-            <h3 className="font-semibold mb-2">Truly personal</h3>
-            <p className="text-sm text-gray-400">
-              Customise her name, appearance, and personality to match exactly what you're looking for.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="px-6 py-6 border-t border-gray-800 flex items-center justify-between text-xs text-gray-500">
-        <span>© {new Date().getFullYear()} Avasecret</span>
-        <div className="flex gap-4">
-          <Link to="/privacy" className="hover:text-gray-300 transition-colors">
-            Privacy Policy
-          </Link>
-          <Link to="/terms" className="hover:text-gray-300 transition-colors">
-            Terms of Use
-          </Link>
-        </div>
-      </footer>
+      <LandingHero />
+      <LandingDualPromise />
+      <LandingTrust />
+      <LandingPricing />
+      <LandingFooter />
     </div>
   )
 }

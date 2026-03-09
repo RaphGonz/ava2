@@ -5,9 +5,9 @@ import { Link } from 'react-router-dom';
 
 export function LandingPricing() {
   const features = {
-    basic: ['Assistant Mode', 'Synced Calendar', 'Email Support'],
-    premium: ['Companion Mode', 'Unlimited Photos', 'Custom Personality', 'Priority Responses'],
-    elite: ['Everything in Premium', 'Video Calls (Beta)', 'Early API Access', 'Dedicated 24/7 Support'],
+    basic: ['Smart Scheduling', 'Synced Calendar', 'Email Support'],
+    premium: ['Night Mode', 'Unlimited Photos', 'Custom Personality', 'Priority Responses'],
+    elite: ['All features included', 'Video Calls (Beta)', 'Early API Access', 'Dedicated 24/7 Support'],
   };
 
   return (

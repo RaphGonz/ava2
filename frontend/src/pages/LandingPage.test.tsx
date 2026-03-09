@@ -1,13 +1,21 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import LandingPage from './LandingPage'
 
-// Mock useAuthStore to return unauthenticated state (no token)
+// Mutable token state — allows individual tests to control auth state
+let mockToken: string | null = null
+
+// Mock useAuthStore to return controlled token state
 vi.mock('../store/useAuthStore', () => ({
-  useAuthStore: (selector: (s: { token: null }) => unknown) =>
-    selector({ token: null }),
+  useAuthStore: (selector: (s: { token: string | null }) => unknown) =>
+    selector({ token: mockToken }),
 }))
+
+// Reset to unauthenticated before each test
+beforeEach(() => {
+  mockToken = null
+})
 
 function renderLanding() {
   return render(
@@ -80,10 +88,8 @@ describe('LandingPage — LAND-03: No prohibited copy', () => {
 
 describe('LandingPage — Auth redirect', () => {
   it('redirects authenticated users away from landing page', () => {
-    vi.mock('../store/useAuthStore', () => ({
-      useAuthStore: (selector: (s: { token: string }) => unknown) =>
-        selector({ token: 'fake-token' }),
-    }))
+    // Set token to simulate authenticated user
+    mockToken = 'fake-token'
     // With a token, the Navigate component renders; landing content does not
     const { container } = render(
       <MemoryRouter initialEntries={['/']}>
