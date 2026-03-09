@@ -126,7 +126,7 @@ Plans:
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
 | 8. Infrastructure & Deployment | v1.1 | 4/4 | Complete | 2026-03-05 |
 | 9. Auth Polish & Email | 4/4 | Complete   | 2026-03-06 | - |
-| 10. Landing Page | 4/4 | Complete   | 2026-03-09 | - |
+| 10. Landing Page | 4/4 | Complete    | 2026-03-09 | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |
 | 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
