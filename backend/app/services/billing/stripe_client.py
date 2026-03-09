@@ -80,12 +80,15 @@ def cancel_subscription_at_period_end(stripe_subscription_id: str) -> dict:
     Mark a subscription to cancel at the end of the current billing period.
     CRITICAL: Uses stripe.Subscription.modify(cancel_at_period_end=True) —
     user retains access until period_end (Pitfall 1, locked in STATE.md).
+    Retrieves full subscription after modify to ensure all fields are present.
     """
-    subscription = stripe.Subscription.modify(
+    stripe.Subscription.modify(
         stripe_subscription_id,
         cancel_at_period_end=True,
     )
+    subscription = stripe.Subscription.retrieve(stripe_subscription_id)
+    sub_dict = subscription if isinstance(subscription, dict) else subscription.to_dict()
     return {
-        "cancel_at_period_end": subscription.cancel_at_period_end,
-        "current_period_end": subscription.current_period_end,
+        "cancel_at_period_end": sub_dict.get("cancel_at_period_end", True),
+        "current_period_end": sub_dict.get("current_period_end"),
     }
