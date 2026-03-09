@@ -12,6 +12,7 @@ import SubscribePage from './pages/SubscribePage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
+import BillingPage from './pages/BillingPage'
 import LandingPage from './pages/LandingPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
@@ -148,6 +149,10 @@ export default function App() {
                 </OnboardingGate>
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/billing"
+            element={<ProtectedRoute><BillingPage /></ProtectedRoute>}
           />
           <Route path="/photo" element={<PhotoPage />} />
           <Route path="*" element={<Navigate to="/chat" replace />} />
