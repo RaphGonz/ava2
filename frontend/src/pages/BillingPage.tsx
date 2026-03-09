@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
 import {
   getSubscription,
   getInvoices,
   createPortalSession,
   createCheckoutSession,
+  cancelSubscription,
 } from '../api/billing'
 import { GlassCard } from '../components/ui/GlassCard'
 import { CreditCard, Calendar, ExternalLink, X } from 'lucide-react'
@@ -25,15 +26,22 @@ function formatStatus(status: string): string {
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type CancelStep = 'idle' | 'survey-q1' | 'survey-q2' | 'confirming' | 'cancelled'
+
 // ─── BillingPage ─────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
   const token = useAuthStore(s => s.token)!
+  const queryClient = useQueryClient()
 
-  // Cancel flow state — Plan 03 will implement step logic
-  const [cancelStep, setCancelStep] = useState<
-    'idle' | 'survey-q1' | 'survey-q2' | 'confirming' | 'cancelled'
-  >('idle')
+  // Cancel flow state machine
+  const [cancelStep, setCancelStep] = useState<CancelStep>('idle')
+  const [surveyQ1, setSurveyQ1] = useState('')
+  const [surveyQ2, setSurveyQ2] = useState('')
+  const [isCancelling, setIsCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState<string | null>(null)
 
   // Upgrade modal state
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
@@ -104,11 +112,25 @@ export default function BillingPage() {
     }
   }
 
+  async function handleConfirmCancel() {
+    setIsCancelling(true)
+    setCancelError(null)
+    try {
+      await cancelSubscription(token, { q1: surveyQ1, q2: surveyQ2 })
+      await queryClient.invalidateQueries({ queryKey: ['subscription'] })
+      setCancelStep('cancelled')
+    } catch {
+      setCancelError('Something went wrong. Please try again.')
+    } finally {
+      setIsCancelling(false)
+    }
+  }
+
   function handleCancelClick() {
-    // Cancel flow implemented in Plan 03
-    console.log('[BillingPage] Cancel clicked — Plan 03 will implement this flow')
-    // TODO: Plan 03 — implement cancel survey flow using setCancelStep
-    void setCancelStep // suppress unused variable warning
+    setCancelError(null)
+    setSurveyQ1('')
+    setSurveyQ2('')
+    setCancelStep('survey-q1')
   }
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -119,6 +141,10 @@ export default function BillingPage() {
   const isActive = subscription?.status === 'active'
   const isCancellingAtPeriodEnd = isActive && subscription?.cancel_at_period_end === true
 
+  const accessUntilDate = subscription?.current_period_end
+    ? formatDate(subscription.current_period_end)
+    : ''
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="max-w-2xl mx-auto px-4 py-12">
@@ -127,11 +153,153 @@ export default function BillingPage() {
           Billing
         </h1>
 
-        {/* ── Cancel flow placeholder (Plan 03) ── */}
+        {/* ── Cancel Flow State Machine ── */}
         {cancelStep !== 'idle' && (
-          <div className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10 text-gray-400">
-            Cancel flow coming in Plan 03
-          </div>
+          <GlassCard className="bg-white/5 border-white/10 mb-6">
+
+            {/* Survey Q1 */}
+            {cancelStep === 'survey-q1' && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Before you go...</h2>
+                <p className="text-gray-300 text-sm">
+                  What did you like most about Ava?
+                </p>
+                <textarea
+                  value={surveyQ1}
+                  onChange={e => setSurveyQ1(e.target.value)}
+                  placeholder="Share your thoughts (optional)"
+                  rows={3}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:border-violet-500/50"
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setCancelStep('survey-q2')}
+                    className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                  >
+                    Skip
+                  </button>
+                  <button
+                    onClick={() => setCancelStep('survey-q2')}
+                    className="px-4 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-sm font-medium transition-colors"
+                  >
+                    Next &rarr;
+                  </button>
+                </div>
+                {/* 3-click shortcut: Cancel → skip shortcut → Confirm */}
+                <div className="pt-1">
+                  <button
+                    onClick={() => setCancelStep('confirming')}
+                    className="text-xs text-gray-500 hover:text-gray-300 underline transition-colors"
+                  >
+                    Skip survey and cancel
+                  </button>
+                </div>
+                <button
+                  onClick={() => setCancelStep('idle')}
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  &larr; Back
+                </button>
+              </div>
+            )}
+
+            {/* Survey Q2 */}
+            {cancelStep === 'survey-q2' && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">One more question</h2>
+                <p className="text-gray-300 text-sm">
+                  Why are you leaving?
+                </p>
+                <textarea
+                  value={surveyQ2}
+                  onChange={e => setSurveyQ2(e.target.value)}
+                  placeholder="Your feedback helps us improve (optional)"
+                  rows={3}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:border-violet-500/50"
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setCancelStep('confirming')}
+                    className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                  >
+                    Skip
+                  </button>
+                  <button
+                    onClick={() => setCancelStep('confirming')}
+                    className="px-4 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-sm font-medium transition-colors"
+                  >
+                    Next &rarr;
+                  </button>
+                </div>
+                <button
+                  onClick={() => setCancelStep('survey-q1')}
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  &larr; Back
+                </button>
+              </div>
+            )}
+
+            {/* Confirming step */}
+            {cancelStep === 'confirming' && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Are you sure?</h2>
+                {accessUntilDate && (
+                  <p className="text-sm text-gray-300">
+                    Your access continues until{' '}
+                    <span className="text-white font-medium">{accessUntilDate}</span>
+                    . You won't be charged again.
+                  </p>
+                )}
+                <div className="flex items-center gap-4 flex-wrap">
+                  <button
+                    onClick={handleConfirmCancel}
+                    disabled={isCancelling}
+                    className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                  >
+                    {isCancelling ? 'Cancelling…' : 'Yes, cancel my subscription'}
+                  </button>
+                  <button
+                    onClick={() => setCancelStep('idle')}
+                    className="text-sm text-gray-400 hover:text-gray-200 underline transition-colors"
+                  >
+                    Never mind
+                  </button>
+                </div>
+                {cancelError && (
+                  <p className="text-sm text-red-400">{cancelError}</p>
+                )}
+              </div>
+            )}
+
+            {/* Cancelled step — warm post-cancel message */}
+            {cancelStep === 'cancelled' && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Subscription cancelled</h2>
+                <p className="text-sm text-gray-300">
+                  We're sad to see you go.{' '}
+                  {accessUntilDate ? (
+                    <>
+                      You'll keep access until{' '}
+                      <span className="text-white font-medium">{accessUntilDate}</span>.
+                    </>
+                  ) : (
+                    "You'll keep access until the end of your billing period."
+                  )}
+                </p>
+                <p className="text-sm text-gray-400">
+                  You can resubscribe anytime from this page.
+                </p>
+                <button
+                  onClick={() => setCancelStep('idle')}
+                  className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-sm font-medium transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+
+          </GlassCard>
         )}
 
         {/* ── Subscription Info ── */}
@@ -214,8 +382,8 @@ export default function BillingPage() {
           )}
         </GlassCard>
 
-        {/* ── Action Buttons ── */}
-        {!subLoading && !hasNoSubscription && (
+        {/* ── Action Buttons — hidden while cancel flow is open ── */}
+        {!subLoading && !hasNoSubscription && cancelStep === 'idle' && (
           <div className="flex flex-col gap-3 mb-6">
             {/* Manage billing */}
             <button
