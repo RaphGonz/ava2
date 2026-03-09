@@ -82,7 +82,13 @@ Plans:
   2. Clicking any CTA button on the landing page navigates directly to the sign-up flow without intermediate pages
   3. An authenticated user navigating to "/" is redirected to /chat (landing page does not display to logged-in users)
   4. No word on the landing page uses terms like "intimate," "explicit," "NSFW," or "adult" — the product is framed as an AI companion/assistant throughout
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Install deps (motion, lucide-react, clsx, tailwind-merge), port GlassCard from Figma, configure vitest, create failing test scaffold
+- [ ] 10-02-PLAN.md — Port Hero and DualPromise sections (English copy, no Unsplash, pre-computed audio visualizer, CTA as Link)
+- [ ] 10-03-PLAN.md — Port Trust and Pricing sections (light-bg GlassCard fix, pricing CTA routing to /signup)
+- [ ] 10-04-PLAN.md — Port Footer (no 18+ block), assemble LandingPage with auth guard + sticky nav, all tests GREEN
 
 ### Phase 11: Subscription Management & Churn
 **Goal**: Users can see their billing status, manage payment details via Stripe, and cancel with a friction-appropriate but legally compliant flow
@@ -120,7 +126,7 @@ Plans:
 | 07.1. Switch Image Gen to ComfyUI Cloud | v1.0 | 2/2 | Complete (INSERTED) | 2026-03-02 |
 | 8. Infrastructure & Deployment | v1.1 | 4/4 | Complete | 2026-03-05 |
 | 9. Auth Polish & Email | 4/4 | Complete   | 2026-03-06 | - |
-| 10. Landing Page | v1.1 | 0/? | Not started | - |
+| 10. Landing Page | v1.1 | 0/4 | Not started | - |
 | 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |
 | 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
