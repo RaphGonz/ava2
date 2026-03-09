@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 10-landing-page-02-PLAN.md
-last_updated: "2026-03-09T10:44:32.696Z"
+stopped_at: "Completed 10-landing-page-04-PLAN.md (checkpoint: awaiting human visual verification)"
+last_updated: "2026-03-09T12:18:40.543Z"
 last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -96,6 +96,7 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 10-landing-page P01 | 14 | 3 tasks | 6 files |
 | Phase 10-landing-page P03 | 10 | 2 tasks | 2 files |
 | Phase 10-landing-page P02 | 11 | 2 tasks | 3 files |
+| Phase 10-landing-page P04 | 78 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -250,6 +251,8 @@ Recent decisions affecting current work:
 - [Phase 10-landing-page]: motion.div wrapping Link to='/signup' pattern for animated CTAs — never motion.button with href
 - [Phase 10-landing-page]: BAR_HEIGHTS constant replaces Math.random() in audio visualizer — React strict mode safe, no hydration mismatch
 - [Phase 10-landing-page]: Figma Hero TypingText helper removed in LandingHero port — unused in output, caused TS6133 build error
+- [Phase 10-landing-page]: Vitest v4 hoists ALL vi.mock calls including those inside it() callbacks — use mutable variable + beforeEach for per-test auth state control
+- [Phase 10-landing-page]: LandingPricing feature list items must not duplicate section heading text — getByText uniqueness constraint requires feature names distinct from DualPromise card titles
 
 ### Pending Todos
 
@@ -273,5 +276,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T10:44:32.690Z
-Stopped at: Completed 10-landing-page-02-PLAN.md
+Last session: 2026-03-09T12:18:40.537Z
+Stopped at: Completed 10-landing-page-04-PLAN.md (checkpoint: awaiting human visual verification)
