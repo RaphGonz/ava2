@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-subscription-management-churn-02-PLAN.md
-last_updated: "2026-03-09T16:03:52.014Z"
+stopped_at: Completed 11-subscription-management-churn-03-PLAN.md
+last_updated: "2026-03-09T17:53:45.044Z"
 last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -99,6 +99,7 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 10-landing-page P04 | 78 | 2 tasks | 5 files |
 | Phase 11 P01 | 15 | 2 tasks | 4 files |
 | Phase 11-subscription-management-churn P02 | 10 | 2 tasks | 3 files |
+| Phase 11 P03 | 30 | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -262,6 +263,8 @@ Recent decisions affecting current work:
 - [Phase 11-02]: cancelStep state wired at BillingPage component level — Plan 03 implements step logic without restructuring
 - [Phase 11-02]: In-app Upgrade modal before any Stripe redirect — user sees plan options before checkout
 - [Phase 11-02]: /billing route: ProtectedRoute only, no OnboardingGate — billing accessible in all subscription states
+- [Phase 11-subscription-management-churn]: 'Skip survey and cancel' shortcut on Q1 step jumps directly to confirming — satisfies SUBS-05 ≤3-click path (Cancel link → skip shortcut → Confirm)
+- [Phase 11-subscription-management-churn]: cancelled step shows warm post-cancel message then setCancelStep('idle') on Done — transitions back to normal billing view with updated subscription data from invalidated query
 
 ### Pending Todos
 
@@ -286,5 +289,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T16:03:52.009Z
-Stopped at: Completed 11-subscription-management-churn-02-PLAN.md
+Last session: 2026-03-09T17:52:00.505Z
+Stopped at: Completed 11-subscription-management-churn-03-PLAN.md

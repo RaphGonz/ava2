@@ -29,7 +29,7 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 8: Infrastructure & Deployment** — Production VPS live on HTTPS with all API credentials wired (completed 2026-03-05)
 - [x] **Phase 9: Auth Polish & Email** — Google Sign-In works, password reset lands in inbox, welcome email received on signup (completed 2026-03-06)
 - [x] **Phase 10: Landing Page** — Public acquisition page live at "/", CTA reaches signup, Stripe-safe copy (completed 2026-03-09)
-- [ ] **Phase 11: Subscription Management & Churn** — User can view plan, open Stripe portal, cancel in ≤3 clicks with optional survey
+- [x] **Phase 11: Subscription Management & Churn** — User can view plan, open Stripe portal, cancel in ≤3 clicks with optional survey (completed 2026-03-09)
 - [ ] **Phase 12: Admin Dashboard** — /admin shows key metrics, usage_events table accumulates events, regular users get 403
 - [ ] **Phase 13: End-to-End Smoke Test & Milestone Validation** — Every core user journey verified in production before milestone is declared shipped
 
@@ -127,7 +127,7 @@ Plans:
 | 8. Infrastructure & Deployment | v1.1 | 4/4 | Complete | 2026-03-05 |
 | 9. Auth Polish & Email | 4/4 | Complete   | 2026-03-06 | - |
 | 10. Landing Page | 4/4 | Complete    | 2026-03-09 | - |
-| 11. Subscription Management & Churn | 2/3 | In Progress|  | - |
+| 11. Subscription Management & Churn | 3/3 | Complete   | 2026-03-09 | - |
 | 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
 
@@ -149,7 +149,7 @@ Plans:
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 13
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 14 to break down)
