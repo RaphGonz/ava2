@@ -34,11 +34,11 @@ Requirements for the Launch Ready milestone. Each maps to roadmap phases (starti
 
 ### Subscription Management
 
-- [ ] **SUBS-01**: User can view their current plan name, status, and next billing date
-- [ ] **SUBS-02**: User can access invoice history and update payment method (redirects to Stripe Customer Portal)
-- [ ] **SUBS-03**: User can cancel their subscription from the settings/billing page
-- [ ] **SUBS-04**: Cancellation flow shows an exit survey before confirming (what they liked, what they'd add, why they're leaving)
-- [ ] **SUBS-05**: Cancellation is non-coercive: survey is skippable, ≤ 3 clicks to complete, access retained until period end (`cancel_at_period_end=True`)
+- [x] **SUBS-01**: User can view their current plan name, status, and next billing date
+- [x] **SUBS-02**: User can access invoice history and update payment method (redirects to Stripe Customer Portal)
+- [x] **SUBS-03**: User can cancel their subscription from the settings/billing page
+- [x] **SUBS-04**: Cancellation flow shows an exit survey before confirming (what they liked, what they'd add, why they're leaving)
+- [x] **SUBS-05**: Cancellation is non-coercive: survey is skippable, ≤ 3 clicks to complete, access retained until period end (`cancel_at_period_end=True`)
 
 ### Admin Dashboard
 
@@ -97,11 +97,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LAND-01 | Phase 10 | Complete |
 | LAND-02 | Phase 10 | Complete |
 | LAND-03 | Phase 10 | Complete |
-| SUBS-01 | Phase 11 | Pending |
-| SUBS-02 | Phase 11 | Pending |
-| SUBS-03 | Phase 11 | Pending |
-| SUBS-04 | Phase 11 | Pending |
-| SUBS-05 | Phase 11 | Pending |
+| SUBS-01 | Phase 11 | Complete |
+| SUBS-02 | Phase 11 | Complete |
+| SUBS-03 | Phase 11 | Complete |
+| SUBS-04 | Phase 11 | Complete |
+| SUBS-05 | Phase 11 | Complete |
 | ADMN-01 | Phase 12 | Pending |
 | ADMN-02 | Phase 12 | Pending |
 | ADMN-03 | Phase 12 | Pending |

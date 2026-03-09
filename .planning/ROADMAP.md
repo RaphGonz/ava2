@@ -127,7 +127,7 @@ Plans:
 | 8. Infrastructure & Deployment | v1.1 | 4/4 | Complete | 2026-03-05 |
 | 9. Auth Polish & Email | 4/4 | Complete   | 2026-03-06 | - |
 | 10. Landing Page | 4/4 | Complete    | 2026-03-09 | - |
-| 11. Subscription Management & Churn | v1.1 | 0/? | Not started | - |
+| 11. Subscription Management & Churn | 1/3 | In Progress|  | - |
 | 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
 
@@ -143,3 +143,13 @@ Plans:
   5. An unsubscribed user hitting POST /chat receives a 402 — confirming the Stripe paywall is active in production (not bypassed by missing key)
   6. All secretary skills fire correctly: at minimum, one calendar event creation and one web search complete without error
 **Plans**: TBD
+
+### Phase 14: Apply the style of the front page to the rest of the UI of the entire app
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 13
+**Plans:** 1/3 plans executed
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14 to break down)

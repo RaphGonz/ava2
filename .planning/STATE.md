@@ -2,13 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-09T13:47:49.517Z"
+status: completed
+stopped_at: Completed 11-subscription-management-churn-01-PLAN.md
+last_updated: "2026-03-09T15:38:15.997Z"
+last_activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
 progress:
-  total_phases: 4
+  total_phases: 7
   completed_phases: 3
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 15
+  completed_plans: 13
 ---
 
 # Project State
@@ -95,6 +97,7 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 10-landing-page P03 | 10 | 2 tasks | 2 files |
 | Phase 10-landing-page P02 | 11 | 2 tasks | 3 files |
 | Phase 10-landing-page P04 | 78 | 2 tasks | 5 files |
+| Phase 11 P01 | 15 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -251,6 +254,9 @@ Recent decisions affecting current work:
 - [Phase 10-landing-page]: Figma Hero TypingText helper removed in LandingHero port — unused in output, caused TS6133 build error
 - [Phase 10-landing-page]: Vitest v4 hoists ALL vi.mock calls including those inside it() callbacks — use mutable variable + beforeEach for per-test auth state control
 - [Phase 10-landing-page]: LandingPricing feature list items must not duplicate section heading text — getByText uniqueness constraint requires feature names distinct from DualPromise card titles
+- [Phase 11-01]: cancel_subscription_at_period_end uses stripe.Subscription.modify() NOT delete() — user retains access until period_end
+- [Phase 11-01]: All 4 new billing endpoints use get_current_user only (not require_active_subscription) — users in grace period must access billing
+- [Phase 11-01]: Subscription state reads from local DB not live Stripe API — avoids rate limits; Stripe called only for portal-session and cancel
 
 ### Pending Todos
 
@@ -265,6 +271,7 @@ Recent decisions affecting current work:
 - Phase 07.1 inserted after Phase 07: Switch image generation to ComfyUI Cloud (URGENT)
 - v1.1 roadmap created 2026-03-02: Phases 8–12 defined for Launch Ready milestone
 - Phase 13 added 2026-03-03: End-to-End Smoke Test & Milestone Validation — full user journey verified in production before milestone declared shipped (chat, mode switching, image generation, Stripe paywall, secretary skills)
+- Phase 14 added 2026-03-09: Apply the style of the front page to the rest of the UI of the entire app
 
 ### Blockers/Concerns
 
@@ -274,5 +281,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T12:18:40.537Z
-Stopped at: Completed 10-landing-page-04-PLAN.md (checkpoint: awaiting human visual verification)
+Last session: 2026-03-09T15:38:15.991Z
+Stopped at: Completed 11-subscription-management-churn-01-PLAN.md
