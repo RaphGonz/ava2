@@ -10,7 +10,7 @@ const createMotionComponent = (tag: string) => {
           !['initial', 'animate', 'exit', 'transition', 'whileHover', 'whileTap', 'whileFocus', 'variants', 'layout', 'layoutId'].includes(k)
         )
       )
-      return React.createElement(tag, { ...filtered, ref }, children)
+      return React.createElement(tag, { ...filtered, ref }, children as React.ReactNode)
     }
   )
   component.displayName = `motion.${tag}`
