@@ -1,4 +1,3 @@
-import { motion } from "motion/react";
 import { Brain, Heart } from "lucide-react";
 import { GlassCard } from "../ui/GlassCard";
 
@@ -66,18 +65,10 @@ export function LandingDualPromise() {
               Learn to unwind.
             </p>
 
-            {/* Visual: Decorative blurred button */}
-            <div className="mt-auto h-32 flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-orange-600/20 rounded-xl blur-xl" />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative px-8 py-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/50 font-medium group-hover:text-white/80 transition-all overflow-hidden"
-              >
-                <span className="blur-[2px] group-hover:blur-0 transition-all duration-500">
-                  Hold to reveal
-                </span>
-              </motion.button>
+            {/* Visual: Warm gradient accent */}
+            <div className="mt-auto h-32 flex items-center justify-center relative rounded-xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-orange-600/20 rounded-xl" />
+              <p className="relative text-sm text-white/50 text-center px-4">Available on web &amp; WhatsApp</p>
             </div>
           </GlassCard>
 
