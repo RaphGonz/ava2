@@ -3,7 +3,8 @@ Subscription status persistence — reads/writes the subscriptions table in Supa
 Uses supabase_admin (service role) because Stripe webhooks run without user JWT.
 """
 import logging
-from datetime import datetime
+import stripe
+from datetime import datetime, timezone
 from app.database import supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,93 @@ def get_subscription_status(user_id: str) -> str | None:
         .execute()
     )
     return result.data[0]["status"] if result.data else None
+
+
+async def get_subscription_detail(user_id: str) -> dict | None:
+    """
+    Return subscription detail from local DB (no live Stripe call).
+    Returns None if the user has no subscription row.
+    Hard-codes plan_name as "Ava Monthly" — single-product MVP.
+    """
+    try:
+        result = (
+            supabase_admin.from_("subscriptions")
+            .select("status, current_period_end, cancel_at_period_end, stripe_customer_id, stripe_subscription_id")
+            .eq("user_id", user_id)
+            .limit(1)
+            .execute()
+        )
+        if not result.data:
+            return None
+        row = result.data[0]
+        return {
+            "plan_name": "Ava Monthly",
+            "status": row["status"],
+            "current_period_end": row["current_period_end"],
+            "cancel_at_period_end": row.get("cancel_at_period_end", False),
+            "stripe_customer_id": row["stripe_customer_id"],
+            "stripe_subscription_id": row["stripe_subscription_id"],
+        }
+    except Exception as e:
+        logger.error(f"Failed to get subscription detail for user {user_id}: {e}")
+        return None
+
+
+def get_customer_invoices(stripe_customer_id: str) -> list[dict]:
+    """
+    Return up to 12 most recent Stripe invoices for the given customer.
+    Synchronous — stripe SDK is synchronous.
+    Returns [] on any error.
+    """
+    try:
+        invoices = stripe.Invoice.list(customer=stripe_customer_id, limit=12)
+        return [
+            {
+                "date": inv.created,
+                "amount_paid": inv.amount_paid,
+                "status": inv.status,
+                "invoice_pdf": inv.invoice_pdf,
+            }
+            for inv in invoices.data
+        ]
+    except Exception as e:
+        logger.error(f"Failed to list invoices for customer {stripe_customer_id}: {e}")
+        return []
+
+
+async def update_subscription_cancel_state(
+    subscription_id: str,
+    cancel_at_period_end: bool,
+    current_period_end_ts: int | None,
+) -> None:
+    """
+    Persist cancel_at_period_end (and optionally current_period_end) for a subscription row.
+    Called from the customer.subscription.updated webhook branch — non-fatal on failure.
+    """
+    try:
+        update_data: dict = {
+            "cancel_at_period_end": cancel_at_period_end,
+            "updated_at": "now()",
+        }
+        if current_period_end_ts is not None:
+            update_data["current_period_end"] = datetime.fromtimestamp(
+                current_period_end_ts, tz=timezone.utc
+            ).isoformat()
+
+        supabase_admin.from_("subscriptions").update(update_data).eq(
+            "stripe_subscription_id", subscription_id
+        ).execute()
+        logger.info(
+            "Updated cancel_at_period_end=%s for subscription %s",
+            cancel_at_period_end,
+            subscription_id,
+        )
+    except Exception as e:
+        logger.error(
+            "Failed to update cancel_at_period_end for subscription %s: %s",
+            subscription_id,
+            e,
+        )
 
 
 async def get_user_email_by_subscription_id(subscription_id: str) -> str | None:

@@ -41,3 +41,32 @@ def verify_webhook_event(raw_body: bytes, sig_header: str) -> stripe.Event:
     return stripe.Webhook.construct_event(
         raw_body, sig_header, settings.stripe_webhook_secret
     )
+
+
+def create_portal_session(stripe_customer_id: str, return_url: str) -> str:
+    """
+    Create a Stripe Customer Portal session and return the URL.
+    NEVER cache this URL — portal sessions are single-use (Pitfall 4).
+    Each call creates a fresh session.
+    """
+    session = stripe.billing_portal.Session.create(
+        customer=stripe_customer_id,
+        return_url=return_url,
+    )
+    return session.url
+
+
+def cancel_subscription_at_period_end(stripe_subscription_id: str) -> dict:
+    """
+    Mark a subscription to cancel at the end of the current billing period.
+    CRITICAL: Uses stripe.Subscription.modify(cancel_at_period_end=True) —
+    user retains access until period_end (Pitfall 1, locked in STATE.md).
+    """
+    subscription = stripe.Subscription.modify(
+        stripe_subscription_id,
+        cancel_at_period_end=True,
+    )
+    return {
+        "cancel_at_period_end": subscription.cancel_at_period_end,
+        "current_period_end": subscription.current_period_end,
+    }
