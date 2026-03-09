@@ -1,33 +1,9 @@
 import { motion } from "motion/react";
 import { ArrowRight, Play } from "lucide-react";
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 // Pre-computed bar heights — avoids Math.random() in render (React strict mode safe)
 const BAR_HEIGHTS = [18, 28, 14, 32, 20];
-
-// Simple helper for typing animation
-const TypingText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
-  const [displayedText, setDisplayedText] = useState("");
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      let currentText = "";
-      const interval = setInterval(() => {
-        if (currentText.length < text.length) {
-          currentText += text[currentText.length];
-          setDisplayedText(currentText);
-        } else {
-          clearInterval(interval);
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [text, delay]);
-
-  return <span>{displayedText}</span>;
-};
 
 export function LandingHero() {
   return (
