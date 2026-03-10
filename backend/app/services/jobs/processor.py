@@ -180,6 +180,17 @@ async def process_photo_job(job, token: str | None = None) -> None:
         except Exception as e:
             logger.warning(f"Audit log write failed (non-fatal): {e}")
 
+        # Step 7b: Emit to usage_events for admin dashboard (ADMN-02)
+        # audit_log write above is kept — both writes happen independently
+        try:
+            supabase_admin.from_("usage_events").insert({
+                "user_id": user_id,
+                "event_type": "photo_generated",
+                "metadata": {"job_id": job_id, "channel": channel},
+            }).execute()
+        except Exception as exc:
+            logger.error("Failed to emit photo_generated usage event: %s", exc)
+
         # Step 8: Deliver to user via channel using the permanent storage path.
         # _deliver_web stores the path in message content (re-signed at read time).
         # _deliver_whatsapp generates a fresh signed URL at delivery time.

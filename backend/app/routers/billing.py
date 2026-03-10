@@ -187,6 +187,17 @@ async def stripe_webhook(request: Request):
                 subscription_id=data.get("subscription", ""),
             )
 
+            # Emit subscription_created usage event (ADMN-02)
+            # Different from subscription_cancelled (emitted in /billing/cancel)
+            try:
+                supabase_admin.from_("usage_events").insert({
+                    "user_id": user_id,
+                    "event_type": "subscription_created",
+                    "metadata": {"customer_id": data.get("customer", "")},
+                }).execute()
+            except Exception as exc:
+                logger.error("Failed to emit subscription_created usage event: %s", exc)
+
             # EMAI-03: receipt email — non-blocking, log-only on failure
             try:
                 user_email = (data.get("customer_details") or {}).get("email")
