@@ -54,8 +54,10 @@ export default function AdminPage() {
     throwOnError: false,
   })
 
-  // Backend is the source of truth for admin access — redirect silently on 403
-  if (isError) return <Navigate to="/chat" replace />
+  // Backend is the source of truth for admin access — redirect silently on 403.
+  // Wait for isLoading to be false before redirecting: cached error state from a
+  // previous session must not fire before the fresh fetch completes.
+  if (!isLoading && isError) return <Navigate to="/chat" replace />
 
   function formatFetchedAt(iso: string): string {
     try {
