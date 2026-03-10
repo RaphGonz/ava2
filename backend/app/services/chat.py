@@ -167,6 +167,18 @@ class ChatService:
             if stripped in ("yes", "y", "yeah", "yep"):
                 new_mode = session.pending_switch_to
                 await self._store.switch_mode(user_id, new_mode)
+                # Emit mode_switch usage event — fire-and-forget (ADMN-02)
+                try:
+                    supabase_admin.from_("usage_events").insert({
+                        "user_id": user_id,
+                        "event_type": "mode_switch",
+                        "metadata": {
+                            "from": session.mode.value if hasattr(session.mode, "value") else str(session.mode),
+                            "to": new_mode.value if hasattr(new_mode, "value") else str(new_mode),
+                        },
+                    }).execute()
+                except Exception as exc:
+                    logger.error("Failed to emit mode_switch usage event: %s", exc)
                 if new_mode == ConversationMode.INTIMATE:
                     return SWITCH_TO_INTIMATE_MSG
                 else:
@@ -216,6 +228,18 @@ class ChatService:
                 else ConversationMode.SECRETARY
             )
             await self._store.switch_mode(user_id, target)
+            # Emit mode_switch usage event — fire-and-forget (ADMN-02)
+            try:
+                supabase_admin.from_("usage_events").insert({
+                    "user_id": user_id,
+                    "event_type": "mode_switch",
+                    "metadata": {
+                        "from": session.mode.value if hasattr(session.mode, "value") else str(session.mode),
+                        "to": target.value if hasattr(target, "value") else str(target),
+                    },
+                }).execute()
+            except Exception as exc:
+                logger.error("Failed to emit mode_switch usage event: %s", exc)
             if target == ConversationMode.INTIMATE:
                 return SWITCH_TO_INTIMATE_MSG
             else:
@@ -236,6 +260,18 @@ class ChatService:
                     return ALREADY_SECRETARY_MSG
             # Switch mode
             await self._store.switch_mode(user_id, target)
+            # Emit mode_switch usage event — fire-and-forget (ADMN-02)
+            try:
+                supabase_admin.from_("usage_events").insert({
+                    "user_id": user_id,
+                    "event_type": "mode_switch",
+                    "metadata": {
+                        "from": session.mode.value if hasattr(session.mode, "value") else str(session.mode),
+                        "to": target.value if hasattr(target, "value") else str(target),
+                    },
+                }).execute()
+            except Exception as exc:
+                logger.error("Failed to emit mode_switch usage event: %s", exc)
             if target == ConversationMode.INTIMATE:
                 return SWITCH_TO_INTIMATE_MSG
             else:
@@ -353,5 +389,15 @@ class ChatService:
         await self._store.append_message(
             user_id, current_mode, {"role": "assistant", "content": reply}
         )
+
+        # Emit usage event — fire-and-forget, never blocks reply delivery (ADMN-02)
+        try:
+            supabase_admin.from_("usage_events").insert({
+                "user_id": user_id,
+                "event_type": "message_sent",
+                "metadata": {"mode": current_mode.value if hasattr(current_mode, "value") else str(current_mode)},
+            }).execute()
+        except Exception as exc:
+            logger.error("Failed to emit message_sent usage event: %s", exc)
 
         return reply
