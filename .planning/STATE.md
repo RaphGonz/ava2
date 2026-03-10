@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 ## Current Position
 
 Phase: Phase 12 — Admin Dashboard (In Progress)
-Plan: 12-02 complete — Usage event emission wiring (message_sent, mode_switch, photo_generated, subscription_created)
-Status: Phase 12 in progress — ADMN-02 complete, usage_events now accumulates real data
-Last activity: 2026-03-10 — 12-02 complete (all 4 emission points wired, 7 tests passing)
+Plan: 12-01 complete — Admin backend API (require_admin dependency + GET /admin/metrics endpoint)
+Status: Phase 12 in progress — ADMN-01, ADMN-02, ADMN-03 complete; 12-01 and 12-02 done; 12-03 (frontend) next
+Last activity: 2026-03-10 — 12-01 complete (admin router, 4 access control tests passing, /admin/metrics endpoint)
 
-Progress: [=========>         ] v1.1 Phase 8–13: 9/24 plans done (Phase 12 plan 2/3 done)
+Progress: [=========>         ] v1.1 Phase 8–13: 10/24 plans done (Phase 12 plan 2/3 done, 12-01 retroactively completed)
 
 ## Performance Metrics
 
@@ -99,6 +99,7 @@ Progress: [=========>         ] v1.1 Phase 8–13: 9/24 plans done (Phase 12 pla
 | Phase 11-subscription-management-churn P02 | 10 | 2 tasks | 3 files |
 | Phase 11 P03 | 30 | 3 tasks | 1 files |
 | Phase 12-admin-dashboard P02 | 16 | 2 tasks | 4 files |
+| Phase 12-admin-dashboard P01 | 29 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -267,6 +268,7 @@ Recent decisions affecting current work:
 - [Phase 12-admin-dashboard]: mode_switch emit placed after switch_mode() but BEFORE return in all 3 actual switch paths; already-in-mode paths excluded
 - [Phase 12-admin-dashboard]: processor.py keeps BOTH audit_log (compliance) and usage_events (admin dashboard) — Step 7b is additive not a replacement
 - [Phase 12-admin-dashboard]: backend/.env STRIPE_PRICE_ID -> STRIPE_PRICE_ID_BASIC/PREMIUM/ELITE (Rule 3 auto-fix: pre-existing env mismatch blocked test imports)
+- [Phase 12-admin-dashboard]: require_admin reads user_metadata.is_admin (not app_metadata) — locked decision from CONTEXT.md; defined in admin.py not dependencies.py to avoid global dependency anti-pattern
 
 ### Pending Todos
 
@@ -291,5 +293,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T07:33:30Z
-Stopped at: Completed 12-admin-dashboard-02-PLAN.md
+Last session: 2026-03-10T07:46:00Z
+Stopped at: Completed 12-admin-dashboard-01-PLAN.md
