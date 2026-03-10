@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { AppNav } from './components/AppNav'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { useAuthStore } from './store/useAuthStore'
 import LoginPage from './pages/LoginPage'
@@ -45,7 +46,7 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <p className="text-gray-400">Loading...</p>
       </div>
     )
@@ -54,6 +55,23 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
   if (avatar === null) return <Navigate to="/avatar-setup" replace />
 
   return <>{children}</>
+}
+
+/**
+ * AuthenticatedLayout — wraps post-auth routes that need the persistent navigation.
+ * Only used for /chat, /settings, /billing, /photo, /admin.
+ * NOT used for /avatar-setup, /subscribe (pre-subscription flows with their own layout).
+ * NOT used for /login, /signup, auth pages (public pages with no nav).
+ */
+function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-black flex flex-col">
+      <AppNav />
+      <div className="flex-1">
+        {children}
+      </div>
+    </div>
+  )
 }
 
 /**
@@ -135,34 +153,53 @@ export default function App() {
           <Route
             path="/chat"
             element={
-              <ProtectedRoute>
-                <OnboardingGate>
-                  <ChatPage />
-                </OnboardingGate>
-              </ProtectedRoute>
+              <AuthenticatedLayout>
+                <ProtectedRoute>
+                  <OnboardingGate>
+                    <ChatPage />
+                  </OnboardingGate>
+                </ProtectedRoute>
+              </AuthenticatedLayout>
             }
           />
           <Route
             path="/settings"
             element={
-              <ProtectedRoute>
-                <OnboardingGate>
-                  <SettingsPage />
-                </OnboardingGate>
-              </ProtectedRoute>
+              <AuthenticatedLayout>
+                <ProtectedRoute>
+                  <OnboardingGate>
+                    <SettingsPage />
+                  </OnboardingGate>
+                </ProtectedRoute>
+              </AuthenticatedLayout>
             }
           />
           <Route
             path="/billing"
-            element={<ProtectedRoute><BillingPage /></ProtectedRoute>}
+            element={
+              <AuthenticatedLayout>
+                <ProtectedRoute>
+                  <BillingPage />
+                </ProtectedRoute>
+              </AuthenticatedLayout>
+            }
           />
-          <Route path="/photo" element={<PhotoPage />} />
+          <Route
+            path="/photo"
+            element={
+              <AuthenticatedLayout>
+                <PhotoPage />
+              </AuthenticatedLayout>
+            }
+          />
           <Route
             path="/admin"
             element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
+              <AuthenticatedLayout>
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              </AuthenticatedLayout>
             }
           />
           <Route path="*" element={<Navigate to="/chat" replace />} />
