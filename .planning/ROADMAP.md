@@ -129,7 +129,7 @@ Plans:
 | 10. Landing Page | 4/4 | Complete    | 2026-03-09 | - |
 | 11. Subscription Management & Churn | 3/3 | Complete    | 2026-03-09 | - |
 | 12. Admin Dashboard | 3/3 | Complete   | 2026-03-10 | - |
-| 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
+| 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/2 | Not started | - |
 | 14. UI Dark Theme Redesign | 4/4 | Complete    | 2026-03-10 | - |
 
 ### Phase 13: End-to-End Smoke Test & Milestone Validation
@@ -143,7 +143,11 @@ Plans:
   4. In intimate mode, asking for a photo results in a placeholder reply followed by an actual image appearing in the chat within 5 minutes — confirming the BullMQ job queue, ComfyUI image-to-image, watermarking, and frontend delivery all work
   5. An unsubscribed user hitting POST /chat receives a 402 — confirming the Stripe paywall is active in production (not bypassed by missing key)
   6. All secretary skills fire correctly: at minimum, one calendar event creation and one web search complete without error
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Create automated smoke test scripts (paywall 402, admin 403, usage_events coverage) + complete human runbook document
+- [ ] 13-02-PLAN.md — Execute full runbook against production, record evidence table, declare v1.1 milestone shipped or blocked
 
 ### Phase 14: Apply the style of the front page to the rest of the UI of the entire app
 
