@@ -327,27 +327,28 @@ curl -sf https://avasecret.org/health && echo "PASS: server alive" || echo "FAIL
 | AUTH-02 | Forgot password email arrives | manual-only | n/a — requires inbox | n/a |
 | LAND-01/02/03 | Landing page renders, CTA routes, no prohibited copy | manual-only | n/a — requires browser | n/a |
 | SUBS-01/02/03/04/05 | Billing page, portal redirect, cancel flow | manual-only | n/a — requires browser + Stripe | n/a |
-| ADMN-01 | Admin metrics endpoint returns data | smoke | `cd backend && python -m pytest tests/test_smoke_admin.py -x` | ❌ Wave 0 |
-| ADMN-02 | usage_events has all 4 event types | unit-style | `cd backend && python -m pytest tests/test_smoke_usage_events.py -x` | ❌ Wave 0 |
-| ADMN-03 | Non-admin gets 403 from /admin/metrics | automated | `cd backend && python -m pytest tests/test_smoke_paywall.py::test_non_admin_gets_403 -x` | ❌ Wave 0 |
-| SC-5 (paywall) | Unsubscribed user POST /chat returns 402 | automated | `cd backend && python -m pytest tests/test_smoke_paywall.py -x` | ❌ Wave 0 |
+| ADMN-01 | Admin metrics endpoint returns data | smoke | `cd backend && SMOKE_ADMIN_JWT="<jwt>" python -m pytest tests/test_smoke_admin.py -x` | ✅ 13-01 Task 3 |
+| ADMN-02 | usage_events has all 4 event types | unit-style | `cd backend && python -m pytest tests/test_smoke_usage_events.py -x` | ✅ 13-01 Task 2 |
+| ADMN-03 | Non-admin gets 403 from /admin/metrics | automated | `cd backend && python -m pytest tests/test_smoke_paywall.py::test_non_admin_gets_403 -x` | ✅ 13-01 Task 1 |
+| SC-5 (paywall) | Unsubscribed user POST /chat returns 402 | automated | `cd backend && python -m pytest tests/test_smoke_paywall.py -x` | ✅ 13-01 Task 1 |
 | SC-1 | reference_image_url non-null within 5 min | manual-only | n/a — async, requires ComfyUI + real avatar | n/a |
 | SC-2 | Secretary chat reply received | manual-only | n/a — requires production OpenAI key | n/a |
 | SC-3 | Mode switch /intimate /secretary | manual-only | n/a — session state requires live user | n/a |
 | SC-4 | BullMQ photo in chat within 5 min | manual-only | n/a — multi-hop async pipeline | n/a |
 | SC-6a/6b | Calendar event + web search work | manual-only | n/a — requires Google OAuth + Tavily API | n/a |
 
-**Note on manual-only justification:** SC-1, SC-2, SC-3, SC-4, and SC-6 cannot be automated without a full Playwright/Selenium suite against a production environment with real credentials — an infrastructure investment not justified for a one-time milestone gate. The automated tests cover the paywall contract (SC-5) and database state (ADMN-02) which have deterministic, credential-light verification paths.
+**Note on manual-only justification:** SC-1, SC-2, SC-3, SC-4, and SC-6 cannot be automated without a full Playwright/Selenium suite against a production environment with real credentials — an infrastructure investment not justified for a one-time milestone gate. The automated tests cover the paywall contract (SC-5), admin metrics endpoint (ADMN-01), and database state (ADMN-02) which have deterministic, credential-light verification paths.
 
 ### Sampling Rate
-- **Per task commit:** `cd backend && python -m pytest tests/test_smoke_paywall.py -x -q`
+- **Per task commit:** `cd backend && python -m pytest tests/test_smoke_paywall.py tests/test_smoke_admin.py -x -q`
 - **Per wave merge:** `cd backend && python -m pytest tests/ -x -q`
 - **Phase gate:** Full suite green + human runbook ALL criteria marked PASS
 
-### Wave 0 Gaps
-- [ ] `backend/tests/test_smoke_paywall.py` — covers SC-5 (paywall 402), ADMN-03 (403 non-admin)
-- [ ] `backend/tests/test_smoke_usage_events.py` — covers ADMN-02 (usage_events event types)
-- [ ] `backend/tests/conftest.py` update — add `unsubscribed_jwt` fixture (production JWT from env var)
+### Wave 0 Gaps (resolved in 13-01)
+- [x] `backend/tests/test_smoke_paywall.py` — covers SC-5 (paywall 402), ADMN-03 (403 non-admin) — Task 1
+- [x] `backend/tests/test_smoke_usage_events.py` — covers ADMN-02 (usage_events event types) — Task 2
+- [x] `backend/tests/test_smoke_admin.py` — covers ADMN-01 (admin metrics 200 + non-empty data) — Task 3
+- [x] `backend/tests/conftest.py` update — add `unsubscribed_jwt`, `regular_user_jwt`, `admin_jwt` fixtures — Task 1
 
 *(All other criteria are manual-only as justified above)*
 
