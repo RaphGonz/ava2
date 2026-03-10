@@ -5,15 +5,16 @@ import { GlassCard } from '../components/ui/GlassCard'
 import { getAdminMetrics, MetricWindow } from '../api/admin'
 
 // ─── AdminRoute Guard ─────────────────────────────────────────────────────────
-// Reads is_admin from JWT user_metadata (same atob pattern as Phase 6 user_id extraction).
+// Reads is_super_admin from JWT app_metadata (Supabase-managed, not user-settable).
 // Silently redirects non-admins to /chat — never shows an error or 403 message.
 // No visible link to /admin exists in the UI — URL-only access for operators.
+// SECURITY: app_metadata is service-role only. user_metadata is user-controllable — never use it for auth.
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore(s => s.token)
   if (!token) return <Navigate to="/login" replace />
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
-    const isAdmin = payload?.user_metadata?.is_admin === true
+    const isAdmin = payload?.app_metadata?.is_super_admin === true
     if (!isAdmin) return <Navigate to="/chat" replace />
   } catch {
     return <Navigate to="/chat" replace />

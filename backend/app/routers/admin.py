@@ -4,9 +4,9 @@ Admin router — operator-only endpoints.
 GET /admin/metrics  — returns 5 metrics across 3 time windows (7d, 30d, all-time).
 
 Access control:
-  require_admin dependency reads user_metadata.is_admin from Supabase JWT.
-  Set manually in Supabase Dashboard: User > Edit > User Metadata > {"is_admin": true}
-  Uses user_metadata NOT app_metadata (CONTEXT.md locked decision).
+  require_admin dependency checks user.is_super_admin from the Supabase user object.
+  Set via Supabase Dashboard: Authentication > Users > [user] > toggle "is_super_admin".
+  Uses is_super_admin (Supabase-managed, service-role only) — NOT user_metadata (user-settable).
 
 Data sources (mixed — not all from usage_events):
   - active_users: auth.users.last_sign_in_at (via supabase_admin.auth.admin.list_users())
@@ -30,12 +30,12 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 async def require_admin(user=Depends(get_current_user)):
     """
-    Extends get_current_user — raises 403 if user lacks is_admin flag in user_metadata.
-    Admin status set via Supabase Dashboard: User Metadata > {"is_admin": true}.
-    CRITICAL: reads user_metadata (not app_metadata) per CONTEXT.md locked decision.
+    Extends get_current_user — raises 403 if user is not a Supabase super admin.
+    Admin status set via Supabase Dashboard: Authentication > Users > toggle "is_super_admin".
+    SECURITY: reads user.is_super_admin (service-role managed), NOT user_metadata (user-settable).
     Add directly in admin.py — not a global dependency (anti-pattern per RESEARCH.md).
     """
-    is_admin = (user.user_metadata or {}).get("is_admin", False)
+    is_admin = getattr(user, "is_super_admin", False) or False
     if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
