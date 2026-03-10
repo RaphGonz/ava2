@@ -33,7 +33,7 @@ export function GoogleSignInButton({ onError, disabled }: Props) {
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-lg py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+      className="w-full flex items-center justify-center gap-3 border border-white/20 rounded-lg py-2 px-4 text-sm font-medium text-white hover:bg-white/5 disabled:opacity-50 transition-colors"
     >
       {/* Google's official G logo SVG */}
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
