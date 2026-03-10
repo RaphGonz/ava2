@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 12 — Admin Dashboard (Complete)
-Plan: 12-03 complete — Admin frontend (AdminRoute guard, AdminPage with 5 stat cards, 4 passing Vitest tests, /admin route in App.tsx)
-Status: Phase 12 COMPLETE — all 3 plans done (12-01 backend API, 12-02 usage event wiring, 12-03 frontend dashboard)
-Last activity: 2026-03-10 — 12-03 complete (AdminPage, AdminRoute, 4 Vitest tests GREEN, TypeScript clean)
+Phase: Phase 14 — Apply Front Page Style to Rest of App (In Progress)
+Plan: 14-01 complete — AppNav persistent nav component, AuthenticatedLayout wrapper in App.tsx, Wave 0 test scaffolds (AppNav GREEN, ChatBubble/LoginPage stubs for Plans 02-03)
+Status: Phase 14 IN PROGRESS — 1/4 plans done (14-01 AppNav + layout foundation)
+Last activity: 2026-03-10 — 14-01 complete (AppNav.tsx, AuthenticatedLayout in App.tsx, 3 test scaffolds, TypeScript build clean)
 
-Progress: [==========>        ] v1.1 Phase 8–13: 11/24 plans done (Phase 12 complete 3/3)
+Progress: [===========>       ] Phase 14: 1/4 plans done
 
 ## Performance Metrics
 
@@ -101,6 +101,7 @@ Progress: [==========>        ] v1.1 Phase 8–13: 11/24 plans done (Phase 12 co
 | Phase 12-admin-dashboard P02 | 16 | 2 tasks | 4 files |
 | Phase 12-admin-dashboard P01 | 29 | 2 tasks | 3 files |
 | Phase 12-admin-dashboard P03 | 10 | 2 tasks | 4 files |
+| Phase 14 P01 | 12 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -271,6 +272,8 @@ Recent decisions affecting current work:
 - [Phase 12-admin-dashboard]: backend/.env STRIPE_PRICE_ID -> STRIPE_PRICE_ID_BASIC/PREMIUM/ELITE (Rule 3 auto-fix: pre-existing env mismatch blocked test imports)
 - [Phase 12-admin-dashboard]: require_admin reads user_metadata.is_admin (not app_metadata) — locked decision from CONTEXT.md; defined in admin.py not dependencies.py to avoid global dependency anti-pattern
 - [Phase 12-admin-dashboard]: AdminRoute defined as named export in AdminPage.tsx for co-location with guarded component; AdminPage.tsx created in Task 1 to unblock test GREEN; no nav link to /admin per locked decision
+- [Phase 14-01]: AuthenticatedLayout nesting order: AuthenticatedLayout > ProtectedRoute > OnboardingGate > Page — layout renders unconditionally, auth/onboarding logic inside
+- [Phase 14-01]: Wave 0 scaffold tests: ChatBubble dark-theme and LoginPage bg-black tests intentionally RED — turn GREEN in Plans 02-03 when component classes are updated
 
 ### Pending Todos
 
