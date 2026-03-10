@@ -5,8 +5,8 @@ GET /admin/metrics  — returns 5 metrics across 3 time windows (7d, 30d, all-ti
 
 Access control:
   require_admin dependency checks user.is_super_admin from the Supabase user object.
-  Set via Supabase Dashboard: Authentication > Users > [user] > toggle "is_super_admin".
-  Uses is_super_admin (Supabase-managed, service-role only) — NOT user_metadata (user-settable).
+  Set via Supabase Dashboard SQL: raw_app_meta_data = raw_app_meta_data || '{"role": "super-admin"}'.
+  Uses app_metadata.role (service-role managed) — NOT user_metadata (user-settable).
 
 Data sources (mixed — not all from usage_events):
   - active_users: auth.users.last_sign_in_at (via supabase_admin.auth.admin.list_users())
@@ -33,12 +33,10 @@ async def require_admin(user=Depends(get_current_user)):
     Extends get_current_user — raises 403 if user is not a Supabase super admin.
     Admin status set via Supabase Dashboard: Authentication > Users > toggle "is_super_admin".
     SECURITY: reads app_metadata.role (service-role managed), NOT user_metadata (user-settable).
-    Set via Supabase Dashboard SQL: raw_app_meta_data = '{"role": "super_admin"}'.
+    Set via Supabase Dashboard SQL: raw_app_meta_data = '{"role": "super-admin"}'.
     Add directly in admin.py — not a global dependency (anti-pattern per RESEARCH.md).
     """
-    app_meta = user.app_metadata or {}
-    print(f"DEBUG require_admin: user_id={user.id} app_metadata={app_meta!r}", flush=True)
-    is_admin = app_meta.get("role") == "super_admin"
+    is_admin = (user.app_metadata or {}).get("role") == "super-admin"
     if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
