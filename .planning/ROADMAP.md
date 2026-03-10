@@ -130,6 +130,7 @@ Plans:
 | 11. Subscription Management & Churn | 3/3 | Complete    | 2026-03-09 | - |
 | 12. Admin Dashboard | 3/3 | Complete   | 2026-03-10 | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
+| 14. UI Dark Theme Redesign | - | 0/4 | Planning complete | - |
 
 ### Phase 13: End-to-End Smoke Test & Milestone Validation
 **Goal**: Every core user journey completes successfully in production — from signup through chat, mode switching, image generation, and subscription — before the milestone is declared shipped
@@ -146,10 +147,13 @@ Plans:
 
 ### Phase 14: Apply the style of the front page to the rest of the UI of the entire app
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Apply the landing page's dark glass visual language (bg-black, blue/violet/orange gradients, GlassCard glassmorphism, motion animations) to every authenticated page. Add persistent navigation (AppNav). Update LandingHero mockup. No new features — visual and navigation work only.
+**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06
 **Depends on:** Phase 13
-**Plans:** 3/3 plans complete
+**Plans:** 4 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 14 to break down)
+- [ ] 14-01-PLAN.md — AppNav component (bottom/top nav) + App.tsx AuthenticatedLayout wrapper + Wave 0 test scaffolds
+- [ ] 14-02-PLAN.md — Auth pages restyle (LoginPage, SignupPage, ForgotPasswordPage, ResetPasswordPage, GoogleSignInButton)
+- [ ] 14-03-PLAN.md — Chat restyle (ChatPage dark header with avatar, ChatBubble gradient/glass, ChatInput dark)
+- [ ] 14-04-PLAN.md — Remaining pages (SettingsPage GlassCard sections + subscription, BillingPage back button, SubscribePage, AvatarSetupPage, AdminPage bg-black, LandingHero chat bubbles mockup) + human visual verify
