@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
-import { signOut } from '../api/auth'
 import { useChatHistory, useSendMessage, ApiError } from '../api/chat'
+import { getMyAvatar } from '../api/avatars'
 import MessageList from '../components/MessageList'
 import ChatInput from '../components/ChatInput'
 
 export default function ChatPage() {
   const token = useAuthStore(s => s.token)
-  const clearAuth = useAuthStore(s => s.clearAuth)
-  const navigate = useNavigate()
   const [subscriptionRequired, setSubscriptionRequired] = useState(false)
+
+  const { data: avatar } = useQuery({
+    queryKey: ['avatar'],
+    queryFn: () => getMyAvatar(token!),
+    staleTime: 5 * 60 * 1000,
+  })
 
   const { data: messages = [], isLoading } = useChatHistory(token)
   const sendMutation = useSendMessage(token, {
@@ -25,38 +29,36 @@ export default function ChatPage() {
     sendMutation.mutate(text)
   }
 
-  async function handleSignOut() {
-    await signOut()
-    clearAuth()
-    navigate('/login')
-  }
-
   return (
-    <div className="h-screen flex flex-col bg-white max-w-2xl mx-auto">
+    <div className="h-screen flex flex-col bg-black">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <div className="flex items-center px-4 py-3 border-b border-white/10 bg-black/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-semibold">
-            A
-          </div>
+          {avatar?.reference_image_url ? (
+            <img
+              src={avatar.reference_image_url}
+              alt={avatar.name ?? 'Ava'}
+              className="w-9 h-9 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-orange-500 flex items-center justify-center text-white text-sm font-bold">
+              A
+            </div>
+          )}
           <div>
-            <p className="text-sm font-semibold text-gray-900">Ava</p>
-            <p className="text-xs text-gray-400">Your AI companion</p>
+            <p className="text-sm font-semibold">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-orange-400">
+                {avatar?.name ?? 'Ava'}
+              </span>
+            </p>
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex">
+                <div className="w-2 h-2 rounded-full bg-green-400" />
+                <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75" />
+              </div>
+              <p className="text-xs text-slate-400">Online</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate('/settings')}
-            className="text-gray-400 hover:text-gray-700 text-sm px-2 py-1 rounded transition-colors"
-          >
-            Settings
-          </button>
-          <button
-            onClick={handleSignOut}
-            className="text-gray-400 hover:text-gray-700 text-sm px-2 py-1 rounded transition-colors"
-          >
-            Sign out
-          </button>
         </div>
       </div>
 
@@ -65,13 +67,11 @@ export default function ChatPage() {
 
       {/* Subscription required banner */}
       {subscriptionRequired && (
-        <div className="bg-yellow-900/50 border border-yellow-600 rounded-lg p-3 mx-4 mb-2 flex items-center justify-between">
-          <p className="text-yellow-200 text-sm">
-            Subscription required to send messages.
-          </p>
+        <div className="bg-white/5 border border-white/10 rounded-lg p-3 mx-4 mb-2 flex items-center justify-between">
+          <p className="text-slate-300 text-sm">Subscription required to send messages.</p>
           <a
             href="/subscribe"
-            className="text-yellow-400 underline text-sm font-medium ml-4 whitespace-nowrap"
+            className="text-violet-400 underline text-sm font-medium ml-4 whitespace-nowrap"
           >
             Subscribe
           </a>
