@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 14 — Apply Front Page Style to Rest of App (In Progress)
-Plan: 14-03 complete — ChatBubble dark gradient/glass, ChatInput dark glass bar, ChatPage full dark with avatar header + online glow
-Status: Phase 14 IN PROGRESS — 3/4 plans done (14-01 AppNav, 14-02 LoginPage, 14-03 ChatPage)
-Last activity: 2026-03-10 — 14-03 complete (ChatBubble.tsx, ChatInput.tsx, ChatPage.tsx, all ChatBubble TDD tests GREEN, build clean)
+Phase: Phase 14 — Apply Front Page Style to Rest of App (Awaiting Visual Verification)
+Plan: 14-04 complete — SettingsPage/BillingPage/SubscribePage/AvatarSetupPage/AdminPage/LandingHero restyled; awaiting Task 3 checkpoint:human-verify
+Status: Phase 14 AWAITING CHECKPOINT — 4/4 plans executed; visual verification checkpoint pending
+Last activity: 2026-03-10 — 14-04 complete (6 files restyled, LandingHero chat bubbles mockup, build clean, 4/5 tests GREEN)
 
-Progress: [=================> ] Phase 14: 3/4 plans done
+Progress: [==================>] Phase 14: 4/4 plans done (awaiting human-verify checkpoint)
 
 ## Performance Metrics
 
@@ -280,6 +280,7 @@ Recent decisions affecting current work:
 - [Phase 14-03]: ChatPage removes useNavigate and handleSignOut — Settings and Sign out moved to AppNav (Plan 01); useNavigate import removed
 - [Phase 14-03]: ChatPage adds useQuery(['avatar']) with same queryKey as OnboardingGate — React Query cache hit, no extra network request on ChatPage mount
 - [Phase 14-03]: Subscription banner restyled to bg-white/5 border-white/10 dark glass — replacing yellow bg-yellow-900/50 theme
+- [Phase 14]: Persona buttons in SettingsPage use static glass style — no active-state tracking for persona in prefs state (updatePersona fires immediate API call)
 
 ### Pending Todos
 
