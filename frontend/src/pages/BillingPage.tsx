@@ -146,12 +146,20 @@ export default function BillingPage() {
     : ''
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-black text-white">
       <div className="max-w-2xl mx-auto px-4 py-12">
         <h1 className="text-2xl font-semibold mb-8 flex items-center gap-2">
           <CreditCard className="w-6 h-6 text-violet-400" />
           Billing
         </h1>
+
+        {/* ── Back to Settings ── */}
+        <Link
+          to="/settings"
+          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-8"
+        >
+          ← Back to Settings
+        </Link>
 
         {/* ── Cancel Flow State Machine ── */}
         {cancelStep !== 'idle' && (
@@ -389,7 +397,7 @@ export default function BillingPage() {
             <button
               onClick={handleManageBilling}
               disabled={portalLoading}
-              className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed font-medium transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 disabled:opacity-60 disabled:cursor-not-allowed font-medium transition-all"
             >
               {portalLoading ? 'Opening portal…' : 'Manage billing'}
             </button>

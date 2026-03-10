@@ -24,6 +24,7 @@ import {
   pollForReferenceImage,
   type AvatarData,
 } from '../api/avatars'
+import { GlassCard } from '../components/ui/GlassCard'
 
 const PERSONALITIES = [
   { value: 'playful', label: 'Playful' },
@@ -135,162 +136,164 @@ export default function AvatarSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-gray-900 rounded-2xl p-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Meet your Ava</h1>
-          <p className="text-gray-400 mt-1 text-sm">
-            Describe your companion -- we'll generate her look and you can adjust until it's perfect.
-          </p>
-        </div>
-
-        {/* Generating spinner -- shown after form submission while polling */}
-        {generating && (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-300 text-sm">Generating your Ava...</p>
-            <p className="text-gray-500 text-xs">This takes about 60-90 seconds</p>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        <GlassCard className="p-8 space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold">Meet your Ava</h1>
+            <p className="text-gray-400 mt-1 text-sm">
+              Describe your companion -- we'll generate her look and you can adjust until it's perfect.
+            </p>
           </div>
-        )}
 
-        {/* Avatar form -- hidden while generating or after image is ready */}
-        {!generating && !referenceImageUrl && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
-              <input
-                type="text"
-                required
-                value={form.name}
-                onChange={e => handleChange('name', e.target.value)}
-                placeholder="e.g. Ava"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-              />
+          {/* Generating spinner -- shown after form submission while polling */}
+          {generating && (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-gray-300 text-sm">Generating your Ava...</p>
+              <p className="text-gray-500 text-xs">This takes about 60-90 seconds</p>
             </div>
+          )}
 
-            <div className="grid grid-cols-2 gap-4">
+          {/* Avatar form -- hidden while generating or after image is ready */}
+          {!generating && !referenceImageUrl && (
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Age (20+)</label>
-                <input
-                  type="number"
-                  required
-                  min={20}
-                  max={99}
-                  value={form.age}
-                  onChange={e => handleChange('age', parseInt(e.target.value, 10))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Gender</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
                 <input
                   type="text"
-                  value={form.gender || ''}
-                  onChange={e => handleChange('gender', e.target.value)}
-                  placeholder="e.g. woman"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                  required
+                  value={form.name}
+                  onChange={e => handleChange('name', e.target.value)}
+                  placeholder="e.g. Ava"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Nationality / Ethnicity</label>
-              <input
-                type="text"
-                value={form.nationality || ''}
-                onChange={e => handleChange('nationality', e.target.value)}
-                placeholder="e.g. French, Japanese, Brazilian..."
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Age (20+)</label>
+                  <input
+                    type="number"
+                    required
+                    min={20}
+                    max={99}
+                    value={form.age}
+                    onChange={e => handleChange('age', parseInt(e.target.value, 10))}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Gender</label>
+                  <input
+                    type="text"
+                    value={form.gender || ''}
+                    onChange={e => handleChange('gender', e.target.value)}
+                    placeholder="e.g. woman"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Nationality / Ethnicity</label>
+                <input
+                  type="text"
+                  value={form.nationality || ''}
+                  onChange={e => handleChange('nationality', e.target.value)}
+                  placeholder="e.g. French, Japanese, Brazilian..."
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Appearance</label>
+                <textarea
+                  value={form.physical_description || ''}
+                  onChange={e => handleChange('physical_description', e.target.value)}
+                  placeholder="e.g. dark wavy hair, brown eyes, athletic build, casual style..."
+                  rows={3}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Personality</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {PERSONALITIES.map(p => (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => handleChange('personality', p.value)}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                        form.personality === p.value
+                          ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white'
+                          : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {error && (
+                <p className="text-red-400 text-sm">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={saving || !form.name}
+                className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all"
+              >
+                {saving ? 'Creating your Ava...' : 'Create Ava & Generate Photo'}
+              </button>
+            </form>
+          )}
+
+          {/* Reference image preview + approve/regenerate loop */}
+          {!generating && referenceImageUrl && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-400">
+                Here's your Ava -- approve this look or regenerate until you're happy.
+              </p>
+              <img
+                src={referenceImageUrl}
+                alt="Your Ava reference"
+                className="w-full rounded-xl object-cover aspect-[2/3]"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Appearance</label>
-              <textarea
-                value={form.physical_description || ''}
-                onChange={e => handleChange('physical_description', e.target.value)}
-                placeholder="e.g. dark wavy hair, brown eyes, athletic build, casual style..."
-                rows={3}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Personality</label>
-              <div className="grid grid-cols-3 gap-2">
-                {PERSONALITIES.map(p => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => handleChange('personality', p.value)}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                      form.personality === p.value
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
+              {error && <p className="text-red-400 text-sm">{error}</p>}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleGenerateReference}
+                  disabled={generating}
+                  className="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+                >
+                  Regenerate
+                </button>
+                <button
+                  onClick={handleApprove}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold py-3 rounded-xl transition-all"
+                >
+                  Looks perfect
+                </button>
               </div>
             </div>
+          )}
 
-            {error && (
+          {/* Error state when generation failed (and not currently generating) */}
+          {!generating && !referenceImageUrl && error && (
+            <div className="space-y-3">
               <p className="text-red-400 text-sm">{error}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={saving || !form.name}
-              className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors"
-            >
-              {saving ? 'Creating your Ava...' : 'Create Ava & Generate Photo'}
-            </button>
-          </form>
-        )}
-
-        {/* Reference image preview + approve/regenerate loop */}
-        {!generating && referenceImageUrl && (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-400">
-              Here's your Ava -- approve this look or regenerate until you're happy.
-            </p>
-            <img
-              src={referenceImageUrl}
-              alt="Your Ava reference"
-              className="w-full rounded-xl object-cover aspect-[2/3]"
-            />
-            {error && <p className="text-red-400 text-sm">{error}</p>}
-            <div className="flex gap-3">
               <button
                 onClick={handleGenerateReference}
-                disabled={generating}
-                className="flex-1 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium py-3 rounded-xl transition-colors"
               >
-                Regenerate
-              </button>
-              <button
-                onClick={handleApprove}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl transition-colors"
-              >
-                Looks perfect
+                Try again
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Error state when generation failed (and not currently generating) */}
-        {!generating && !referenceImageUrl && error && (
-          <div className="space-y-3">
-            <p className="text-red-400 text-sm">{error}</p>
-            <button
-              onClick={handleGenerateReference}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 rounded-xl transition-colors"
-            >
-              Try again
-            </button>
-          </div>
-        )}
+          )}
+        </GlassCard>
       </div>
     </div>
   )
