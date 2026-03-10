@@ -40,7 +40,6 @@ describe('AdminRoute', () => {
         <Routes>
           <Route path="/admin" element={<AdminRoute><div>admin content</div></AdminRoute>} />
           <Route path="/login" element={<div>login page</div>} />
-          <Route path="/chat" element={<div>chat page</div>} />
         </Routes>
       </Wrapper>
     )
@@ -48,32 +47,37 @@ describe('AdminRoute', () => {
     expect(container.textContent).not.toContain('admin content')
   })
 
-  it('redirects to /chat for non-admin token (no role in app_metadata)', () => {
-    const token = makeTestToken({ sub: 'user-123', app_metadata: {} })
+  it('renders children when token exists (backend enforces admin check)', () => {
+    const token = makeTestToken({ sub: 'user-123' })
     vi.mocked(useAuthStore).mockReturnValue(token as any)
     const { container } = render(
       <Wrapper>
         <Routes>
           <Route path="/admin" element={<AdminRoute><div>admin content</div></AdminRoute>} />
+        </Routes>
+      </Wrapper>
+    )
+    expect(container.textContent).toContain('admin content')
+  })
+})
+
+describe('AdminPage access control', () => {
+  beforeEach(() => { vi.clearAllMocks() })
+
+  it('redirects to /chat when API returns 403', async () => {
+    const token = makeTestToken({ sub: 'user-123' })
+    vi.mocked(useAuthStore).mockReturnValue(token as any)
+    vi.mocked(adminApi.getAdminMetrics).mockRejectedValue(new Error('Admin access required.'))
+    const { findByText, container } = render(
+      <Wrapper>
+        <Routes>
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/chat" element={<div>chat page</div>} />
         </Routes>
       </Wrapper>
     )
-    expect(container.textContent).toContain('chat page')
-    expect(container.textContent).not.toContain('admin content')
-  })
-
-  it('renders children for admin token (app_metadata.role: super_admin)', () => {
-    const token = makeTestToken({ sub: 'admin-456', app_metadata: { role: 'super_admin' } })
-    vi.mocked(useAuthStore).mockReturnValue(token as any)
-    render(
-      <Wrapper>
-        <Routes>
-          <Route path="/admin" element={<AdminRoute><div>admin content</div></AdminRoute>} />
-        </Routes>
-      </Wrapper>
-    )
-    expect(screen.getByText('admin content')).toBeTruthy()
+    await findByText('chat page')
+    expect(container.textContent).not.toContain('Admin Dashboard')
   })
 })
 

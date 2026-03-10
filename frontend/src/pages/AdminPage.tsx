@@ -5,20 +5,12 @@ import { GlassCard } from '../components/ui/GlassCard'
 import { getAdminMetrics, MetricWindow } from '../api/admin'
 
 // ─── AdminRoute Guard ─────────────────────────────────────────────────────────
-// Reads is_super_admin from JWT app_metadata (Supabase-managed, not user-settable).
-// Silently redirects non-admins to /chat — never shows an error or 403 message.
-// No visible link to /admin exists in the UI — URL-only access for operators.
-// SECURITY: app_metadata is service-role only. user_metadata is user-controllable — never use it for auth.
+// Only checks that a token exists. Actual admin enforcement is backend-only:
+// GET /admin/metrics returns 403 for non-admins — AdminPage redirects on error.
+// Avoids fragile client-side JWT decoding (app_metadata may not be in token payload).
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore(s => s.token)
   if (!token) return <Navigate to="/login" replace />
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    const isAdmin = payload?.app_metadata?.role === 'super_admin'
-    if (!isAdmin) return <Navigate to="/chat" replace />
-  } catch {
-    return <Navigate to="/chat" replace />
-  }
   return <>{children}</>
 }
 
@@ -52,13 +44,17 @@ function StatCard({ title, metric }: { title: string; metric: MetricWindow }) {
 
 export default function AdminPage() {
   const token = useAuthStore(s => s.token)!
-
   const { data: metrics, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-metrics'],
     queryFn: () => getAdminMetrics(token),
     staleTime: 0,              // Always fetch fresh on mount
     refetchOnWindowFocus: false, // Manual refresh only — no auto-polling
+    retry: false,
+    throwOnError: false,
   })
+
+  // Backend is the source of truth for admin access — redirect silently on 403
+  if (isError) return <Navigate to="/chat" replace />
 
   function formatFetchedAt(iso: string): string {
     try {
@@ -102,13 +98,6 @@ export default function AdminPage() {
             </GlassCard>
           ))}
         </div>
-      )}
-
-      {/* Error state */}
-      {isError && !isLoading && (
-        <GlassCard className="max-w-md">
-          <p className="text-red-400 text-sm">Failed to load metrics. Try refreshing the page.</p>
-        </GlassCard>
       )}
 
       {/* Metric cards grid */}
