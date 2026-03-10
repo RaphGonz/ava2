@@ -37,7 +37,7 @@ async def require_admin(user=Depends(get_current_user)):
     Add directly in admin.py — not a global dependency (anti-pattern per RESEARCH.md).
     """
     app_meta = user.app_metadata or {}
-    logger.info("require_admin: user_id=%s app_metadata=%r", user.id, app_meta)
+    print(f"DEBUG require_admin: user_id={user.id} app_metadata={app_meta!r}", flush=True)
     is_admin = app_meta.get("role") == "super_admin"
     if not is_admin:
         raise HTTPException(
