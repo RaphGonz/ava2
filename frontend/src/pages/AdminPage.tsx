@@ -72,7 +72,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 md:p-8">
+    <div className="min-h-screen bg-black text-white p-6 md:p-8">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>

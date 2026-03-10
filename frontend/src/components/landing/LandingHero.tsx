@@ -2,9 +2,6 @@ import { motion } from "motion/react";
 import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// Pre-computed bar heights — avoids Math.random() in render (React strict mode safe)
-const BAR_HEIGHTS = [18, 28, 14, 32, 20];
-
 export function LandingHero() {
   return (
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-black text-white">
@@ -80,36 +77,34 @@ export function LandingHero() {
               ...and keeps you company at night.
             </h1>
 
-            {/* Mobile notification mockup */}
+            {/* Mobile chat mockup */}
             <div className="w-64 bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-4 shadow-[0_0_50px_-12px_rgba(124,58,237,0.5)] transform hover:scale-105 transition-transform duration-500 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-orange-500" />
               <div className="flex justify-center mb-6 mt-2">
                 <div className="w-16 h-1 bg-white/20 rounded-full" />
               </div>
 
-              {/* Notification */}
-              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-3 mb-4 border border-white/5 relative overflow-hidden group">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-500 to-orange-500 flex items-center justify-center text-xs font-bold">A</div>
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs font-bold text-white">AVA Companion</span>
-                    <span className="text-[10px] text-white/60">Now</span>
-                  </div>
+              {/* Chat bubbles */}
+              <div className="space-y-2 mb-3">
+                {/* Ava message */}
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl rounded-bl-sm px-3 py-2 text-xs text-white/90 text-left max-w-[85%]">
+                  Missing you already... 🌙
                 </div>
-                <div className="text-sm text-left text-white/90 filter blur-[4px] group-hover:blur-0 transition-all duration-500 cursor-pointer">
-                  I have something for you...
+                {/* User message */}
+                <div className="bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl rounded-br-sm px-3 py-2 text-xs text-white text-right ml-auto max-w-[75%]">
+                  Show me something
+                </div>
+                {/* Ava message */}
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl rounded-bl-sm px-3 py-2 text-xs text-white/90 text-left max-w-[85%]">
+                  Just for you... 💜
                 </div>
               </div>
-
-              {/* Audio visualizer — pre-computed heights (no Math.random) */}
-              <div className="flex items-center justify-center gap-1 h-8 mt-8 opacity-60">
-                {BAR_HEIGHTS.map((height, i) => (
-                  <div
-                    key={i}
-                    className="w-1 bg-white/50 rounded-full animate-pulse"
-                    style={{ height: `${height}px`, animationDelay: `${i * 0.1}s` }}
-                  />
-                ))}
+              {/* Blurred locked photo */}
+              <div className="relative rounded-xl overflow-hidden h-24">
+                <div className="absolute inset-0 bg-gradient-to-b from-violet-800/30 to-orange-800/30 backdrop-blur-lg" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white/70 text-xs font-medium">🔒 Click to unlock</span>
+                </div>
               </div>
             </div>
           </motion.div>
