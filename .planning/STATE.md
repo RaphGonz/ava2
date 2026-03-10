@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 12 — Admin Dashboard (In Progress)
-Plan: 12-01 complete — Admin backend API (require_admin dependency + GET /admin/metrics endpoint)
-Status: Phase 12 in progress — ADMN-01, ADMN-02, ADMN-03 complete; 12-01 and 12-02 done; 12-03 (frontend) next
-Last activity: 2026-03-10 — 12-01 complete (admin router, 4 access control tests passing, /admin/metrics endpoint)
+Phase: Phase 12 — Admin Dashboard (Complete)
+Plan: 12-03 complete — Admin frontend (AdminRoute guard, AdminPage with 5 stat cards, 4 passing Vitest tests, /admin route in App.tsx)
+Status: Phase 12 COMPLETE — all 3 plans done (12-01 backend API, 12-02 usage event wiring, 12-03 frontend dashboard)
+Last activity: 2026-03-10 — 12-03 complete (AdminPage, AdminRoute, 4 Vitest tests GREEN, TypeScript clean)
 
-Progress: [=========>         ] v1.1 Phase 8–13: 10/24 plans done (Phase 12 plan 2/3 done, 12-01 retroactively completed)
+Progress: [==========>        ] v1.1 Phase 8–13: 11/24 plans done (Phase 12 complete 3/3)
 
 ## Performance Metrics
 
@@ -100,6 +100,7 @@ Progress: [=========>         ] v1.1 Phase 8–13: 10/24 plans done (Phase 12 pl
 | Phase 11 P03 | 30 | 3 tasks | 1 files |
 | Phase 12-admin-dashboard P02 | 16 | 2 tasks | 4 files |
 | Phase 12-admin-dashboard P01 | 29 | 2 tasks | 3 files |
+| Phase 12-admin-dashboard P03 | 10 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -269,6 +270,7 @@ Recent decisions affecting current work:
 - [Phase 12-admin-dashboard]: processor.py keeps BOTH audit_log (compliance) and usage_events (admin dashboard) — Step 7b is additive not a replacement
 - [Phase 12-admin-dashboard]: backend/.env STRIPE_PRICE_ID -> STRIPE_PRICE_ID_BASIC/PREMIUM/ELITE (Rule 3 auto-fix: pre-existing env mismatch blocked test imports)
 - [Phase 12-admin-dashboard]: require_admin reads user_metadata.is_admin (not app_metadata) — locked decision from CONTEXT.md; defined in admin.py not dependencies.py to avoid global dependency anti-pattern
+- [Phase 12-admin-dashboard]: AdminRoute defined as named export in AdminPage.tsx for co-location with guarded component; AdminPage.tsx created in Task 1 to unblock test GREEN; no nav link to /admin per locked decision
 
 ### Pending Todos
 
