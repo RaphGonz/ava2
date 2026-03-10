@@ -128,7 +128,7 @@ Plans:
 | 9. Auth Polish & Email | 4/4 | Complete   | 2026-03-06 | - |
 | 10. Landing Page | 4/4 | Complete    | 2026-03-09 | - |
 | 11. Subscription Management & Churn | 3/3 | Complete    | 2026-03-09 | - |
-| 12. Admin Dashboard | v1.1 | 0/? | Not started | - |
+| 12. Admin Dashboard | 1/3 | In Progress|  | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
 
 ### Phase 13: End-to-End Smoke Test & Milestone Validation
@@ -149,7 +149,7 @@ Plans:
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 13
-**Plans:** 3/3 plans complete
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 14 to break down)

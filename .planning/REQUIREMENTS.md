@@ -43,7 +43,7 @@ Requirements for the Launch Ready milestone. Each maps to roadmap phases (starti
 ### Admin Dashboard
 
 - [ ] **ADMN-01**: Operator can view key metrics: active users (7-day), messages sent, photos generated, active subscriptions, new signups
-- [ ] **ADMN-02**: Usage events are logged to a `usage_events` table (message_sent, photo_generated, mode_switch, subscription_created)
+- [x] **ADMN-02**: Usage events are logged to a `usage_events` table (message_sent, photo_generated, mode_switch, subscription_created)
 - [ ] **ADMN-03**: `/admin` route is restricted to admin role only — regular users receive 403
 
 ## Deferred to v1.2+
@@ -103,7 +103,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SUBS-04 | Phase 11 | Complete |
 | SUBS-05 | Phase 11 | Complete |
 | ADMN-01 | Phase 12 | Pending |
-| ADMN-02 | Phase 12 | Pending |
+| ADMN-02 | Phase 12 | Complete |
 | ADMN-03 | Phase 12 | Pending |
 
 **Coverage:**

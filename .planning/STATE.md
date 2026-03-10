@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 9 — Auth Polish & Email (Complete)
-Plan: 09-04 complete — Production config, Google OAuth live, all Phase 9 features deployed
-Status: Phase 9 complete — AUTH-01, AUTH-02, EMAI-02, EMAI-03, EMAI-04 all deployed to https://avasecret.org
-Last activity: 2026-03-06 — 09-04 complete (production deployment verified, Phase 9 done)
+Phase: Phase 12 — Admin Dashboard (In Progress)
+Plan: 12-02 complete — Usage event emission wiring (message_sent, mode_switch, photo_generated, subscription_created)
+Status: Phase 12 in progress — ADMN-02 complete, usage_events now accumulates real data
+Last activity: 2026-03-10 — 12-02 complete (all 4 emission points wired, 7 tests passing)
 
-Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 complete 4/4, Phase 10 next)
+Progress: [=========>         ] v1.1 Phase 8–13: 9/24 plans done (Phase 12 plan 2/3 done)
 
 ## Performance Metrics
 
@@ -98,6 +98,7 @@ Progress: [========>          ] v1.1 Phase 8–13: 8/24 plans done (Phase 9 comp
 | Phase 11 P01 | 15 | 2 tasks | 4 files |
 | Phase 11-subscription-management-churn P02 | 10 | 2 tasks | 3 files |
 | Phase 11 P03 | 30 | 3 tasks | 1 files |
+| Phase 12-admin-dashboard P02 | 16 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -263,6 +264,9 @@ Recent decisions affecting current work:
 - [Phase 11-02]: /billing route: ProtectedRoute only, no OnboardingGate — billing accessible in all subscription states
 - [Phase 11-subscription-management-churn]: 'Skip survey and cancel' shortcut on Q1 step jumps directly to confirming — satisfies SUBS-05 ≤3-click path (Cancel link → skip shortcut → Confirm)
 - [Phase 11-subscription-management-churn]: cancelled step shows warm post-cancel message then setCancelStep('idle') on Done — transitions back to normal billing view with updated subscription data from invalidated query
+- [Phase 12-admin-dashboard]: mode_switch emit placed after switch_mode() but BEFORE return in all 3 actual switch paths; already-in-mode paths excluded
+- [Phase 12-admin-dashboard]: processor.py keeps BOTH audit_log (compliance) and usage_events (admin dashboard) — Step 7b is additive not a replacement
+- [Phase 12-admin-dashboard]: backend/.env STRIPE_PRICE_ID -> STRIPE_PRICE_ID_BASIC/PREMIUM/ELITE (Rule 3 auto-fix: pre-existing env mismatch blocked test imports)
 
 ### Pending Todos
 
@@ -287,5 +291,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T17:52:00.505Z
-Stopped at: Completed 11-subscription-management-churn-03-PLAN.md
+Last session: 2026-03-10T07:33:30Z
+Stopped at: Completed 12-admin-dashboard-02-PLAN.md
