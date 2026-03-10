@@ -16,7 +16,7 @@ avasecret.org {
         }
     }
 
-    @api path /auth/signup /auth/signin /auth/signout /auth/forgot-password /auth/send-email-hook /auth/send-welcome /auth/google/* /chat/* /billing/* /avatars /avatars/* /preferences/* /photos/* /webhook /webhook/* /messages /messages/* /dev/* /health* /admin /admin/*
+    @api path /auth/signup /auth/signin /auth/signout /auth/forgot-password /auth/send-email-hook /auth/send-welcome /auth/google/* /chat/* /billing/* /avatars /avatars/* /preferences/* /photos/* /webhook /webhook/* /messages /messages/* /dev/* /health* /admin/*
     handle @api {
         reverse_proxy backend:8000 {
             header_up X-Forwarded-For {remote_host}
