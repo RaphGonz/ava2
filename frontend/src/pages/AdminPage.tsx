@@ -49,6 +49,7 @@ export default function AdminPage() {
     queryKey: ['admin-metrics'],
     queryFn: () => getAdminMetrics(token),
     staleTime: 0,              // Always fetch fresh on mount
+    gcTime: 0,                 // Never cache errors between visits — prevents stale 403 from blocking mount
     refetchOnWindowFocus: false, // Manual refresh only — no auto-polling
     retry: false,
     throwOnError: false,
