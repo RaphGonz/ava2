@@ -36,7 +36,9 @@ async def require_admin(user=Depends(get_current_user)):
     Set via Supabase Dashboard SQL: raw_app_meta_data = '{"role": "super_admin"}'.
     Add directly in admin.py — not a global dependency (anti-pattern per RESEARCH.md).
     """
-    is_admin = (user.app_metadata or {}).get("role") == "super_admin"
+    app_meta = user.app_metadata or {}
+    logger.info("require_admin: user_id=%s app_metadata=%r", user.id, app_meta)
+    is_admin = app_meta.get("role") == "super_admin"
     if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
