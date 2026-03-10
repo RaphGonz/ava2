@@ -1,9 +1,8 @@
+import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
 import { GlassCard } from '../components/ui/GlassCard'
-import { getAdminMetrics } from '../api/admin'
-import type { MetricWindow } from '../api/admin'
+import type { AdminMetrics, MetricWindow } from '../api/admin'
 
 // ─── AdminRoute Guard ─────────────────────────────────────────────────────────
 // Only checks that a token exists. Actual admin enforcement is backend-only:
@@ -44,21 +43,25 @@ function StatCard({ title, metric }: { title: string; metric: MetricWindow }) {
 // ─── AdminPage ────────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const token = useAuthStore(s => s.token)!
-  const { data: metrics, isLoading, isError, refetch } = useQuery({
-    queryKey: ['admin-metrics'],
-    queryFn: () => getAdminMetrics(token),
-    staleTime: 0,              // Always fetch fresh on mount
-    gcTime: 0,                 // Never cache errors between visits — prevents stale 403 from blocking mount
-    refetchOnWindowFocus: false, // Manual refresh only — no auto-polling
-    retry: false,
-    throwOnError: false,
-  })
+  const token = useAuthStore(s => s.token)
+  const [metrics, setMetrics] = useState<AdminMetrics | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [forbidden, setForbidden] = useState(false)
 
-  // Backend is the source of truth for admin access — redirect silently on 403.
-  // Wait for isLoading to be false before redirecting: cached error state from a
-  // previous session must not fire before the fresh fetch completes.
-  if (!isLoading && isError) return <Navigate to="/chat" replace />
+  useEffect(() => {
+    if (!token) return
+    fetch('/admin/metrics', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+        if (res.status === 403 || res.status === 401) { setForbidden(true); return null }
+        return res.json()
+      })
+      .then(data => { if (data) setMetrics(data) })
+      .catch(() => setForbidden(true))
+      .finally(() => setIsLoading(false))
+  }, [token])
+
+  if (!token) return <Navigate to="/login" replace />
+  if (forbidden) return <Navigate to="/chat" replace />
 
   function formatFetchedAt(iso: string): string {
     try {
@@ -81,7 +84,7 @@ export default function AdminPage() {
           )}
         </div>
         <button
-          onClick={() => refetch()}
+          onClick={() => window.location.reload()}
           className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1 rounded-lg border border-white/10 hover:border-white/30"
         >
           Refresh
