@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
-import { getPreferences, updatePreferences, updatePersona, type Preferences } from '../api/preferences'
+import { getPreferences, updatePreferences, type Preferences } from '../api/preferences'
 import { getSubscription } from '../api/billing'
 import { signOut } from '../api/auth'
 import { GlassCard } from '../components/ui/GlassCard'
@@ -12,15 +12,6 @@ const SPICINESS_OPTIONS = [
   { value: 'mild', label: 'Mild', description: 'Flirty and playful, nothing explicit' },
   { value: 'spicy', label: 'Spicy', description: 'Suggestive and sensual' },
   { value: 'explicit', label: 'Explicit', description: 'Fully adult content' },
-] as const
-
-const PERSONA_OPTIONS = [
-  { value: 'playful', label: 'Playful' },
-  { value: 'dominant', label: 'Dominant' },
-  { value: 'shy', label: 'Shy' },
-  { value: 'caring', label: 'Caring' },
-  { value: 'intellectual', label: 'Intellectual' },
-  { value: 'adventurous', label: 'Adventurous' },
 ] as const
 
 export default function SettingsPage() {
@@ -98,23 +89,6 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-6">
-          {/* Persona Selector */}
-          <GlassCard className="p-5">
-            <h2 className="text-sm font-semibold text-white mb-1">Ava's Persona</h2>
-            <p className="text-xs text-slate-400 mb-4">Choose Ava's personality</p>
-            <div className="grid grid-cols-3 gap-2">
-              {PERSONA_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => updatePersona(token!, opt.value).catch(e => setError(e.message))}
-                  className="py-2 px-3 rounded-xl text-sm border border-white/10 text-slate-400 hover:border-white/20 hover:text-white bg-white/5 transition-all"
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </GlassCard>
-
           {/* Platform Preference */}
           <GlassCard className="p-5">
             <h2 className="text-sm font-semibold text-white mb-1">Preferred Platform</h2>
