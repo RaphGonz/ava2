@@ -2,7 +2,8 @@ import { Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
 import { GlassCard } from '../components/ui/GlassCard'
-import { getAdminMetrics, MetricWindow } from '../api/admin'
+import { getAdminMetrics } from '../api/admin'
+import type { MetricWindow } from '../api/admin'
 
 // ─── AdminRoute Guard ─────────────────────────────────────────────────────────
 // Only checks that a token exists. Actual admin enforcement is backend-only:
