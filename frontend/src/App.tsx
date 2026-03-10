@@ -12,6 +12,8 @@ import SubscribePage from './pages/SubscribePage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
+import AdminPage from './pages/AdminPage'
+import { AdminRoute } from './pages/AdminPage'
 import BillingPage from './pages/BillingPage'
 import LandingPage from './pages/LandingPage'
 import PrivacyPage from './pages/PrivacyPage'
@@ -155,6 +157,14 @@ export default function App() {
             element={<ProtectedRoute><BillingPage /></ProtectedRoute>}
           />
           <Route path="/photo" element={<PhotoPage />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
       </BrowserRouter>
