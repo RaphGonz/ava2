@@ -14,7 +14,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
   if (!token) return <Navigate to="/login" replace />
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
-    const isAdmin = payload?.app_metadata?.is_super_admin === true
+    const isAdmin = payload?.app_metadata?.role === 'super_admin'
     if (!isAdmin) return <Navigate to="/chat" replace />
   } catch {
     return <Navigate to="/chat" replace />

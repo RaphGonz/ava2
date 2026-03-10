@@ -32,10 +32,11 @@ async def require_admin(user=Depends(get_current_user)):
     """
     Extends get_current_user — raises 403 if user is not a Supabase super admin.
     Admin status set via Supabase Dashboard: Authentication > Users > toggle "is_super_admin".
-    SECURITY: reads user.is_super_admin (service-role managed), NOT user_metadata (user-settable).
+    SECURITY: reads app_metadata.role (service-role managed), NOT user_metadata (user-settable).
+    Set via Supabase Dashboard SQL: raw_app_meta_data = '{"role": "super_admin"}'.
     Add directly in admin.py — not a global dependency (anti-pattern per RESEARCH.md).
     """
-    is_admin = getattr(user, "is_super_admin", False) or False
+    is_admin = (user.app_metadata or {}).get("role") == "super_admin"
     if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

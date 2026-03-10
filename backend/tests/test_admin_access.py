@@ -13,37 +13,38 @@ from app.routers.admin import require_admin
 
 @pytest.mark.asyncio
 async def test_require_admin_allows_super_admin():
-    """User with is_super_admin=True should be returned without raising."""
+    """User with app_metadata = {"role": "super_admin"} should be returned without raising."""
     user = MagicMock()
-    user.is_super_admin = True
+    user.app_metadata = {"role": "super_admin"}
     result = await require_admin(user=user)
     assert result == user
 
 
 @pytest.mark.asyncio
 async def test_require_admin_blocks_non_admin():
-    """User with is_super_admin=False should receive 403."""
+    """User with app_metadata = {} (no role) should receive 403."""
     user = MagicMock()
-    user.is_super_admin = False
+    user.app_metadata = {}
     with pytest.raises(HTTPException) as exc_info:
         await require_admin(user=user)
     assert exc_info.value.status_code == 403
 
 
 @pytest.mark.asyncio
-async def test_require_admin_blocks_missing_flag():
-    """User with no is_super_admin attribute should receive 403 (defaults to False)."""
-    user = MagicMock(spec=[])  # spec=[] means no attributes — getattr returns default
+async def test_require_admin_blocks_wrong_role():
+    """User with app_metadata = {"role": "user"} should receive 403."""
+    user = MagicMock()
+    user.app_metadata = {"role": "user"}
     with pytest.raises(HTTPException) as exc_info:
         await require_admin(user=user)
     assert exc_info.value.status_code == 403
 
 
 @pytest.mark.asyncio
-async def test_require_admin_blocks_none_flag():
-    """User with is_super_admin=None should receive 403."""
+async def test_require_admin_blocks_null_metadata():
+    """User with app_metadata = None should receive 403."""
     user = MagicMock()
-    user.is_super_admin = None
+    user.app_metadata = None
     with pytest.raises(HTTPException) as exc_info:
         await require_admin(user=user)
     assert exc_info.value.status_code == 403

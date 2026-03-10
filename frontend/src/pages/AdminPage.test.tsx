@@ -48,7 +48,7 @@ describe('AdminRoute', () => {
     expect(container.textContent).not.toContain('admin content')
   })
 
-  it('redirects to /chat for non-admin token (no is_super_admin flag)', () => {
+  it('redirects to /chat for non-admin token (no role in app_metadata)', () => {
     const token = makeTestToken({ sub: 'user-123', app_metadata: {} })
     vi.mocked(useAuthStore).mockReturnValue(token as any)
     const { container } = render(
@@ -63,8 +63,8 @@ describe('AdminRoute', () => {
     expect(container.textContent).not.toContain('admin content')
   })
 
-  it('renders children for admin token (app_metadata.is_super_admin: true)', () => {
-    const token = makeTestToken({ sub: 'admin-456', app_metadata: { is_super_admin: true } })
+  it('renders children for admin token (app_metadata.role: super_admin)', () => {
+    const token = makeTestToken({ sub: 'admin-456', app_metadata: { role: 'super_admin' } })
     vi.mocked(useAuthStore).mockReturnValue(token as any)
     render(
       <Wrapper>
