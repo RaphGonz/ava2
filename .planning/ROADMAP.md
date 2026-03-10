@@ -130,7 +130,7 @@ Plans:
 | 11. Subscription Management & Churn | 3/3 | Complete    | 2026-03-09 | - |
 | 12. Admin Dashboard | 3/3 | Complete   | 2026-03-10 | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
-| 14. UI Dark Theme Redesign | 4/4 | Complete   | 2026-03-10 | - |
+| 14. UI Dark Theme Redesign | 4/4 | Complete    | 2026-03-10 | - |
 
 ### Phase 13: End-to-End Smoke Test & Milestone Validation
 **Goal**: Every core user journey completes successfully in production — from signup through chat, mode switching, image generation, and subscription — before the milestone is declared shipped
