@@ -130,7 +130,7 @@ Plans:
 | 11. Subscription Management & Churn | 3/3 | Complete    | 2026-03-09 | - |
 | 12. Admin Dashboard | 3/3 | Complete   | 2026-03-10 | - |
 | 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 0/? | Not started | - |
-| 14. UI Dark Theme Redesign | 1/4 | In Progress|  | - |
+| 14. UI Dark Theme Redesign | 4/4 | Complete   | 2026-03-10 | - |
 
 ### Phase 13: End-to-End Smoke Test & Milestone Validation
 **Goal**: Every core user journey completes successfully in production — from signup through chat, mode switching, image generation, and subscription — before the milestone is declared shipped
@@ -150,7 +150,7 @@ Plans:
 **Goal:** Apply the landing page's dark glass visual language (bg-black, blue/violet/orange gradients, GlassCard glassmorphism, motion animations) to every authenticated page. Add persistent navigation (AppNav). Update LandingHero mockup. No new features — visual and navigation work only.
 **Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06
 **Depends on:** Phase 13
-**Plans:** 1/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] 14-01-PLAN.md — AppNav component (bottom/top nav) + App.tsx AuthenticatedLayout wrapper + Wave 0 test scaffolds
