@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../store/useAuthStore'
-import { getPreferences, updatePreferences, type Preferences } from '../api/preferences'
+import { getPreferences, updatePreferences, linkWhatsApp, type Preferences } from '../api/preferences'
 import { getSubscription } from '../api/billing'
 import { signOut } from '../api/auth'
 import { GlassCard } from '../components/ui/GlassCard'
@@ -23,6 +23,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
 
   const { data: subscription, isLoading: subscriptionLoading } = useQuery({
     queryKey: ['subscription'],
@@ -34,16 +36,32 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!token) return
     getPreferences(token)
-      .then(setPrefs)
+      .then(data => {
+        setPrefs(data)
+        setPhoneNumber(data.whatsapp_phone ?? '')
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [token])
+
+  function isValidE164(phone: string): boolean {
+    return /^\+[0-9]{7,15}$/.test(phone)
+  }
 
   async function handleSave() {
     if (!token) return
     setSaving(true)
     setError(null)
+    setPhoneError(null)
     try {
+      if (prefs.preferred_platform === 'whatsapp' && phoneNumber) {
+        if (!isValidE164(phoneNumber)) {
+          setPhoneError('Phone must be in E.164 format: +1234567890 (+ followed by 7–15 digits)')
+          setSaving(false)
+          return
+        }
+        await linkWhatsApp(token, phoneNumber)
+      }
       await updatePreferences(token, {
         preferred_platform: prefs.preferred_platform,
         spiciness_level: prefs.spiciness_level,
@@ -108,6 +126,21 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
+            {prefs.preferred_platform === 'whatsapp' && (
+              <div className="mt-3">
+                <label className="block text-xs text-slate-400 mb-1">
+                  Your WhatsApp number (E.164 format, e.g. +33612345678)
+                </label>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={e => { setPhoneNumber(e.target.value); setPhoneError(null) }}
+                  placeholder="+33612345678"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500/50"
+                />
+                {phoneError && <p className="text-red-400 text-xs mt-1">{phoneError}</p>}
+              </div>
+            )}
           </GlassCard>
 
           {/* Spiciness Ceiling */}
