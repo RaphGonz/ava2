@@ -131,6 +131,8 @@ Plans:
 | 12. Admin Dashboard | 3/3 | Complete   | 2026-03-10 | - |
 | 13. End-to-End Smoke Test & Milestone Validation | 1/2 | In Progress|  | - |
 | 14. UI Dark Theme Redesign | 4/4 | Complete    | 2026-03-10 | - |
+| 15. WhatsApp permanent token + phone + polling | 2/2 | Complete | 2026-03-11 | - |
+| 16. Async chat architecture | 1 plan | Planned | | - |
 
 ### Phase 13: End-to-End Smoke Test & Milestone Validation
 **Goal**: Every core user journey completes successfully in production — from signup through chat, mode switching, image generation, and subscription — before the milestone is declared shipped
@@ -172,3 +174,13 @@ Plans:
 Plans:
 - [ ] 15-01-PLAN.md — Add linkWhatsApp() to preferences.ts + conditional phone input in SettingsPage with E.164 validation
 - [ ] 15-02-PLAN.md — Deploy frontend, create permanent Meta System User token on VPS, verify WhatsApp end-to-end and chat polling in production
+
+### Phase 16: Async chat architecture — immediate user bubble, background AI reply
+
+**Goal:** Fix the web chat message flow so the user's message appears in the thread immediately upon send, and the AI reply appears independently when ready — without optimistic hacks. POST /chat writes the user message to DB and returns it instantly; the LLM runs via asyncio.ensure_future; GET /chat/history polling picks up the AI reply when it lands.
+**Requirements**: CHAT-01, CHAT-02, CHAT-03
+**Depends on:** Phase 15
+**Plans:** 1 plan
+
+Plans:
+- [ ] 16-01-PLAN.md — Refactor web_chat.py (synchronous user insert + asyncio.ensure_future LLM task) + chat.ts (remove onMutate, add onSuccess setQueryData)
