@@ -2,8 +2,11 @@
 Web chat router — POST /chat and GET /chat/history.
 
 Uses WebAdapter -> platform_router -> ChatService pipeline.
-Logs both turns to messages table with channel='web' (Pitfall 3: never mix with 'whatsapp').
+POST /chat: synchronous user-message insert → asyncio.ensure_future LLM task → return user row.
+GET /chat/history: returns web-channel messages (RLS-filtered).
+Pitfall 3: never mix channel='web' with 'whatsapp'.
 """
+import asyncio
 import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
@@ -29,50 +32,76 @@ class ChatRequest(BaseModel):
     text: str
 
 
+async def _run_llm_and_insert(user_id: str, text: str, avatar: dict | None) -> None:
+    """
+    Independent asyncio Task — not cancelled by connection close.
+    Runs LLM call and inserts assistant reply into DB.
+    Uses asyncio.ensure_future() (NOT FastAPI BackgroundTasks) because
+    CORSMiddleware cancels BackgroundTasks on connection close — confirmed
+    codebase bug fixed in avatars.py (Phase 07).
+    All exceptions caught — never propagates to the event loop.
+    """
+    try:
+        msg = NormalizedMessage(
+            user_id=user_id,
+            text=text,
+            platform="web",
+            timestamp=datetime.now(timezone.utc),
+        )
+        reply_text = await _web_adapter.receive(msg)
+        supabase_admin.from_("messages").insert({
+            "user_id": user_id,
+            "avatar_id": avatar["id"] if avatar else None,
+            "channel": "web",
+            "role": "assistant",
+            "content": reply_text,
+        }).execute()
+    except Exception as e:
+        logger.error(f"Background LLM task failed for user {user_id}: {e}")
+
+
 @router.post("")
 async def send_message(
     body: ChatRequest,
-    user=Depends(require_active_subscription),  # was: get_current_user
+    user=Depends(require_active_subscription),
 ):
     """
     Send a message via the web chat interface.
-    Runs through WebAdapter -> platform_router -> ChatService.
-    Returns {"reply": <Ava's response>}.
+    Step 1: Insert user message into DB immediately (fast ~10ms).
+    Step 2: Schedule LLM + assistant insert as independent asyncio Task.
+    Step 3: Return the inserted user message row — frontend appends it to cache instantly.
+    GET /chat/history polling at 3s picks up the assistant reply when it lands.
     """
     user_id = str(user.id)
-    msg = NormalizedMessage(
-        user_id=user_id,
-        text=body.text,
-        platform="web",
-        timestamp=datetime.now(timezone.utc),
-    )
-
-    reply_text = await _web_adapter.receive(msg)
-
-    # Log both turns to messages table with channel='web'
-    # send() is a no-op for WebAdapter — reply returned in HTTP response
     avatar = await get_avatar_for_user(user_id)
-    try:
-        supabase_admin.from_("messages").insert([
-            {
-                "user_id": user_id,
-                "avatar_id": avatar["id"] if avatar else None,
-                "channel": "web",
-                "role": "user",
-                "content": body.text,
-            },
-            {
-                "user_id": user_id,
-                "avatar_id": avatar["id"] if avatar else None,
-                "channel": "web",
-                "role": "assistant",
-                "content": reply_text,
-            },
-        ]).execute()
-    except Exception as e:
-        logger.error(f"Web message logging failed for user {user_id}: {e}")
 
-    return {"reply": reply_text}
+    # Insert user message immediately — before LLM starts
+    result = supabase_admin.from_("messages").insert({
+        "user_id": user_id,
+        "avatar_id": avatar["id"] if avatar else None,
+        "channel": "web",
+        "role": "user",
+        "content": body.text,
+    }).execute()
+
+    if not result.data:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail="Failed to save message")
+
+    user_row = result.data[0]
+
+    # Fire LLM + assistant-reply insert as independent task.
+    # asyncio.ensure_future() creates a Task NOT tied to this request — immune to
+    # CORSMiddleware cancellation (same pattern as avatars.py Phase 07 BUG FIX).
+    asyncio.ensure_future(_run_llm_and_insert(user_id, body.text, avatar))
+
+    # Return the user message row — frontend uses it to show bubble immediately
+    return {
+        "id": user_row["id"],
+        "role": user_row["role"],
+        "content": user_row["content"],
+        "created_at": user_row["created_at"],
+    }
 
 
 _PHOTO_PATH_OPEN = "[PHOTO_PATH]"
