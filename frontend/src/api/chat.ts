@@ -52,6 +52,19 @@ export function useSendMessage(token: string | null, options?: UseSendMessageOpt
         }
         return r.json() as Promise<{ reply: string }>
       }),
+    onMutate: (text: string) => {
+      // Optimistically show user bubble immediately — don't wait for LLM
+      const optimistic: ChatMessage = {
+        id: `optimistic-${Date.now()}`,
+        role: 'user',
+        content: text,
+        created_at: new Date().toISOString(),
+      }
+      queryClient.setQueryData<ChatMessage[]>(['chat-history'], prev => [
+        ...(prev ?? []),
+        optimistic,
+      ])
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chat-history'] }),
     onError: options?.onError,
   })
