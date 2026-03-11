@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_current_user, get_authed_supabase
 from app.models.preferences import PhoneLinkRequest, PreferencesResponse, PreferencesPatchRequest
+from app.config import settings
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
@@ -22,6 +23,19 @@ async def link_whatsapp(
         "user_id": str(user.id),
         "whatsapp_phone": body.phone,
     }, on_conflict="user_id").execute()
+
+    # Send welcome template to initiate the WhatsApp conversation
+    if settings.whatsapp_access_token and settings.whatsapp_phone_number_id:
+        try:
+            from app.services.whatsapp import send_whatsapp_template
+            await send_whatsapp_template(
+                phone_number_id=settings.whatsapp_phone_number_id,
+                to=body.phone,
+                template_name="welcome",
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Welcome template failed for {body.phone}: {e}")
 
     return {"status": "linked", "phone": body.phone}
 

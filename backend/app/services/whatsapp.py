@@ -7,6 +7,32 @@ logger = logging.getLogger(__name__)
 GRAPH_API_VERSION = "v19.0"
 
 
+async def send_whatsapp_template(phone_number_id: str, to: str, template_name: str, language: str = "en_US") -> None:
+    """Send a pre-approved Meta template message to initiate a conversation.
+
+    Required for first contact — free-form messages need the 24h session window.
+    Template must be approved in Meta Business Manager before calling this.
+    """
+    url = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{phone_number_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {settings.whatsapp_access_token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "template",
+        "template": {
+            "name": template_name,
+            "language": {"code": language},
+        },
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        logger.info(f"WhatsApp template '{template_name}' sent to {to}")
+
+
 async def send_whatsapp_message(phone_number_id: str, to: str, text: str) -> None:
     """Send a text message via Meta Cloud API.
 

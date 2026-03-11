@@ -66,8 +66,11 @@ async def process_whatsapp_message(body: dict) -> None:
 
     incoming_text = message["text"]["body"]
 
+    # Normalize phone to E.164: WhatsApp sends "33612345678", we store "+33612345678"
+    normalized_phone = sender_phone if sender_phone.startswith("+") else f"+{sender_phone}"
+
     # Look up user by phone (service role — no user JWT in webhook context)
-    user = await lookup_user_by_phone(sender_phone)
+    user = await lookup_user_by_phone(normalized_phone)
 
     if user is None:
         # Unlinked number — send registration instructions via direct API call
@@ -76,7 +79,7 @@ async def process_whatsapp_message(body: dict) -> None:
         await send_whatsapp_message(
             phone_number_id=phone_number_id,
             to=sender_phone,
-            text="Please create an account at ava.example.com and link your number",
+            text="Please create an account at https://avasecret.org and link your WhatsApp number in Settings.",
         )
         return
 
