@@ -21,7 +21,7 @@ async def link_whatsapp(
     db.from_("user_preferences").upsert({
         "user_id": str(user.id),
         "whatsapp_phone": body.phone,
-    }).execute()
+    }, on_conflict="user_id").execute()
 
     return {"status": "linked", "phone": body.phone}
 
@@ -55,7 +55,7 @@ async def update_preferences(
     db.from_("user_preferences").upsert({
         "user_id": str(user.id),
         **patch,
-    }).execute()
+    }, on_conflict="user_id").execute()
 
     result = db.from_("user_preferences").select("*").eq("user_id", str(user.id)).execute()
     if not result.data:
