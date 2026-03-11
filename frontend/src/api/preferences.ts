@@ -38,3 +38,15 @@ export async function updatePersona(token: string, persona: string): Promise<voi
   })
   if (!res.ok) throw new Error('Failed to update persona')
 }
+
+export async function linkWhatsApp(token: string, phone: string): Promise<void> {
+  const res = await fetch('/preferences/whatsapp', {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ phone }),
+  })
+  if (!res.ok) throw new Error('Failed to link WhatsApp number')
+}
