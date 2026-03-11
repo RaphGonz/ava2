@@ -50,22 +50,22 @@ export function useSendMessage(token: string | null, options?: UseSendMessageOpt
           const body = await r.json().catch(() => ({ detail: 'Failed to send message' }))
           throw new ApiError(body.detail || 'Failed to send message', r.status)
         }
-        return r.json() as Promise<{ reply: string }>
+        return r.json() as Promise<ChatMessage>  // ChatMessage, not { reply: string }
       }),
-    onMutate: (text: string) => {
-      // Optimistically show user bubble immediately — don't wait for LLM
-      const optimistic: ChatMessage = {
-        id: `optimistic-${Date.now()}`,
-        role: 'user',
-        content: text,
-        created_at: new Date().toISOString(),
-      }
+    // onMutate: REMOVED — no optimistic hack needed.
+    // The server now returns the real user message row immediately.
+    // Keeping onMutate alongside onSuccess would create a duplicate bubble:
+    //   optimistic id (temp) + real id (from server) = two identical messages until next poll.
+    onSuccess: (userMessage: ChatMessage) => {
+      // Append the real user message row to the cache immediately.
+      // Do NOT call invalidateQueries — that triggers a full refetch which returns
+      // the user message but NOT the assistant reply yet (background task still running).
+      // The 3s poll in useChatHistory does the honest work of picking up the assistant reply.
       queryClient.setQueryData<ChatMessage[]>(['chat-history'], prev => [
         ...(prev ?? []),
-        optimistic,
+        userMessage,
       ])
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chat-history'] }),
     onError: options?.onError,
   })
 }
