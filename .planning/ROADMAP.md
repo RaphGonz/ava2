@@ -164,10 +164,11 @@ Plans:
 
 ### Phase 15: WhatsApp permanent token + user phone number in settings + real-time chat message polling
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Close three pre-milestone gaps: replace the expiring developer token with a permanent System User token, add a phone number input to the Settings WhatsApp toggle, and confirm real-time chat polling works in production.
+**Requirements**: WA-01, WA-02, WA-03
 **Depends on:** Phase 14
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 15 to break down)
+- [ ] 15-01-PLAN.md — Add linkWhatsApp() to preferences.ts + conditional phone input in SettingsPage with E.164 validation
+- [ ] 15-02-PLAN.md — Deploy frontend, create permanent Meta System User token on VPS, verify WhatsApp end-to-end and chat polling in production
