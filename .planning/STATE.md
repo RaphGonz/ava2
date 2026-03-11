@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-11T18:08:17.959Z"
+last_updated: "2026-03-11T19:21:54.740Z"
 progress:
-  total_phases: 8
-  completed_phases: 7
-  total_plans: 26
-  completed_plans: 25
+  total_phases: 9
+  completed_phases: 8
+  total_plans: 27
+  completed_plans: 26
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 15 — WhatsApp Permanent Token + User Phone Number in Settings + Real-Time Chat Message Polling (Complete)
-Plan: 15-02 complete — permanent WhatsApp token deployed to VPS; E2E messaging + chat polling verified in production
-Status: Phase 15 Complete — 2/2 plans executed
-Last activity: 2026-03-11 — 15-02 complete (4 files modified, 3 bugs fixed: preferences upsert 500, missing whatsapp_phone column, phone normalization)
+Phase: Phase 16 — Async Chat Architecture: Immediate User Bubble + Background AI Reply (Complete)
+Plan: 16-01 complete — synchronous user insert + asyncio.ensure_future LLM task; onSuccess setQueryData append in frontend
+Status: Phase 16 Complete — 1/1 plans executed
+Last activity: 2026-03-11 — 16-01 complete (2 files modified: web_chat.py refactored, chat.ts onMutate removed)
 
-Progress: [====================] Phase 15: 2/2 plans done (Complete)
+Progress: [====================] Phase 16: 1/1 plans done (Complete)
 
 ## Performance Metrics
 
@@ -107,6 +107,7 @@ Progress: [====================] Phase 15: 2/2 plans done (Complete)
 | Phase 13-end-to-end-smoke-test-milestone-validation P01 | 19 | 3 tasks | 5 files |
 | Phase 15 P01 | 7 | 2 tasks | 2 files |
 | Phase 15 P02 | 60 | 3 tasks | 4 files |
+| Phase 16 P01 | 9 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -291,6 +292,9 @@ Recent decisions affecting current work:
 - [Phase 15]: Permanent System User token (not 60-day developer token) deployed to VPS; WHATSAPP_ACCESS_TOKEN + WHATSAPP_PHONE_NUMBER_ID set in backend/.env
 - [Phase 15]: on_conflict='user_id' required on all preferences upserts — prevents 500 for users with existing rows
 - [Phase 15]: WhatsApp phone normalization at write time: webhook delivers '33612...' format, stored as '+33612...' (E.164)
+- [Phase 16]: asyncio.ensure_future (not BackgroundTasks) for LLM task — CORSMiddleware cancels BackgroundTasks on connection close (Phase 07 confirmed pattern)
+- [Phase 16]: onSuccess setQueryData append (not onMutate) — server returns real user row immediately; optimistic id causes duplicate bubble
+- [Phase 16]: No invalidateQueries in onSuccess — 3s poll handles assistant reply delivery naturally without premature full refetch
 
 ### Pending Todos
 
