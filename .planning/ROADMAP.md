@@ -161,3 +161,13 @@ Plans:
 - [ ] 14-02-PLAN.md — Auth pages restyle (LoginPage, SignupPage, ForgotPasswordPage, ResetPasswordPage, GoogleSignInButton)
 - [ ] 14-03-PLAN.md — Chat restyle (ChatPage dark header with avatar, ChatBubble gradient/glass, ChatInput dark)
 - [ ] 14-04-PLAN.md — Remaining pages (SettingsPage GlassCard sections + subscription, BillingPage back button, SubscribePage, AvatarSetupPage, AdminPage bg-black, LandingHero chat bubbles mockup) + human visual verify
+
+### Phase 15: WhatsApp permanent token + user phone number in settings + real-time chat message polling
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 14
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 15 to break down)

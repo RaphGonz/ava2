@@ -299,6 +299,7 @@ Recent decisions affecting current work:
 - v1.1 roadmap created 2026-03-02: Phases 8–12 defined for Launch Ready milestone
 - Phase 13 added 2026-03-03: End-to-End Smoke Test & Milestone Validation — full user journey verified in production before milestone declared shipped (chat, mode switching, image generation, Stripe paywall, secretary skills)
 - Phase 14 added 2026-03-09: Apply the style of the front page to the rest of the UI of the entire app
+- Phase 15 added 2026-03-11: WhatsApp permanent token + user phone number in settings + real-time chat message polling
 
 ### Blockers/Concerns
 
