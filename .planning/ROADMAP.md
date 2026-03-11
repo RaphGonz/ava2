@@ -167,7 +167,7 @@ Plans:
 **Goal:** Close three pre-milestone gaps: replace the expiring developer token with a permanent System User token, add a phone number input to the Settings WhatsApp toggle, and confirm real-time chat polling works in production.
 **Requirements**: WA-01, WA-02, WA-03
 **Depends on:** Phase 14
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 15-01-PLAN.md — Add linkWhatsApp() to preferences.ts + conditional phone input in SettingsPage with E.164 validation

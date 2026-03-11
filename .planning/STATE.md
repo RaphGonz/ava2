@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-10T16:08:52.590Z"
+last_updated: "2026-03-11T00:00:00Z"
 progress:
   total_phases: 7
-  completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
+  completed_phases: 7
+  total_plans: 24
+  completed_plans: 24
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 15 — WhatsApp Permanent Token + User Phone Number in Settings + Real-Time Chat Message Polling (In Progress)
-Plan: 15-01 complete — linkWhatsApp() added to preferences.ts; conditional phone input with E.164 validation in SettingsPage
-Status: Phase 15 In Progress — 1/2 plans executed
-Last activity: 2026-03-11 — 15-01 complete (2 files modified, linkWhatsApp() + phone input + E.164 validation)
+Phase: Phase 15 — WhatsApp Permanent Token + User Phone Number in Settings + Real-Time Chat Message Polling (Complete)
+Plan: 15-02 complete — permanent WhatsApp token deployed to VPS; E2E messaging + chat polling verified in production
+Status: Phase 15 Complete — 2/2 plans executed
+Last activity: 2026-03-11 — 15-02 complete (4 files modified, 3 bugs fixed: preferences upsert 500, missing whatsapp_phone column, phone normalization)
 
-Progress: [==========----------] Phase 15: 1/2 plans done (In Progress)
+Progress: [====================] Phase 15: 2/2 plans done (Complete)
 
 ## Performance Metrics
 
@@ -106,6 +106,7 @@ Progress: [==========----------] Phase 15: 1/2 plans done (In Progress)
 | Phase 14 P04 | 16 | 2 tasks | 6 files |
 | Phase 13-end-to-end-smoke-test-milestone-validation P01 | 19 | 3 tasks | 5 files |
 | Phase 15 P01 | 7 | 2 tasks | 2 files |
+| Phase 15 P02 | 60 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -287,6 +288,9 @@ Recent decisions affecting current work:
 - [Phase 13-end-to-end-smoke-test-milestone-validation]: EMAI-03 runbook path is active (Resend dashboard or Stripe webhook replay), not passive — tester must find evidence
 - [Phase 15]: linkWhatsApp calls PUT /preferences/whatsapp (not PATCH /preferences/) — whatsapp_phone is NOT accepted by PreferencesPatchRequest
 - [Phase 15]: Phone input only shown when preferred_platform === 'whatsapp' (prefs state) — conditional on prefs not local toggle
+- [Phase 15]: Permanent System User token (not 60-day developer token) deployed to VPS; WHATSAPP_ACCESS_TOKEN + WHATSAPP_PHONE_NUMBER_ID set in backend/.env
+- [Phase 15]: on_conflict='user_id' required on all preferences upserts — prevents 500 for users with existing rows
+- [Phase 15]: WhatsApp phone normalization at write time: webhook delivers '33612...' format, stored as '+33612...' (E.164)
 
 ### Pending Todos
 
@@ -312,5 +316,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-11T15:28:35Z
-Stopped at: Completed 15-01-PLAN.md (linkWhatsApp() + conditional phone input in SettingsPage — 2 tasks, 2 files modified)
+Last session: 2026-03-11T00:00:00Z
+Stopped at: Completed 15-02-PLAN.md (permanent WhatsApp token deployed + E2E verified + chat polling confirmed — 3 tasks, 4 files, 3 bugs fixed)
