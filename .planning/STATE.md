@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 14 — Apply Front Page Style to Rest of App (COMPLETE)
-Plan: 14-04 complete — SettingsPage/BillingPage/SubscribePage/AvatarSetupPage/AdminPage/LandingHero restyled; human visual verification APPROVED
-Status: Phase 14 COMPLETE — 4/4 plans executed; visual verification checkpoint approved by user
-Last activity: 2026-03-10 — 14-04 complete (6 files restyled, LandingHero chat bubbles mockup, build clean, 4/5 tests GREEN, human-verify approved)
+Phase: Phase 13 — End-to-End Smoke Test & Milestone Validation (In Progress)
+Plan: 13-01 complete — 4 smoke test files + human runbook created; paywall/admin/usage_events automated tests; 28-row evidence table runbook
+Status: Phase 13 In Progress — 1/2 plans executed
+Last activity: 2026-03-11 — 13-01 complete (5 files created, smoke tests for SC-5/ADMN-01/ADMN-02/ADMN-03, runbook with 28 evidence rows)
 
-Progress: [====================] Phase 14: 4/4 plans done (COMPLETE)
+Progress: [==========----------] Phase 13: 1/2 plans done (In Progress)
 
 ## Performance Metrics
 
@@ -104,6 +104,7 @@ Progress: [====================] Phase 14: 4/4 plans done (COMPLETE)
 | Phase 14 P01 | 12 | 2 tasks | 5 files |
 | Phase 14 P02 | 12 | 2 tasks | 5 files |
 | Phase 14 P04 | 16 | 2 tasks | 6 files |
+| Phase 13-end-to-end-smoke-test-milestone-validation P01 | 19 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -281,6 +282,8 @@ Recent decisions affecting current work:
 - [Phase 14-03]: ChatPage adds useQuery(['avatar']) with same queryKey as OnboardingGate — React Query cache hit, no extra network request on ChatPage mount
 - [Phase 14-03]: Subscription banner restyled to bg-white/5 border-white/10 dark glass — replacing yellow bg-yellow-900/50 theme
 - [Phase 14]: Persona buttons in SettingsPage use static glass style — no active-state tracking for persona in prefs state (updatePersona fires immediate API call)
+- [Phase 13-end-to-end-smoke-test-milestone-validation]: Smoke tests skip (not fail) when production JWT env vars absent — no broken CI from unset credentials
+- [Phase 13-end-to-end-smoke-test-milestone-validation]: EMAI-03 runbook path is active (Resend dashboard or Stripe webhook replay), not passive — tester must find evidence
 
 ### Pending Todos
 
@@ -305,5 +308,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-10T16:30:00Z
-Stopped at: Completed 14-04-PLAN.md (all tasks including human-verify checkpoint approved)
+Last session: 2026-03-11T13:47:29Z
+Stopped at: Completed 13-01-PLAN.md (smoke tests + runbook — 5 files created, all tasks committed)
