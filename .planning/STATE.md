@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 13 — End-to-End Smoke Test & Milestone Validation (In Progress)
-Plan: 13-01 complete — 4 smoke test files + human runbook created; paywall/admin/usage_events automated tests; 28-row evidence table runbook
-Status: Phase 13 In Progress — 1/2 plans executed
-Last activity: 2026-03-11 — 13-01 complete (5 files created, smoke tests for SC-5/ADMN-01/ADMN-02/ADMN-03, runbook with 28 evidence rows)
+Phase: Phase 15 — WhatsApp Permanent Token + User Phone Number in Settings + Real-Time Chat Message Polling (In Progress)
+Plan: 15-01 complete — linkWhatsApp() added to preferences.ts; conditional phone input with E.164 validation in SettingsPage
+Status: Phase 15 In Progress — 1/2 plans executed
+Last activity: 2026-03-11 — 15-01 complete (2 files modified, linkWhatsApp() + phone input + E.164 validation)
 
-Progress: [==========----------] Phase 13: 1/2 plans done (In Progress)
+Progress: [==========----------] Phase 15: 1/2 plans done (In Progress)
 
 ## Performance Metrics
 
@@ -105,6 +105,7 @@ Progress: [==========----------] Phase 13: 1/2 plans done (In Progress)
 | Phase 14 P02 | 12 | 2 tasks | 5 files |
 | Phase 14 P04 | 16 | 2 tasks | 6 files |
 | Phase 13-end-to-end-smoke-test-milestone-validation P01 | 19 | 3 tasks | 5 files |
+| Phase 15 P01 | 7 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -284,6 +285,8 @@ Recent decisions affecting current work:
 - [Phase 14]: Persona buttons in SettingsPage use static glass style — no active-state tracking for persona in prefs state (updatePersona fires immediate API call)
 - [Phase 13-end-to-end-smoke-test-milestone-validation]: Smoke tests skip (not fail) when production JWT env vars absent — no broken CI from unset credentials
 - [Phase 13-end-to-end-smoke-test-milestone-validation]: EMAI-03 runbook path is active (Resend dashboard or Stripe webhook replay), not passive — tester must find evidence
+- [Phase 15]: linkWhatsApp calls PUT /preferences/whatsapp (not PATCH /preferences/) — whatsapp_phone is NOT accepted by PreferencesPatchRequest
+- [Phase 15]: Phone input only shown when preferred_platform === 'whatsapp' (prefs state) — conditional on prefs not local toggle
 
 ### Pending Todos
 
@@ -309,5 +312,5 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-11T13:47:29Z
-Stopped at: Completed 13-01-PLAN.md (smoke tests + runbook — 5 files created, all tasks committed)
+Last session: 2026-03-11T15:28:35Z
+Stopped at: Completed 15-01-PLAN.md (linkWhatsApp() + conditional phone input in SettingsPage — 2 tasks, 2 files modified)
