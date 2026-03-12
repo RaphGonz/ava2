@@ -43,9 +43,18 @@ def build_avatar_prompt(avatar: dict, scene_description: str) -> str:
 
     parts.append(scene_description.rstrip(",") + ",")
 
-    # Full-body composition directive — must appear before quality anchors
-    # so the model treats framing as a primary constraint
-    parts.append("full body, standing, full-length portrait, head to toe,")
+    # Composition directive — selfie scenes get a close-up framing,
+    # everything else defaults to full-body
+    _selfie_keywords = {"selfie", "self-portrait", "self portrait", "phone camera", "front camera"}
+    is_selfie = any(kw in scene_description.lower() for kw in _selfie_keywords)
+
+    if is_selfie:
+        parts.append(
+            "selfie, close-up shot, upper body framing, arm extended holding phone,"
+            " slight downward angle, smartphone camera, candid, natural expression,"
+        )
+    else:
+        parts.append("full body, standing, full-length portrait, head to toe,")
 
     # Quality anchors for photorealism
     parts.extend([

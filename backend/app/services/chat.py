@@ -50,7 +50,10 @@ SEND_PHOTO_TOOL = {
                     "type": "string",
                     "description": (
                         "Detailed description of the photo: "
-                        "setting, lighting, pose, mood, what you are wearing or doing."
+                        "setting, lighting, pose, mood, what you are wearing or doing. "
+                        "If the user asks for a selfie or a photo taken on a phone, "
+                        "include the word 'selfie' in this description so the correct "
+                        "framing (close-up, arm extended) is applied."
                     ),
                 },
             },
