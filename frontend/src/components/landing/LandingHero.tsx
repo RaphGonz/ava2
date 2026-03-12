@@ -19,8 +19,8 @@ export function LandingHero() {
               backgroundPosition: 'right center',
               backgroundRepeat: 'no-repeat',
               imageRendering: 'auto',
-              WebkitMaskImage: 'radial-gradient(ellipse 95% 92% at 80% 50%, black 82%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse 95% 92% at 80% 50%, black 82%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to left, black 70%, transparent 90%)',
+              maskImage: 'linear-gradient(to left, black 70%, transparent 90%)',
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-violet-900/60 to-orange-900/60" />
@@ -40,8 +40,8 @@ export function LandingHero() {
           alt=""
           className="absolute left-0 top-0 h-full w-auto z-20 pointer-events-none"
           style={{
-            WebkitMaskImage: 'radial-gradient(ellipse 95% 92% at 20% 50%, black 82%, transparent 100%)',
-            maskImage: 'radial-gradient(ellipse 95% 92% at 20% 50%, black 82%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 70%, transparent 90%)',
+            maskImage: 'linear-gradient(to right, black 70%, transparent 90%)',
           }}
         />
       </div>
