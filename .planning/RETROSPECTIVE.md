@@ -56,8 +56,59 @@
 
 ---
 
+## Milestone: v1.1 — Launch Ready
+
+**Shipped:** 2026-03-12
+**Phases:** 6 (8–13) | **Plans:** 20 | **Timeline:** 10 days (2026-03-03 → 2026-03-12)
+
+### What Was Built
+
+- Production VPS (Hetzner CX32) with Caddy HTTPS, UFW firewall, all API credentials verified; mail-tester 10/10
+- Google Sign-In + password reset + 5 transactional emails (Resend SDK, non-blocking retry, enumeration-safe)
+- Landing page: dark glassmorphism design (GlassCard, Framer Motion v12), hero/features/pricing, auth guard, Stripe-compliant copy
+- Full subscription management: Stripe Customer Portal, cancellation with skippable exit survey, ≤3 clicks, cancel_at_period_end
+- Admin dashboard: `/admin` metrics, usage_events table (4 event types), admin role-only access (403 for regular users)
+- End-to-end smoke tests + 28-criteria production runbook; 2 bugs fixed (ChatBubble photo rendering + signed URL cache)
+
+### What Worked
+
+- **Phase 8 first**: Deploying infrastructure before any feature work meant every subsequent phase could be verified in production immediately. Phase 9's email features worked on first deploy because DNS was already propagated.
+- **End-to-end smoke test as final phase (Phase 13)**: Having a dedicated validation phase with a written runbook caught 2 production bugs that would have been user-reported. Made milestone declaration concrete and credible.
+- **Non-blocking email pattern**: `email never raises to callers — one retry after 3s then log and return False` meant Stripe webhooks could never be blocked by email failures. This pattern (established in Phase 9) held through all email touchpoints.
+- **Deferred credential pattern from v1.0 continues to pay**: All new config fields (RESEND_API_KEY, SUPABASE_HOOK_SECRET) default to empty string — missing credentials return graceful errors at call time, not startup crashes.
+- **Production URL override via FRONTEND_URL env var**: Single env var controls CORS in production; default to localhost for local dev. Zero config changes needed between environments.
+
+### What Was Inefficient
+
+- **Phase 10 (Landing Page) was the longest single plan**: 78 minutes for plan 04 (vs 10-16 min average) due to Vitest hoisting behavior and test fixture complexity. The Figma port was accurate but the test suite needed significant debugging.
+- **Phase 9 human verification deferred to Phase 13**: Auth E2E (Google OAuth browser flow, email delivery) was correctly delegated to Phase 13 smoke test, but it meant Phase 9 "complete" required a caveat. This was the right call but worth noting.
+- **STATE.md milestone field not updated**: STATE.md still showed `milestone: v1.0` throughout v1.1 work — tooling picked wrong phase count at milestone complete time.
+
+### Patterns Established
+
+- **Caddy named volumes must never be deleted**: `caddy_data` and `caddy_config` hold Let's Encrypt TLS certs. Added to known constraints permanently.
+- **Email non-blocking contract**: All email calls wrapped in try/except — email failures are logged and return False but never raise. Stripe webhooks would retry endlessly if email caused non-200 response.
+- **Google OAuth as frontend Supabase exception**: Only case where frontend directly calls Supabase JS SDK (PKCE flow) — explicitly labeled one-time exception, must not be generalized.
+- **Smoke test runbook as milestone gate**: Phase 13's evidence table format (requirement ID + test type + result + evidence) gives a clear pass/fail record. Worth carrying forward to all future milestones.
+
+### Key Lessons
+
+1. **Infrastructure first pays compounding interest**: Each subsequent phase validated in real production immediately. By Phase 13, the environment was stable enough that smoke tests ran cleanly on first attempt.
+2. **Exit survey skippability is a legal/UX requirement**: SUBS-05 (skip option) was not an afterthought — it's legally necessary in some jurisdictions and prevents the cancellation from being coercive. The "Skip survey and cancel" shortcut design (3-click path) is worth documenting as a reusable UX pattern.
+3. **Dedicated smoke test phase eliminates milestone ambiguity**: "Is v1.1 done?" went from a judgment call to a 28-row evidence table. The 2 bugs caught (photo rendering, signed URL cache) justified the entire phase.
+4. **asyncio.ensure_future over BackgroundTasks for long-running tasks**: CORSMiddleware cancels BackgroundTasks on connection close. This bit us in Phase 16 (post-v1.1) but the pattern was established in Phase 7. Every new background task should use ensure_future.
+
+### Cost Observations
+
+- Model mix: balanced profile (Sonnet 4.6 primary)
+- Sessions: multiple across 10 days
+- Notable: 168 commits since v1.0 in 10 days = ~17 commits/day; Phase 14-16 shipped as bonus work after milestone gates closed
+
+---
+
 ## Cross-Milestone Trends
 
-| Milestone | Phases | Plans | Days | LOC | Key Pattern |
-|-----------|--------|-------|------|-----|-------------|
-| v1.0 MVP | 8 | 38 | 8 | ~6,579 | Protocol modularity paid off immediately |
+| Milestone | Phases | Plans | Days | Commits | Key Pattern |
+|-----------|--------|-------|------|---------|-------------|
+| v1.0 MVP | 8 | 38 | 8 | 157 | Protocol modularity paid off immediately |
+| v1.1 Launch Ready | 6 | 20 | 10 | 168 | Infrastructure-first + smoke test gate = credible ship |

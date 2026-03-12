@@ -1,33 +1,32 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: unknown
-last_updated: "2026-03-11T19:41:08.737Z"
+milestone: v1.2
+milestone_name: Planning
+status: milestone_complete
+last_updated: "2026-03-12T00:00:00.000Z"
 progress:
-  total_phases: 9
-  completed_phases: 8
-  total_plans: 27
-  completed_plans: 26
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
+See: .planning/PROJECT.md (updated 2026-03-12 after v1.1 milestone)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app or web app the user already uses.
-**Current focus:** v1.1 Launch Ready — roadmap defined, ready to plan Phase 8
+**Current focus:** v1.1 archived — ready to plan v1.2 milestone via `/gsd:new-milestone`
 
 ## Current Position
 
-Phase: Phase 13 — End-to-End Smoke Test & Milestone Validation (Complete)
-Plan: 13-02 complete — full smoke test runbook executed against production, all 28 criteria PASS
-Status: Phase 13 COMPLETE — v1.1 Launch Ready milestone SHIPPED 2026-03-12
-Last activity: 2026-03-12 — 13-02 complete (smoke test evidence table filled, 2 bugs fixed: ChatBubble photo rendering + signed URL cache)
+Phase: Phase 16 — Async chat architecture (Complete)
+Status: v1.1 ARCHIVED 2026-03-12. Phases 14, 15, 16 shipped as post-v1.1 work. Ready for v1.2 planning.
+Last activity: 2026-03-12 — v1.1 milestone archived
 
-Progress: [====================] Phase 16: 1/1 plans done (Complete)
+Progress: [====================] v1.1 complete — all phases 8–16 done
 
 ## Performance Metrics
 

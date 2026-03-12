@@ -12,6 +12,18 @@ A single AI companion that seamlessly switches between getting things done (secr
 
 ### Validated
 
+- ✓ Production VPS on HTTPS with Caddy, UFW, all API credentials verified — v1.1
+- ✓ Email DNS (SPF/DKIM/DMARC) configured, mail-tester 10/10, Resend integration live — v1.1
+- ✓ Google OAuth sign-in/sign-up + password reset via email link — v1.1
+- ✓ Transactional emails (welcome, receipt, cancellation) — v1.1
+- ✓ Landing page: hero, features, pricing, auth guard, Stripe-compliant copy — v1.1
+- ✓ User-facing subscription management with Stripe Customer Portal — v1.1
+- ✓ Cancellation flow: skippable exit survey, ≤3 clicks, cancel_at_period_end=True — v1.1
+- ✓ Admin dashboard (/admin) with key metrics, usage_events table, admin role-only access — v1.1
+- ✓ End-to-end smoke tests + production runbook — all 28 v1.1 criteria verified — v1.1
+- ✓ Full app dark glass UI redesign (AppNav, GlassCard, motion animations on all authenticated pages) — v1.1 post-ship
+- ✓ WhatsApp permanent System User token + user phone number in Settings — v1.1 post-ship
+- ✓ Async chat architecture: immediate user bubble, background LLM reply — v1.1 post-ship
 - ✓ Dual-mode chatbot: secretary mode (professional) and intimate mode (personal/flirty) — v1.0
 - ✓ Safe word mode switching with fuzzy intent detection ("I'm alone" to enter, "stop" to exit) — v1.0
 - ✓ WhatsApp integration as first messaging platform — v1.0 (pending WhatsApp Business verification)
@@ -30,30 +42,16 @@ A single AI companion that seamlessly switches between getting things done (secr
 - ✓ Content safety: age verification (20+ floor), ContentGuard, crisis detection (988) — v1.0
 - ✓ NSFW delivery via secure web links (not inline WhatsApp) — v1.0
 
-## Current Milestone: v1.1 — Launch Ready
+## Current Milestone: v1.2 — (Planning)
 
-**Goal:** Transform the v1.0 MVP into a production-deployable, professional product that can acquire and retain real paying users.
-
-**Target features:**
-- Landing page (Figma-based): hero, features, pricing, Sign Up CTA — the acquisition funnel
-- Production deployment: VPS (Hetzner/DigitalOcean), Docker Compose, domain + SSL, all APIs wired
-- Admin dashboard: `/admin` page with usage analytics (active users, messages, photos, subscriptions)
-- Auth polish: Google Sign-In/Sign-Up + password reset via email
-- Transactional emails: welcome on signup, receipt after subscribing, cancellation confirmation
-- Subscription management: user-facing plan page (plan, billing date) + cancellation with exit survey
+**Goal:** TBD — Phases 14, 15, 16 already complete (UI redesign, WhatsApp permanent token, async chat). Next milestone scope to be defined via `/gsd:new-milestone`.
 
 ### Active
 
-- [ ] Landing page that converts visitors to paying users (Figma design provided at build time)
-- [ ] Production VPS deployment with domain, SSL, and all production API connections
-- [ ] Admin analytics dashboard (/admin) for usage monitoring
-- [ ] Google OAuth sign-in / sign-up
-- [ ] Password reset via email link
-- [ ] Transactional emails (welcome, receipt, cancellation)
-- [ ] User-facing subscription management page (current plan, billing date, cancel)
-- [ ] Cancellation churn flow: exit survey before confirming cancel
-- [ ] SAFE-03: Operationalize TAKE IT DOWN Act 48-hour takedown process (policy exists, process not implemented)
+- [ ] SAFE-03: Operationalize TAKE IT DOWN Act 48-hour takedown process (policy exists, process not implemented — May 19, 2026 deadline)
 - [ ] WhatsApp Business Account verification (submitted, awaiting Meta approval)
+- [ ] Long-term memory (MEMR-01): bot remembers user preferences across sessions
+- [ ] Photo escalation (ESCL-01): mild → explicit based on conversation context (currently static per spiciness_level)
 
 ### Out of Scope
 
@@ -70,29 +68,28 @@ A single AI companion that seamlessly switches between getting things done (secr
 ## Context
 
 **Shipped v1.0 (2026-03-02):** 8 phases (7 planned + 1 inserted), 38 plans, 8 days from start to ship.
+**Shipped v1.1 (2026-03-12):** 6 phases (8–13), 20 plans, 10 days. Full production launch with acquisition funnel, auth, email, admin dashboard — all journeys verified.
+**Post v1.1 shipped (2026-03-12):** Phases 14–16 completed — full dark glass UI, WhatsApp permanent token, async chat architecture.
 
-**Codebase:** ~6,579 LOC Python + TypeScript/TSX. FastAPI backend, React + Vite + Tailwind v4 frontend.
-
-**Tech stack:**
-- Backend: FastAPI, Python 3.12, Supabase (PostgreSQL + RLS), BullMQ (Redis), Sentry
-- Frontend: React 18, Vite, Tailwind v4, Zustand
-- AI: OpenAI GPT-4o (chat/intent), ComfyUI Cloud (image generation)
-- Billing: Stripe (subscription + webhook)
-- Messaging: WhatsApp Business API (Meta), Web adapter
-- Deployment: Docker Compose, nginx, Supabase Cloud
+**Codebase:** ~35,000+ lines changed since v1.0. FastAPI backend, React + Vite + Tailwind v4 frontend.
+Stack: FastAPI, Python 3.12, Supabase (PostgreSQL + RLS), BullMQ (Redis), Sentry, Caddy, Docker Compose, Stripe, Resend, OpenAI GPT-4o, ComfyUI Cloud, WhatsApp Business API.
 
 **Key architectural patterns established:**
 - Python Protocol for pluggable providers (LLMProvider, ImageProvider, PlatformAdapter, Skill)
 - Two Supabase clients: `supabase_client` (anon+RLS, user-facing) + `supabase_admin` (service role, server ops)
 - Separate per-mode session histories prevent cross-mode prompt injection
 - Crisis gate runs in ALL modes; ContentGuard only in INTIMATE mode
+- asyncio.ensure_future (not BackgroundTasks) for LLM tasks — CORSMiddleware cancels BackgroundTasks on connection close
+- Caddy named volumes (caddy_data, caddy_config) must never be deleted — hold TLS certs
+- Google OAuth uses @supabase/supabase-js on frontend for PKCE flow (one-time exception to frontend no-direct-Supabase rule)
 
-**WhatsApp Business:** Verification pending (2–15 business days). ngrok webhook URL needs registration in Meta Developer Console when credentials arrive.
+**WhatsApp Business:** Permanent System User token deployed. Verification still pending with Meta (submitted).
 
 **Known tech debt:**
-- SAFE-03 TAKE IT DOWN Act process not operationalized (policy doc exists)
-- Photo escalation (mild → explicit) is static per spiciness_level setting, not conversation-driven
+- SAFE-03 TAKE IT DOWN Act process not operationalized (policy doc exists) — May 19, 2026 deadline
+- Photo escalation (mild → explicit) is static per spiciness_level, not conversation-driven
 - Secretary reminder system (SKIL-02) not built — deferred
+- No long-term memory across sessions (MEMR-01) — deferred
 
 ## Key Decisions
 
@@ -109,6 +106,11 @@ A single AI companion that seamlessly switches between getting things done (secr
 | Two Supabase client pattern | JWT bleed prevention in concurrent async requests | ✓ Good — zero RLS isolation violations |
 | BullMQ async for image pipeline | Webhook reliability at scale, decoupled from API layer | ✓ Good — fire-and-forget with polling on frontend |
 | Stripe subscription gate | Prevents unauthorized access to image generation | ✓ Good — dev bypass works; 402 on expired subscription |
+| nginx → Caddy for production | Automatic HTTPS without Certbot; simpler config | ✓ Good — TLS live day 1, deploy.sh validates Caddyfile before restart |
+| Resend for transactional email | Good deliverability, simple SDK, non-blocking retry pattern | ✓ Good — mail-tester 10/10; email failures never block auth/payment |
+| cancel_at_period_end=True for cancellation | User retains access until billing period ends; avoids 402 mid-flow | ✓ Good — legally compliant, no UX breakage during cancel |
+| asyncio.ensure_future for LLM task | CORSMiddleware cancels BackgroundTasks on connection close | ✓ Good — immediate user bubble with background AI reply; no duplicate bubbles |
+| onSuccess setQueryData (not onMutate) | Server returns real user row immediately; optimistic id causes duplicate bubble | ✓ Good — clean append without optimistic hacks |
 
 ## Constraints
 
@@ -119,4 +121,4 @@ A single AI companion that seamlessly switches between getting things done (secr
 - **Content safety**: Age verification + ContentGuard + crisis detection are mandatory
 
 ---
-*Last updated: 2026-03-02 — v1.1 milestone started*
+*Last updated: 2026-03-12 after v1.1 milestone*
