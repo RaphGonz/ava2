@@ -26,6 +26,18 @@ export function LandingHero() {
           <div className="absolute inset-0 bg-gradient-to-br from-violet-900/60 to-orange-900/60" />
         </div>
 
+        {/* writing.png — below blue pane, left-anchored */}
+        <img
+          src={writing}
+          alt=""
+          className="absolute left-0 top-0 h-full w-auto pointer-events-none"
+          style={{
+            zIndex: 5,
+            WebkitMaskImage: 'linear-gradient(to right, black 70%, transparent 90%)',
+            maskImage: 'linear-gradient(to right, black 70%, transparent 90%)',
+          }}
+        />
+
         {/* Left Side (Blue) - Clipped Layer */}
         <div
           className="absolute inset-0 bg-blue-950 z-10"
@@ -33,17 +45,6 @@ export function LandingHero() {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent" />
         </div>
-
-        {/* writing.png — above blue panel, masked so it fades at edges */}
-        <img
-          src={writing}
-          alt=""
-          className="absolute left-0 top-0 h-full w-auto z-20 pointer-events-none"
-          style={{
-            WebkitMaskImage: 'linear-gradient(to right, black 70%, transparent 90%)',
-            maskImage: 'linear-gradient(to right, black 70%, transparent 90%)',
-          }}
-        />
       </div>
 
       {/* Content Container */}
