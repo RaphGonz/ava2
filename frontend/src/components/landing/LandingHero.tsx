@@ -14,8 +14,8 @@ export function LandingHero() {
             className="absolute inset-0"
             style={{
               backgroundImage: `url(${shhhh})`,
-              backgroundSize: '50%',
-              backgroundPosition: 'left center',
+              backgroundSize: 'auto 100%',
+              backgroundPosition: 'right center',
               backgroundRepeat: 'no-repeat',
               imageRendering: 'auto',
             }}
