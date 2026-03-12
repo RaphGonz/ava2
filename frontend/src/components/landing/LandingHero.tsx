@@ -40,7 +40,7 @@ export function LandingHero() {
 
         {/* Left Side (Blue) - Clipped Layer */}
         <div
-          className="absolute inset-0 bg-blue-950 z-10"
+          className="absolute inset-0 z-10"
           style={{ clipPath: "polygon(0 0, 65% 0, 35% 100%, 0 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent" />
