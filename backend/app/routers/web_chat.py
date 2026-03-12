@@ -106,17 +106,49 @@ async def send_message(
 
 _PHOTO_PATH_OPEN = "[PHOTO_PATH]"
 _PHOTO_PATH_CLOSE = "[/PHOTO_PATH]"
-_PHOTO_SIGNED_URL_TTL = 3600  # 1-hour signed URL generated fresh at each history fetch
+_PHOTO_SIGNED_URL_TTL = 3600        # signed URL lifetime: 1 hour
+_PHOTO_CACHE_REFRESH_BEFORE = 600   # regenerate when less than 10 min remain
+
+# Cache: storage_path -> (signed_url, generated_at unix timestamp)
+_signed_url_cache: dict[str, tuple[str, float]] = {}
+
+
+def _get_signed_url(storage_path: str) -> str | None:
+    """Return a cached signed URL, regenerating only when close to expiry."""
+    import time
+    cached = _signed_url_cache.get(storage_path)
+    if cached:
+        url, generated_at = cached
+        age = time.time() - generated_at
+        if age < _PHOTO_SIGNED_URL_TTL - _PHOTO_CACHE_REFRESH_BEFORE:
+            return url  # still fresh — reuse
+
+    # Generate a new signed URL
+    try:
+        sign_response = (
+            supabase_admin.storage
+            .from_("photos")
+            .create_signed_url(storage_path, _PHOTO_SIGNED_URL_TTL)
+        )
+        url = (
+            sign_response.get("signedURL")
+            or sign_response.get("signedUrl")
+            or sign_response.get("signed_url")
+        )
+        if url:
+            import time as _time
+            _signed_url_cache[storage_path] = (url, _time.time())
+            return url
+        logger.error(f"_get_signed_url: no URL in response for {storage_path!r}: {sign_response}")
+    except Exception as e:
+        logger.error(f"_get_signed_url: error signing {storage_path!r}: {e}")
+    return None
 
 
 def _rewrite_photo_paths(messages: list[dict]) -> list[dict]:
     """
     Replace [PHOTO_PATH]{path}[/PHOTO_PATH] tokens in message content with
-    fresh 1-hour Supabase Storage signed URLs.
-
-    This is called at read time so photos remain accessible permanently.
-    The storage path persists in the DB forever; signed URLs are ephemeral
-    and regenerated on each GET /chat/history call.
+    signed URLs. URLs are cached for ~50 minutes to prevent flicker on polling.
     """
     rewritten = []
     for msg in messages:
@@ -126,34 +158,14 @@ def _rewrite_photo_paths(messages: list[dict]) -> list[dict]:
             end = content.find(_PHOTO_PATH_CLOSE)
             if end > start:
                 storage_path = content[start:end]
-                try:
-                    sign_response = (
-                        supabase_admin.storage
-                        .from_("photos")
-                        .create_signed_url(storage_path, _PHOTO_SIGNED_URL_TTL)
+                url = _get_signed_url(storage_path)
+                if url:
+                    new_content = (
+                        content[: content.find(_PHOTO_PATH_OPEN)]
+                        + f"[PHOTO]{url}[/PHOTO]"
+                        + content[end + len(_PHOTO_PATH_CLOSE):]
                     )
-                    fresh_url = (
-                        sign_response.get("signedURL")
-                        or sign_response.get("signedUrl")
-                        or sign_response.get("signed_url")
-                    )
-                    if fresh_url:
-                        # Replace [PHOTO_PATH] token with [PHOTO] + signed URL for frontend
-                        new_content = (
-                            content[: content.find(_PHOTO_PATH_OPEN)]
-                            + f"[PHOTO]{fresh_url}[/PHOTO]"
-                            + content[end + len(_PHOTO_PATH_CLOSE):]
-                        )
-                        msg = {**msg, "content": new_content}
-                    else:
-                        logger.error(
-                            f"_rewrite_photo_paths: failed to sign path {storage_path!r} "
-                            f"— sign_response={sign_response}"
-                        )
-                except Exception as sign_err:
-                    logger.error(
-                        f"_rewrite_photo_paths: error signing path {storage_path!r}: {sign_err}"
-                    )
+                    msg = {**msg, "content": new_content}
         rewritten.append(msg)
     return rewritten
 
