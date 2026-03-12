@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1–7 + 07.1 (shipped 2026-03-02)
-- 📋 **v1.1 Launch Ready** — Phases 8–13 (started 2026-03-02)
+- ✅ **v1.1 Launch Ready** — Phases 8–13 (shipped 2026-03-12)
 
 ## Phases
 
@@ -24,14 +24,14 @@ Full milestone archive: `.planning/milestones/v1.0-ROADMAP.md`
 </details>
 
 <details open>
-<summary>📋 v1.1 Launch Ready (Phases 8–13) — IN PROGRESS</summary>
+<summary>✅ v1.1 Launch Ready (Phases 8–13) — SHIPPED 2026-03-12</summary>
 
 - [x] **Phase 8: Infrastructure & Deployment** — Production VPS live on HTTPS with all API credentials wired (completed 2026-03-05)
 - [x] **Phase 9: Auth Polish & Email** — Google Sign-In works, password reset lands in inbox, welcome email received on signup (completed 2026-03-06)
 - [x] **Phase 10: Landing Page** — Public acquisition page live at "/", CTA reaches signup, Stripe-safe copy (completed 2026-03-09)
 - [x] **Phase 11: Subscription Management & Churn** — User can view plan, open Stripe portal, cancel in ≤3 clicks with optional survey (completed 2026-03-09)
 - [x] **Phase 12: Admin Dashboard** — /admin shows key metrics, usage_events table accumulates events, regular users get 403 (completed 2026-03-10)
-- [ ] **Phase 13: End-to-End Smoke Test & Milestone Validation** — Every core user journey verified in production before milestone is declared shipped
+- [x] **Phase 13: End-to-End Smoke Test & Milestone Validation** — Every core user journey verified in production before milestone is declared shipped (completed 2026-03-12)
 
 </details>
 
@@ -129,7 +129,7 @@ Plans:
 | 10. Landing Page | 4/4 | Complete    | 2026-03-09 | - |
 | 11. Subscription Management & Churn | 3/3 | Complete    | 2026-03-09 | - |
 | 12. Admin Dashboard | 3/3 | Complete   | 2026-03-10 | - |
-| 13. End-to-End Smoke Test & Milestone Validation | 1/2 | In Progress|  | - |
+| 13. End-to-End Smoke Test & Milestone Validation | v1.1 | 2/2 | Complete | 2026-03-12 |
 | 14. UI Dark Theme Redesign | 4/4 | Complete    | 2026-03-10 | - |
 | 15. WhatsApp permanent token + phone + polling | 2/2 | Complete | 2026-03-11 | - |
 | 16. Async chat architecture | 1/1 | Complete    | 2026-03-11 | - |

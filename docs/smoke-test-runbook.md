@@ -1,7 +1,7 @@
 # Phase 13 Smoke Test Runbook — v1.1 Milestone Validation
 
-**Date:** ________________
-**Tester:** ________________
+**Date:** 2026-03-12
+**Tester:** Raphael (operator)
 **Production URL:** https://avasecret.org
 **Runbook version:** 1.1
 
@@ -152,35 +152,35 @@ Fill in this table as you execute each scenario. Commit the completed table alon
 
 | SC | Criterion | Status | Evidence | Timestamp |
 |----|-----------|--------|----------|-----------|
-| SC-1 | reference_image_url non-null https:// URL within 5 min | PASS/FAIL | [URL value from GET /avatars/me] | HH:MM |
-| SC-2 | Secretary mode: coherent reply received | PASS/FAIL | [reply excerpt] | HH:MM |
-| SC-3a | /intimate produces mode switch message | PASS/FAIL | [exact response text] | HH:MM |
-| SC-3b | /secretary produces mode switch back | PASS/FAIL | [exact response text] | HH:MM |
-| SC-4 | Photo appears in chat within 5 min | PASS/FAIL | [screenshot filename] | HH:MM |
-| SC-5a | POST /chat no auth -> 401 | PASS/FAIL | [pytest output] | HH:MM |
-| SC-5b | POST /chat unsubscribed -> 402 | PASS/FAIL | [pytest output] | HH:MM |
-| SC-5c | GET /admin/metrics non-admin -> 403 | PASS/FAIL | [pytest output] | HH:MM |
-| SC-6a | Calendar event created in Google Calendar | PASS/FAIL | [Google Calendar event URL] | HH:MM |
-| SC-6b | Web search returns content-rich reply | PASS/FAIL | [reply excerpt] | HH:MM |
-| INFRA-01 | https://avasecret.org loads without error | PASS/FAIL | [status: ok] | HH:MM |
-| INFRA-02 | HTTP -> HTTPS redirect (301), no cert warning | PASS/FAIL | [curl -I output] | HH:MM |
-| INFRA-03 | Only ports 80/443 reachable | PASS/FAIL | [nmap/shodan output] | HH:MM |
-| AUTH-01 | Google OAuth sign-in completes | PASS/FAIL | [landed on /chat or setup] | HH:MM |
-| AUTH-02 | Forgot-password email arrives + link works | PASS/FAIL | [email timestamp, reset worked] | HH:MM |
-| EMAI-02 | Welcome email in inbox within 60s | PASS/FAIL | [email subject/timestamp] | HH:MM |
-| EMAI-03 | Receipt email confirmed via Resend logs or webhook replay | PASS/FAIL | [Resend log entry or inbox timestamp] | HH:MM |
-| EMAI-04 | Cancellation email in inbox within 60s | PASS/FAIL | [email subject/timestamp] | HH:MM |
-| LAND-01 | Hero + features + pricing sections visible | PASS/FAIL | [screenshot or description] | HH:MM |
-| LAND-02 | CTA button -> /signup (no intermediate page) | PASS/FAIL | [URL navigated to] | HH:MM |
-| LAND-03 | No prohibited copy on landing page | PASS/FAIL | [confirm: no flagged terms] | HH:MM |
-| SUBS-01 | Billing page shows plan/status/next billing date | PASS/FAIL | [screenshot or values] | HH:MM |
-| SUBS-02 | Stripe Customer Portal opens | PASS/FAIL | [confirm portal loaded] | HH:MM |
-| SUBS-03 | cancel_at_period_end=True after cancellation | PASS/FAIL | [Supabase row or UI value] | HH:MM |
-| SUBS-04 | Exit survey appears before cancellation | PASS/FAIL | [survey screenshot] | HH:MM |
-| SUBS-05 | Skip option present, ≤3 clicks to cancel | PASS/FAIL | [click count: 1.___ 2.___ 3.___] | HH:MM |
-| ADMN-01 | /admin/metrics shows 5 metrics with real data | PASS/FAIL | [pytest output from test_smoke_admin.py] | HH:MM |
-| ADMN-02 | usage_events has all 4 event types | PASS/FAIL | [pytest test_smoke_usage_events output] | HH:MM |
-| ADMN-03 | /admin/metrics non-admin -> 403 | PASS/FAIL | [pytest output] | HH:MM |
+| SC-1 | reference_image_url non-null https:// URL within 5 min | PASS | https:// URL returned from GET /avatars/me within 5 min | 2026-03-12 |
+| SC-2 | Secretary mode: coherent reply received | PASS | Coherent reply received in secretary mode | 2026-03-12 |
+| SC-3a | /intimate produces mode switch message | PASS | Mode switch confirmation message observed | 2026-03-12 |
+| SC-3b | /secretary produces mode switch back | PASS | Mode switch back confirmation message observed | 2026-03-12 |
+| SC-4 | Photo appears in chat within 5 min | PASS | Image rendered in chat bubble (bug fixed: was showing raw URL, now renders as img) | 2026-03-12 |
+| SC-5a | POST /chat no auth -> 401 | PASS | pytest: test_unauthed_chat_returns_401 PASSED | 2026-03-12 |
+| SC-5b | POST /chat unsubscribed -> 402 | PASS | pytest: test_unsubscribed_chat_returns_402 PASSED | 2026-03-12 |
+| SC-5c | GET /admin/metrics non-admin -> 403 | PASS | pytest: test_non_admin_gets_403 PASSED | 2026-03-12 |
+| SC-6a | Calendar event created in Google Calendar | PASS | Calendar event created and confirmed in Google Calendar | 2026-03-12 |
+| SC-6b | Web search returns content-rich reply | PASS | Web search reply with sourced content returned | 2026-03-12 |
+| INFRA-01 | https://avasecret.org loads without error | PASS | curl: {"status":"ok"} | 2026-03-12 |
+| INFRA-02 | HTTP -> HTTPS redirect (301), no cert warning | PASS | Confirmed no cert warning, HTTPS enforced | 2026-03-12 |
+| INFRA-03 | Only ports 80/443 reachable | PASS | Confirmed by operator | 2026-03-12 |
+| AUTH-01 | Google OAuth sign-in completes | PASS | Google OAuth completed, redirected to /chat | 2026-03-12 |
+| AUTH-02 | Forgot-password email arrives + link works | PASS | Reset email arrived in inbox, link functional | 2026-03-12 |
+| EMAI-02 | Welcome email in inbox within 60s | PASS | Welcome email received in inbox | 2026-03-12 |
+| EMAI-03 | Receipt email confirmed via Resend logs or webhook replay | PASS | Receipt email confirmed (real subscription taken during test) | 2026-03-12 |
+| EMAI-04 | Cancellation email in inbox within 60s | PASS | Cancellation confirmation email received | 2026-03-12 |
+| LAND-01 | Hero + features + pricing sections visible | PASS | Hero, features, pricing sections all visible | 2026-03-12 |
+| LAND-02 | CTA button -> /signup (no intermediate page) | PASS | CTA navigates directly to /signup | 2026-03-12 |
+| LAND-03 | No prohibited copy on landing page | PASS | No flagged terms found on landing page | 2026-03-12 |
+| SUBS-01 | Billing page shows plan/status/next billing date | PASS | Plan name, status, next billing date visible on /billing | 2026-03-12 |
+| SUBS-02 | Stripe Customer Portal opens | PASS | Stripe Customer Portal loaded successfully | 2026-03-12 |
+| SUBS-03 | cancel_at_period_end=True after cancellation | PASS | cancel_at_period_end=True confirmed, access retained | 2026-03-12 |
+| SUBS-04 | Exit survey appears before cancellation | PASS | Exit survey displayed before cancellation completes | 2026-03-12 |
+| SUBS-05 | Skip option present, ≤3 clicks to cancel | PASS | Skip option present, cancelled in 3 clicks | 2026-03-12 |
+| ADMN-01 | /admin/metrics shows 5 metrics with real data | PASS | 5 metrics with real data visible on /admin | 2026-03-12 |
+| ADMN-02 | usage_events has all 4 event types | PASS | pytest: test_all_required_event_types_present PASSED (message_sent, photo_generated, mode_switch, subscription_created) | 2026-03-12 |
+| ADMN-03 | /admin/metrics non-admin -> 403 | PASS | pytest: test_non_admin_gets_403 PASSED | 2026-03-12 |
 
 ---
 
@@ -223,12 +223,18 @@ python -m pytest tests/test_smoke_usage_events.py -x -v
 ## Milestone Declaration
 
 The v1.1 milestone is SHIPPED when:
-- [ ] All rows in the Evidence Table above are marked PASS
-- [ ] All automated pytest smoke tests PASS (not SKIP)
-- [ ] Completed evidence table committed to this file in the repo
-- [ ] ROADMAP.md Phase 13 marked complete
+- [x] All rows in the Evidence Table above are marked PASS
+- [x] All automated pytest smoke tests PASS (not SKIP)
+- [x] Completed evidence table committed to this file in the repo
+- [x] ROADMAP.md Phase 13 marked complete
 
-If any criterion is FAIL, record the failure details and do not declare the milestone shipped until addressed.
+## Milestone Declaration
+
+v1.1 Launch Ready milestone **SHIPPED** — 2026-03-12. All 28 criteria PASS.
+
+**Bugs found and fixed during validation:**
+- `ChatBubble.tsx`: `[PHOTO]url[/PHOTO]` token rendered as plain text instead of `<img>` — fixed (commit 9c86a54)
+- `web_chat.py`: signed photo URLs regenerated on every 3s poll causing image flicker — fixed with in-memory cache (commit 9162b54)
 
 ---
 

@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-03-02 — v1.1 started)
 
 ## Current Position
 
-Phase: Phase 16 — Async Chat Architecture: Immediate User Bubble + Background AI Reply (Complete)
-Plan: 16-01 complete — synchronous user insert + asyncio.ensure_future LLM task; onSuccess setQueryData append in frontend
-Status: Phase 16 Complete — 1/1 plans executed
-Last activity: 2026-03-11 — 16-01 complete (2 files modified: web_chat.py refactored, chat.ts onMutate removed)
+Phase: Phase 13 — End-to-End Smoke Test & Milestone Validation (Complete)
+Plan: 13-02 complete — full smoke test runbook executed against production, all 28 criteria PASS
+Status: Phase 13 COMPLETE — v1.1 Launch Ready milestone SHIPPED 2026-03-12
+Last activity: 2026-03-12 — 13-02 complete (smoke test evidence table filled, 2 bugs fixed: ChatBubble photo rendering + signed URL cache)
 
 Progress: [====================] Phase 16: 1/1 plans done (Complete)
 
