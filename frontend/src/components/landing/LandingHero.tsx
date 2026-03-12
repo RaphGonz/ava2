@@ -10,7 +10,16 @@ export function LandingHero() {
       <div className="absolute inset-0 z-0">
         {/* Right Side (Violet/Orange) - Base Layer with photo */}
         <div className="absolute inset-0">
-          <img src={shhhh} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${shhhh})`,
+              backgroundSize: '50%',
+              backgroundPosition: 'left center',
+              backgroundRepeat: 'no-repeat',
+              imageRendering: 'auto',
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-br from-violet-900/60 to-orange-900/60" />
         </div>
 
