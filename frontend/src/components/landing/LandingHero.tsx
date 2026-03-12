@@ -9,37 +9,39 @@ export function LandingHero() {
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-black text-white">
       {/* Background Layers */}
       <div className="absolute inset-0 z-0">
-        {/* writing.png — left side, fades right into black */}
+        {/* Right Side (Violet/Orange) - Base Layer with Shhhh photo */}
+        <div className="absolute inset-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${shhhh})`,
+              backgroundSize: 'auto 100%',
+              backgroundPosition: 'right center',
+              backgroundRepeat: 'no-repeat',
+              imageRendering: 'auto',
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-900/60 to-orange-900/60" />
+        </div>
+
+        {/* Left Side (Blue) - Clipped Layer */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 bg-blue-950 z-10"
+          style={{ clipPath: "polygon(0 0, 65% 0, 35% 100%, 0 100%)" }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent" />
+        </div>
+
+        {/* writing.png — above blue panel, masked so it fades at edges */}
+        <img
+          src={writing}
+          alt=""
+          className="absolute left-0 top-0 h-full w-auto z-20 pointer-events-none"
           style={{
-            backgroundImage: `url(${writing})`,
-            backgroundSize: 'auto 100%',
-            backgroundPosition: 'left center',
-            backgroundRepeat: 'no-repeat',
-            WebkitMaskImage: 'linear-gradient(to right, black 25%, transparent 65%)',
-            maskImage: 'linear-gradient(to right, black 25%, transparent 65%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 80% at 20% 50%, black 35%, transparent 70%)',
+            maskImage: 'radial-gradient(ellipse 70% 80% at 20% 50%, black 35%, transparent 70%)',
           }}
         />
-
-        {/* Shhhh.png — right side, fades left into black */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url(${shhhh})`,
-            backgroundSize: 'auto 100%',
-            backgroundPosition: 'right center',
-            backgroundRepeat: 'no-repeat',
-            WebkitMaskImage: 'linear-gradient(to left, black 25%, transparent 65%)',
-            maskImage: 'linear-gradient(to left, black 25%, transparent 65%)',
-          }}
-        />
-
-        {/* Blue tint — left side */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-900/20 to-transparent" />
-
-        {/* Violet/orange tint — right side */}
-        <div className="absolute inset-0 bg-gradient-to-l from-violet-900/70 via-orange-900/30 to-transparent" />
       </div>
 
       {/* Content Container */}
