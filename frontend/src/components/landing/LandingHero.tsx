@@ -2,13 +2,14 @@ import { motion } from "motion/react";
 import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import shhhh from "../../assets/Shhhh.png";
+import writing from "../../assets/writing.png";
 
 export function LandingHero() {
   return (
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-black text-white">
       {/* Background Layers */}
       <div className="absolute inset-0 z-0">
-        {/* Right Side (Violet/Orange) - Base Layer with photo */}
+        {/* Right Side (Violet/Orange) - Base Layer with Shhhh photo */}
         <div className="absolute inset-0">
           <div
             className="absolute inset-0"
@@ -18,16 +19,30 @@ export function LandingHero() {
               backgroundPosition: 'right center',
               backgroundRepeat: 'no-repeat',
               imageRendering: 'auto',
+              WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
+              maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-violet-900/60 to-orange-900/60" />
         </div>
 
-        {/* Left Side (Blue) - Clipped Layer */}
+        {/* Left Side (Blue) - Clipped Layer with writing photo */}
         <div
           className="absolute inset-0 bg-blue-950 z-10"
           style={{ clipPath: "polygon(0 0, 65% 0, 35% 100%, 0 100%)" }}
         >
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${writing})`,
+              backgroundSize: 'auto 100%',
+              backgroundPosition: 'left center',
+              backgroundRepeat: 'no-repeat',
+              imageRendering: 'auto',
+              WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
+              maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent" />
         </div>
       </div>
