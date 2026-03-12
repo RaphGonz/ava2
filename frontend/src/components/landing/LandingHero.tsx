@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
+import shhhh from "../../assets/Shhhh.png";
 
 export function LandingHero() {
   return (
@@ -10,12 +11,13 @@ export function LandingHero() {
         {/* Right Side (Violet/Orange) - Base Layer */}
         <div className="absolute inset-0 bg-gradient-to-br from-violet-900 to-orange-900" />
 
-        {/* Left Side (Blue) - Clipped Layer */}
+        {/* Left Side - Clipped Layer with photo */}
         <div
-          className="absolute inset-0 bg-blue-950 z-10"
+          className="absolute inset-0 z-10"
           style={{ clipPath: "polygon(0 0, 65% 0, 35% 100%, 0 100%)" }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent" />
+          <img src={shhhh} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-blue-900/50" />
         </div>
       </div>
 
