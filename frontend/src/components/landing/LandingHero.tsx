@@ -8,16 +8,18 @@ export function LandingHero() {
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-black text-white">
       {/* Background Layers */}
       <div className="absolute inset-0 z-0">
-        {/* Right Side (Violet/Orange) - Base Layer */}
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-900 to-orange-900" />
+        {/* Right Side (Violet/Orange) - Base Layer with photo */}
+        <div className="absolute inset-0">
+          <img src={shhhh} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-900/60 to-orange-900/60" />
+        </div>
 
-        {/* Left Side - Clipped Layer with photo */}
+        {/* Left Side (Blue) - Clipped Layer */}
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 bg-blue-950 z-10"
           style={{ clipPath: "polygon(0 0, 65% 0, 35% 100%, 0 100%)" }}
         >
-          <img src={shhhh} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
-          <div className="absolute inset-0 bg-blue-900/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent" />
         </div>
       </div>
 
