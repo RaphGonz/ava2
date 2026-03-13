@@ -62,7 +62,7 @@ export function LandingDualPromise() {
               <img
                 src={sexyImg}
                 alt="Companion"
-                className="absolute inset-y-0 h-full w-auto left-1/2 -translate-x-1/2"
+                className="absolute inset-y-0 h-full w-auto left-1/2 -translate-x-1/2 opacity-70"
               />
             <GlassCard
               variant="active-warm"
