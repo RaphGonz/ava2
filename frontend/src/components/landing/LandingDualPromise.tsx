@@ -17,7 +17,7 @@ export function LandingDualPromise() {
               <img
                 src={telephoneImg}
                 alt="Telephone"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover opacity-70"
               />
             <GlassCard
               variant="active-cool"
@@ -62,7 +62,7 @@ export function LandingDualPromise() {
               <img
                 src={sexyImg}
                 alt="Companion"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-y-0 h-full w-auto left-1/2 -translate-x-1/2"
               />
             <GlassCard
               variant="active-warm"
