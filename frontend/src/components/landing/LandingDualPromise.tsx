@@ -1,5 +1,7 @@
 import { Brain, Heart } from "lucide-react";
 import { GlassCard } from "../ui/GlassCard";
+import telephoneImg from "../../assets/telephone.png";
+import sexyImg from "../../assets/sexy.png";
 
 export function LandingDualPromise() {
   return (
@@ -7,70 +9,86 @@ export function LandingDualPromise() {
       <div className="absolute inset-0 bg-gradient-to-b from-black via-slate-900 to-black pointer-events-none" />
 
       <div className="relative z-10 container mx-auto">
-        <div className="flex flex-col md:flex-row gap-8 items-stretch justify-center">
+        <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
 
-          {/* Assistant Mode Card */}
-          <GlassCard
-            variant="active-cool"
-            className="flex-1 min-h-[500px] flex flex-col group relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          {/* Assistant Mode Column */}
+          <div className="flex-1 flex flex-col gap-6">
+            <GlassCard
+              variant="active-cool"
+              className="min-h-[500px] flex flex-col group relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 group-hover:text-blue-300 transition-colors">
-                <Brain className="w-8 h-8" />
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 group-hover:text-blue-300 transition-colors">
+                  <Brain className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-white group-hover:text-blue-200 transition-colors">Assistant Mode</h3>
               </div>
-              <h3 className="text-2xl font-bold text-white group-hover:text-blue-200 transition-colors">Assistant Mode</h3>
-            </div>
 
-            <p className="text-slate-300 mb-8 leading-relaxed">
-              Pure analytical intelligence to organise your day.
-              Calendar management, email drafts, document summaries.
-              Always available. Never judgmental.
-            </p>
+              <p className="text-slate-300 mb-8 leading-relaxed">
+                Pure analytical intelligence to organise your day.
+                Calendar management, email drafts, document summaries.
+                Always available. Never judgmental.
+              </p>
 
-            {/* Visual: Mini Agenda skeleton */}
-            <div className="mt-auto bg-slate-900/50 rounded-xl p-4 border border-blue-500/10">
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center gap-3 opacity-70">
-                    <div className="w-1 h-8 bg-blue-500 rounded-full" />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-2 w-2/3 bg-slate-700 rounded" />
-                      <div className="h-2 w-1/2 bg-slate-800 rounded" />
+              {/* Visual: Mini Agenda skeleton */}
+              <div className="mt-auto bg-slate-900/50 rounded-xl p-4 border border-blue-500/10">
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-3 opacity-70">
+                      <div className="w-1 h-8 bg-blue-500 rounded-full" />
+                      <div className="flex-1 space-y-1">
+                        <div className="h-2 w-2/3 bg-slate-700 rounded" />
+                        <div className="h-2 w-1/2 bg-slate-800 rounded" />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          </GlassCard>
+            </GlassCard>
 
-          {/* Companion Mode Card */}
-          <GlassCard
-            variant="active-warm"
-            className="flex-1 min-h-[500px] flex flex-col group relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <img
+              src={telephoneImg}
+              alt="Telephone"
+              className="w-full rounded-2xl object-cover"
+            />
+          </div>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500/20 to-orange-500/20 border border-orange-500/30 text-orange-400 group-hover:text-orange-300 transition-colors">
-                <Heart className="w-8 h-8" />
+          {/* Companion Mode Column */}
+          <div className="flex-1 flex flex-col gap-6">
+            <GlassCard
+              variant="active-warm"
+              className="min-h-[500px] flex flex-col group relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500/20 to-orange-500/20 border border-orange-500/30 text-orange-400 group-hover:text-orange-300 transition-colors">
+                  <Heart className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-white group-hover:text-orange-200 transition-colors">Companion Mode</h3>
               </div>
-              <h3 className="text-2xl font-bold text-white group-hover:text-orange-200 transition-colors">Companion Mode</h3>
-            </div>
 
-            <p className="text-slate-300 mb-8 leading-relaxed">
-              More than an AI, a presence. Emotional connection,
-              active listening and private media sharing.
-              Learn to unwind.
-            </p>
+              <p className="text-slate-300 mb-8 leading-relaxed">
+                More than an AI, a presence. Emotional connection,
+                active listening and private media sharing.
+                Learn to unwind.
+              </p>
 
-            {/* Visual: Warm gradient accent */}
-            <div className="mt-auto h-32 flex items-center justify-center relative rounded-xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-orange-600/20 rounded-xl" />
-              <p className="relative text-sm text-white/50 text-center px-4">Available on web &amp; WhatsApp</p>
-            </div>
-          </GlassCard>
+              {/* Visual: Warm gradient accent */}
+              <div className="mt-auto h-32 flex items-center justify-center relative rounded-xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-orange-600/20 rounded-xl" />
+                <p className="relative text-sm text-white/50 text-center px-4">Available on web &amp; WhatsApp</p>
+              </div>
+            </GlassCard>
+
+            <img
+              src={sexyImg}
+              alt="Companion"
+              className="w-full rounded-2xl object-cover"
+            />
+          </div>
 
         </div>
       </div>
