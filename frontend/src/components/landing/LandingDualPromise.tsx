@@ -12,10 +12,16 @@ export function LandingDualPromise() {
         <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
 
           {/* Assistant Mode Column */}
-          <div className="flex-1 flex flex-col gap-6">
+          <div className="flex-1">
+            <div className="relative rounded-2xl overflow-hidden">
+              <img
+                src={telephoneImg}
+                alt="Telephone"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
             <GlassCard
               variant="active-cool"
-              className="min-h-[500px] flex flex-col group relative overflow-hidden"
+              className="relative min-h-[500px] flex flex-col group overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
@@ -47,19 +53,20 @@ export function LandingDualPromise() {
                 </div>
               </div>
             </GlassCard>
-
-            <img
-              src={telephoneImg}
-              alt="Telephone"
-              className="w-full rounded-2xl object-cover"
-            />
+            </div>
           </div>
 
           {/* Companion Mode Column */}
-          <div className="flex-1 flex flex-col gap-6">
+          <div className="flex-1">
+            <div className="relative rounded-2xl overflow-hidden">
+              <img
+                src={sexyImg}
+                alt="Companion"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
             <GlassCard
               variant="active-warm"
-              className="min-h-[500px] flex flex-col group relative overflow-hidden"
+              className="relative min-h-[500px] flex flex-col group overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
@@ -82,12 +89,7 @@ export function LandingDualPromise() {
                 <p className="relative text-sm text-white/50 text-center px-4">Available on web &amp; WhatsApp</p>
               </div>
             </GlassCard>
-
-            <img
-              src={sexyImg}
-              alt="Companion"
-              className="w-full rounded-2xl object-cover"
-            />
+            </div>
           </div>
 
         </div>
