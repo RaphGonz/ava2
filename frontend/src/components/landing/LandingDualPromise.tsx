@@ -21,7 +21,7 @@ export function LandingDualPromise() {
               />
             <GlassCard
               variant="active-cool"
-              className="relative min-h-[500px] flex flex-col group overflow-hidden"
+              className="relative min-h-[500px] flex flex-col group overflow-hidden hover:backdrop-blur-none"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
@@ -66,7 +66,7 @@ export function LandingDualPromise() {
               />
             <GlassCard
               variant="active-warm"
-              className="relative min-h-[500px] flex flex-col group overflow-hidden"
+              className="relative min-h-[500px] flex flex-col group overflow-hidden hover:backdrop-blur-none"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
