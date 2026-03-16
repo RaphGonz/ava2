@@ -108,4 +108,4 @@ Plans:
 | 14. UI Dark Theme Redesign | v1.2 | 4/4 | Complete | 2026-03-10 |
 | 15. WhatsApp permanent token + phone + polling | v1.2 | 2/2 | Complete | 2026-03-11 |
 | 16. Async chat architecture | v1.2 | 1/1 | Complete | 2026-03-11 |
-| 17. GDPR Cookie Consent Banner | 2/2 | Complete   | 2026-03-16 | - |
+| 17. GDPR Cookie Consent Banner | 2/2 | Complete    | 2026-03-16 | - |

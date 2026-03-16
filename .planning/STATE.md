@@ -1,13 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
+milestone: v1.0
 milestone_name: Cookie Banner
-status: planning
-stopped_at: "Completed 17-02-PLAN.md: CookieConsentBanner component, main.tsx wiring, LandingPage integration"
-last_updated: "2026-03-16T14:47:22.642Z"
-last_activity: 2026-03-16 — Roadmap created for v1.2 Cookie Banner milestone (Phase 17)
+status: unknown
+last_updated: "2026-03-16T15:18:24.392Z"
 progress:
-  total_phases: 4
+  total_phases: 1
   completed_phases: 1
   total_plans: 2
   completed_plans: 2
