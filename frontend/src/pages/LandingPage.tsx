@@ -6,6 +6,7 @@ import { LandingDualPromise } from '../components/landing/LandingDualPromise'
 import { LandingTrust } from '../components/landing/LandingTrust'
 import { LandingPricing } from '../components/landing/LandingPricing'
 import { LandingFooter } from '../components/landing/LandingFooter'
+import { CookieConsentBanner } from '../components/CookieConsentBanner'
 
 export default function LandingPage() {
   const token = useAuthStore(s => s.token)
@@ -15,6 +16,7 @@ export default function LandingPage() {
 
   return (
     <div className="w-full min-h-screen bg-black text-white overflow-x-hidden">
+      <CookieConsentBanner />
       <nav className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-sm border-b border-white/5">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <span className="text-xl font-bold tracking-tight text-white">Avasecret</span>
