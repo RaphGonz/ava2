@@ -42,16 +42,21 @@ A single AI companion that seamlessly switches between getting things done (secr
 - ✓ Content safety: age verification (20+ floor), ContentGuard, crisis detection (988) — v1.0
 - ✓ NSFW delivery via secure web links (not inline WhatsApp) — v1.0
 
-## Current Milestone: v1.2 — (Planning)
+## Current Milestone: v1.2 — Cookie Banner
 
-**Goal:** TBD — Phases 14, 15, 16 already complete (UI redesign, WhatsApp permanent token, async chat). Next milestone scope to be defined via `/gsd:new-milestone`.
+**Goal:** Add GDPR-compliant cookie consent to the landing page, gating Sentry and analytics behind user consent while keeping Stripe always loaded.
+
+**Target features:**
+- Cookie consent banner on landing page (pre-login visitors only)
+- Sentry + analytics blocked until consent granted
+- Consent persisted in localStorage
+- Accept / Decline actions
 
 ### Active
 
-- [ ] SAFE-03: Operationalize TAKE IT DOWN Act 48-hour takedown process (policy exists, process not implemented — May 19, 2026 deadline)
-- [ ] WhatsApp Business Account verification (submitted, awaiting Meta approval)
-- [ ] Long-term memory (MEMR-01): bot remembers user preferences across sessions
-- [ ] Photo escalation (ESCL-01): mild → explicit based on conversation context (currently static per spiciness_level)
+- [ ] GDPR cookie consent banner on landing page
+- [ ] Sentry and analytics scripts gated behind consent
+- [ ] Consent stored in localStorage (persistent across sessions)
 
 ### Out of Scope
 
@@ -121,4 +126,4 @@ Stack: FastAPI, Python 3.12, Supabase (PostgreSQL + RLS), BullMQ (Redis), Sentry
 - **Content safety**: Age verification + ContentGuard + crisis detection are mandatory
 
 ---
-*Last updated: 2026-03-12 after v1.1 milestone*
+*Last updated: 2026-03-16 after v1.2 milestone start*

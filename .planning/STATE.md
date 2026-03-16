@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.2
-milestone_name: Planning
-status: milestone_complete
-last_updated: "2026-03-12T00:00:00.000Z"
+milestone_name: Cookie Banner
+status: defining_requirements
+last_updated: "2026-03-16T00:00:00.000Z"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -18,15 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12 after v1.1 milestone)
 
 **Core value:** A single AI companion that seamlessly switches between getting things done (secretary) and personal connection (intimate partner), all inside the messaging app or web app the user already uses.
-**Current focus:** v1.1 archived — ready to plan v1.2 milestone via `/gsd:new-milestone`
+**Current focus:** v1.2 Cookie Banner — defining requirements
 
 ## Current Position
 
-Phase: Phase 16 — Async chat architecture (Complete)
-Status: v1.1 ARCHIVED 2026-03-12. Phases 14, 15, 16 shipped as post-v1.1 work. Ready for v1.2 planning.
-Last activity: 2026-03-12 — v1.1 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-16 — Milestone v1.2 Cookie Banner started
 
-Progress: [====================] v1.1 complete — all phases 8–16 done
+Progress: [░░░░░░░░░░░░░░░░░░░░] v1.2 not started
 
 ## Performance Metrics
 
