@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Cookie Banner
 status: planning
-stopped_at: "Completed 17-01-PLAN.md: consent service layer and useCookieConsent hook"
-last_updated: "2026-03-16T14:09:39.881Z"
+stopped_at: "Completed 17-02-PLAN.md: CookieConsentBanner component, main.tsx wiring, LandingPage integration"
+last_updated: "2026-03-16T14:47:22.642Z"
 last_activity: 2026-03-16 — Roadmap created for v1.2 Cookie Banner milestone (Phase 17)
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -57,6 +57,8 @@ Recent decisions affecting current work:
 - [v1.2 roadmap]: localStorage-only consent storage — no server-side sync, no cross-device persistence needed for v1.2
 - [v1.2 roadmap]: Stripe always loads regardless of consent — only Sentry and analytics are gated
 - [Phase 17-gdpr-cookie-consent-banner]: VITE_SENTRY_DSN left empty for local dev — Sentry.init() with undefined DSN is a no-op; useCookieConsent uses plain useState+localStorage (not zustand) to avoid async hydration banner flash
+- [Phase 17-gdpr-cookie-consent-banner]: Sentry.reactErrorHandler() passed unconditionally to createRoot — returns no-op when uninitialized, no conditional needed
+- [Phase 17-gdpr-cookie-consent-banner]: CookieConsentBanner placed in LandingPage.tsx only, not App.tsx — authenticated users accepted via ToS, no banner on auth routes
 
 ### Pending Todos
 
@@ -72,5 +74,5 @@ None for Phase 17.
 
 ## Session Continuity
 
-Last session: 2026-03-16T14:09:39.875Z
-Stopped at: Completed 17-01-PLAN.md: consent service layer and useCookieConsent hook
+Last session: 2026-03-16T14:47:22.638Z
+Stopped at: Completed 17-02-PLAN.md: CookieConsentBanner component, main.tsx wiring, LandingPage integration

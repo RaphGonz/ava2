@@ -7,11 +7,11 @@
 
 ### Cookie Consent
 
-- [ ] **COOK-01**: Visitor sees a cookie consent banner on the landing page before any non-essential scripts load
-- [ ] **COOK-02**: Visitor can accept all cookies (Sentry + analytics enabled)
-- [ ] **COOK-03**: Visitor can decline non-essential cookies (Sentry + analytics blocked; Stripe still loads)
+- [x] **COOK-01**: Visitor sees a cookie consent banner on the landing page before any non-essential scripts load
+- [x] **COOK-02**: Visitor can accept all cookies (Sentry + analytics enabled)
+- [x] **COOK-03**: Visitor can decline non-essential cookies (Sentry + analytics blocked; Stripe still loads)
 - [x] **COOK-04**: Consent choice is saved to localStorage and persists across sessions
-- [ ] **COOK-05**: Banner does not appear again once a choice has been made
+- [x] **COOK-05**: Banner does not appear again once a choice has been made
 - [x] **COOK-06**: Sentry and analytics scripts only initialise after consent is granted (not on page load)
 
 ## v2 Requirements
@@ -31,11 +31,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COOK-01 | Phase 17 | Pending |
-| COOK-02 | Phase 17 | Pending |
-| COOK-03 | Phase 17 | Pending |
+| COOK-01 | Phase 17 | Complete |
+| COOK-02 | Phase 17 | Complete |
+| COOK-03 | Phase 17 | Complete |
 | COOK-04 | Phase 17 | Complete |
-| COOK-05 | Phase 17 | Pending |
+| COOK-05 | Phase 17 | Complete |
 | COOK-06 | Phase 17 | Complete |
 
 **Coverage:**
