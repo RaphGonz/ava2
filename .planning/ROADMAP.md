@@ -39,7 +39,9 @@ Full milestone archive: `.planning/milestones/v1.1-ROADMAP.md`
 
 ## Phase Details
 
-### 🚧 v1.2 (In Progress / Planned)
+### 🚧 v1.2 Cookie Banner (In Progress)
+
+**Milestone Goal:** Add GDPR-compliant cookie consent to the landing page, gating Sentry and analytics behind user consent while keeping Stripe always loaded.
 
 ### Phase 14: Apply the style of the front page to the rest of the UI of the entire app
 
@@ -75,6 +77,22 @@ Plans:
 Plans:
 - [x] 16-01-PLAN.md — Refactor web_chat.py (synchronous user insert + asyncio.ensure_future LLM task) + chat.ts (remove onMutate, add onSuccess setQueryData)
 
+### Phase 17: GDPR Cookie Consent Banner
+
+**Goal:** Pre-login visitors control which scripts run on their device via a consent banner; that choice is persisted and respected on every subsequent visit.
+**Depends on:** Phase 16
+**Requirements**: COOK-01, COOK-02, COOK-03, COOK-04, COOK-05, COOK-06
+**Success Criteria** (what must be TRUE):
+  1. A visitor to the landing page sees a cookie consent banner before Sentry or analytics scripts initialise
+  2. A visitor who clicks Accept sees Sentry and analytics load immediately and on all future visits without seeing the banner again
+  3. A visitor who clicks Decline has Sentry and analytics blocked for the entire session and all future visits without seeing the banner again
+  4. Stripe loads on the landing page regardless of whether the visitor has accepted or declined
+  5. A returning visitor who already made a choice is not shown the banner
+**Plans**: TBD
+
+Plans:
+- [ ] 17-01: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -89,3 +107,4 @@ Plans:
 | 14. UI Dark Theme Redesign | v1.2 | 4/4 | Complete | 2026-03-10 |
 | 15. WhatsApp permanent token + phone + polling | v1.2 | 2/2 | Complete | 2026-03-11 |
 | 16. Async chat architecture | v1.2 | 1/1 | Complete | 2026-03-11 |
+| 17. GDPR Cookie Consent Banner | v1.2 | 0/TBD | Not started | - |
